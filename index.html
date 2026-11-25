@@ -631,8 +631,61 @@
         </div>
       </section>
 
-      <!-- SPV Card List (Anti-Dobel per NAMA SPV: 1 Card = 1 SPV Unik) -->
-      <section id="spvCardListContainer" class="grid grid-cols-1 gap-4"></section>
+      <!-- Z-STEP 3: KPI CARDS ROW (4 CLEAN CARDS) -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-2.5">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Sales TY (DP + CV)</span>
+            <span class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs">TY</span>
+          </div>
+          <div id="kpiSpvTotalTy" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums truncate">Rp 0</div>
+          <p id="kpiSpvDpCvSub" class="text-xs text-slate-600 font-medium mt-1.5 truncate">DP: Rp 0 • CV: Rp 0</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-2.5">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Target (DP + CV)</span>
+            <span class="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs">TGT</span>
+          </div>
+          <div id="kpiSpvTarget" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums truncate">Rp 0</div>
+          <p id="kpiSpvTargetSub" class="text-xs text-slate-500 mt-1.5 truncate">Target DP + Target CV</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-2.5">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Achievement (ACH %)</span>
+            <span id="kpiSpvAchBadge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800">0%</span>
+          </div>
+          <div id="kpiSpvAch" class="text-xl sm:text-2xl font-extrabold text-rose-600 tabular-nums">0%</div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-2.5">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Growth (vs LY)</span>
+            <span id="kpiSpvGrowthBadge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700">0%</span>
+          </div>
+          <div id="kpiSpvGrowth" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums">0%</div>
+          <p id="kpiSpvLySub" class="text-xs text-slate-500 mt-1.5 truncate">TOTAL SALES LY: Rp 0</p>
+        </div>
+      </section>
+
+      <!-- Single Selected SPV Detail Card (NAMA 18px 700 + JABATAN 12.5px Ungu Uppercase) -->
+      <section id="spvDetailCard" class="hidden bg-white rounded-2xl p-5 border-2 border-indigo-200 shadow-xs space-y-3 text-xs sm:text-sm tabular-nums">
+        <div class="border-b border-slate-100 pb-2.5">
+          <div id="spvCardNama" style="font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 700; line-height: 1.3;" class="text-slate-900"></div>
+          <div id="spvCardJabatan" style="font-size: 12.5px; font-weight: 700; color: #7C3AED; text-transform: uppercase; letter-spacing: 0.04em;" class="mt-0.5"></div>
+        </div>
+        <!-- Line 2 -->
+        <div id="spvCardLine2" class="font-semibold text-slate-800"></div>
+        <!-- Line 3 -->
+        <div id="spvCardLine3" class="font-semibold text-slate-700"></div>
+        <!-- Line 4 -->
+        <div id="spvCardLine4" class="flex items-center gap-2 font-bold"></div>
+        <!-- Line 5 -->
+        <div id="spvCardLine5" class="font-semibold text-slate-800"></div>
+        <!-- Line 6 -->
+        <div id="spvCardLine6" class="text-slate-600"></div>
+      </section>
 
       <!-- Z-STEP 4: VISUAL ANALYTICS ROW (BAR DP vs CV + RING ACH & GROWTH) -->
       <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
@@ -1251,13 +1304,7 @@
       barSel.value = barcodes.includes(prevBar) ? prevBar : 'ALL';
 
       // SPV NAMA dropdown (Kolom C unik, bebas duplikat/kosong/tanggal)
-      const spvUniqueMap = new Map();
-      STATE.masterSpv.forEach(r => {
-        if (isInvalidSpvNama(r.nama)) return;
-        const k = normalizeSpvKey(r.nama);
-        if (!spvUniqueMap.has(k)) spvUniqueMap.set(k, String(r.nama).trim().replace(/\s+/g, ' '));
-      });
-      const spvNamas = Array.from(spvUniqueMap.values());
+      const spvNamas = [...new Set(STATE.masterSpv.map(r => r.nama).filter(n => !isInvalidSpvNama(n)))];
       const spvSel = document.getElementById('spvJabatanSelect');
       const prevSpv = spvSel.value || 'ALL';
       spvSel.innerHTML = `<option value="ALL">Semua SPV</option>` +
@@ -1870,18 +1917,12 @@
       return 'text-rose-700 bg-rose-100';
     }
 
-    function normalizeSpvKey(nama) {
-      return String(nama || '').trim().replace(/\s+/g, ' ').toUpperCase();
-    }
-
     function aggregateSpvByNama(rows) {
       const map = new Map();
       rows.forEach(r => {
-        const key = normalizeSpvKey(r.nama);
-        if (!key) return;
-        if (!map.has(key)) {
-          map.set(key, {
-            nama: String(r.nama || '').trim().replace(/\s+/g, ' '),
+        if (!map.has(r.nama)) {
+          map.set(r.nama, {
+            nama: r.nama,
             jabatan: r.jabatan,
             salesDp: 0,
             salesCv: 0,
@@ -1896,15 +1937,12 @@
             growth: 0
           });
         }
-        const item = map.get(key);
+        const item = map.get(r.nama);
         if (!item.jabatan && r.jabatan) item.jabatan = r.jabatan;
-        // SALES tetap SUM
         item.salesDp += r.salesDp;
         item.salesCv += r.salesCv;
-        // TARGET tetap pakai MAX biar tidak akumulasi jika nama SPV muncul >1x
-        item.targetDp = Math.max(item.targetDp, r.targetDp);
-        item.targetCv = Math.max(item.targetCv, r.targetCv);
-        // SALES LY tetap SUM
+        item.targetDp += r.targetDp;
+        item.targetCv += r.targetCv;
         item.salesLyDp += r.salesLyDp;
         item.salesLyCv += r.salesLyCv;
       });
@@ -1933,20 +1971,19 @@
       document.getElementById('spvPeriodNote').textContent =
         `Periode: ${fromDisp} - ${toDisp} — Data SPV adalah data YTD, tidak difilter harian • Sales TY di SPV adalah akumulasi sampai tanggal terakhir di file`;
 
-      const selectedNorm = normalizeSpvKey(selectedNama);
       const filteredRaw = selectedNama === 'ALL'
         ? STATE.masterSpv
-        : STATE.masterSpv.filter(r => normalizeSpvKey(r.nama) === selectedNorm);
+        : STATE.masterSpv.filter(r => r.nama === selectedNama);
 
       const displayRows = aggregateSpvByNama(filteredRaw);
 
-      const firstSpvNama = displayRows[0]?.nama || '-';
+      const firstSpvNama = STATE.masterSpv[0]?.nama || '-';
       document.getElementById('spvDebugLine').textContent =
-        `SPV tampil: ${displayRows.length} SPV (unik) | NAMA pertama: ${firstSpvNama} | Dropdown SPV: ${spvSelEl.options.length} opsi`;
+        `SPV tampil: ${displayRows.length} SPV | NAMA pertama: ${firstSpvNama} | Dropdown SPV: ${spvSelEl.options.length} opsi`;
 
       STATE.exportedRows.spv = displayRows;
 
-      // Aggregate totals untuk footer tabel & grafik ringkasan
+      // KPIs (Gabungkan semua SPV jika Semua SPV dipilih)
       const sumSalesDp = displayRows.reduce((s, r) => s + r.salesDp, 0);
       const sumSalesCv = displayRows.reduce((s, r) => s + r.salesCv, 0);
       const sumTotalTy = sumSalesDp + sumSalesCv;
@@ -1962,50 +1999,66 @@
       const achVal = sumTotalTarget > 0 ? Math.round((sumTotalTy / sumTotalTarget) * 100) : 0;
       const growthVal = sumTotalLy > 0 ? Math.round(((sumTotalTy - sumTotalLy) / sumTotalLy) * 100) : 0;
 
-      // Render SPV Card List di bawah (1 card = 1 SPV unik, anti-dobel)
-      const cardListEl = document.getElementById('spvCardListContainer');
-      if (!displayRows.length) {
-        cardListEl.innerHTML = `
-          <div class="bg-white rounded-2xl p-6 border border-slate-200 text-center text-xs sm:text-sm text-slate-400">
-            Tidak ada data SPV untuk ditampilkan.
-          </div>`;
+      document.getElementById('kpiSpvTotalTy').textContent = formatRupiah(sumTotalTy);
+      document.getElementById('kpiSpvDpCvSub').textContent = `DP: ${formatRupiah(sumSalesDp)} • CV: ${formatRupiah(sumSalesCv)}`;
+      document.getElementById('kpiSpvTarget').textContent = formatRupiah(sumTotalTarget);
+      document.getElementById('kpiSpvTargetSub').textContent = `Target DP: ${formatRupiah(sumTargetDp)} • Target CV: ${formatRupiah(sumTargetCv)}`;
+
+      const achEl = document.getElementById('kpiSpvAch');
+      const achBadge = document.getElementById('kpiSpvAchBadge');
+      achEl.textContent = `${achVal}%`;
+      achBadge.textContent = `${achVal}%`;
+      if (achVal >= 100) {
+        achEl.className = 'text-xl sm:text-2xl font-extrabold text-emerald-600 tabular-nums';
+        achBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800';
+      } else if (achVal >= 80) {
+        achEl.className = 'text-xl sm:text-2xl font-extrabold text-amber-600 tabular-nums';
+        achBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800';
       } else {
-        cardListEl.innerHTML = displayRows.map(spv => {
-          const totalTy = spv.salesDp + spv.salesCv;
-          const totalTgt = spv.targetDp + spv.targetCv;
-          const totalLy = spv.salesLyDp + spv.salesLyCv;
-          const sAch = totalTgt > 0 ? Math.round((totalTy / totalTgt) * 100) : 0;
-          const sGrowth = totalLy > 0 ? Math.round(((totalTy - totalLy) / totalLy) * 100) : 0;
-          const grBadgeCls = sGrowth >= 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800';
-          return `
-            <div class="bg-white rounded-2xl p-5 border border-slate-200 hover:border-indigo-300 shadow-xs space-y-2.5 text-xs sm:text-sm tabular-nums transition">
-              <div class="border-b border-slate-100 pb-2.5">
-                <div style="font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 700; line-height: 1.3;" class="text-slate-900">${escapeHTML(spv.nama)}</div>
-                <div style="font-size: 12.5px; font-weight: 700; color: #7C3AED; text-transform: uppercase; letter-spacing: 0.04em;" class="mt-0.5">${escapeHTML(spv.jabatan || '-')}</div>
-              </div>
-              <div class="font-semibold text-slate-800">
-                SALES TY DP: ${formatRupiah(spv.salesDp)} | SALES TY CV: ${formatRupiah(spv.salesCv)} | TOTAL SALES TY: <span class="font-extrabold text-slate-900">${formatRupiah(totalTy)}</span>
-              </div>
-              <div class="font-semibold text-slate-700">
-                TARGET DP: ${formatRupiah(spv.targetDp)} | TARGET CV: ${formatRupiah(spv.targetCv)} | TOTAL TARGET: <span class="font-extrabold text-slate-900">${formatRupiah(totalTgt)}</span>
-              </div>
-              <div class="flex flex-wrap items-center gap-3 font-bold">
-                <span class="inline-flex items-center gap-1.5">
-                  <span>ACH:</span>
-                  <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold ${getAchColorClass(sAch)}">${sAch}%</span>
-                </span>
-                <span class="text-slate-300">|</span>
-                <span class="inline-flex items-center gap-1.5">
-                  <span>GROWTH:</span>
-                  <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold ${grBadgeCls}">${sGrowth > 0 ? '+' : ''}${sGrowth}%</span>
-                  <span class="font-normal text-slate-500">(TOTAL SALES LY: ${formatRupiah(totalLy)})</span>
-                </span>
-              </div>
-              <div class="text-xs text-slate-500">
-                SALES LY DP: ${formatRupiah(spv.salesLyDp)} | SALES LY CV: ${formatRupiah(spv.salesLyCv)}
-              </div>
-            </div>`;
-        }).join('');
+        achEl.className = 'text-xl sm:text-2xl font-extrabold text-rose-600 tabular-nums';
+        achBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800';
+      }
+
+      const grEl = document.getElementById('kpiSpvGrowth');
+      const grBadge = document.getElementById('kpiSpvGrowthBadge');
+      grEl.textContent = `${growthVal > 0 ? '+' : ''}${growthVal}%`;
+      grBadge.textContent = `${growthVal > 0 ? '+' : ''}${growthVal}%`;
+      document.getElementById('kpiSpvLySub').textContent = `TOTAL SALES LY: ${formatRupiah(sumTotalLy)}`;
+      if (growthVal >= 0) {
+        grEl.className = 'text-xl sm:text-2xl font-extrabold text-emerald-600 tabular-nums';
+        grBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800';
+      } else {
+        grEl.className = 'text-xl sm:text-2xl font-extrabold text-rose-600 tabular-nums';
+        grBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800';
+      }
+
+      // Single Selected SPV Detail Card: NAMA (18px, weight 700, Inter) + JABATAN (12.5px, warna ungu, uppercase)
+      const detailCard = document.getElementById('spvDetailCard');
+      if (selectedNama !== 'ALL' && displayRows.length > 0) {
+        const spv = displayRows[0];
+        const totalTy = spv.salesDp + spv.salesCv;
+        const totalTgt = spv.targetDp + spv.targetCv;
+        const totalLy = spv.salesLyDp + spv.salesLyCv;
+        const sAch = totalTgt > 0 ? Math.round((totalTy / totalTgt) * 100) : 0;
+        const sGrowth = totalLy > 0 ? Math.round(((totalTy - totalLy) / totalLy) * 100) : 0;
+
+        detailCard.classList.remove('hidden');
+        document.getElementById('spvCardNama').textContent = spv.nama;
+        document.getElementById('spvCardJabatan').textContent = spv.jabatan || '-';
+        document.getElementById('spvCardLine2').textContent =
+          `SALES TY DP: ${formatRupiah(spv.salesDp)} | SALES TY CV: ${formatRupiah(spv.salesCv)} | TOTAL SALES TY: ${formatRupiah(totalTy)}`;
+        document.getElementById('spvCardLine3').textContent =
+          `TARGET DP: ${formatRupiah(spv.targetDp)} | TARGET CV: ${formatRupiah(spv.targetCv)} | TOTAL TARGET: ${formatRupiah(totalTgt)}`;
+
+        const line4 = document.getElementById('spvCardLine4');
+        line4.innerHTML = `<span>ACH:</span> <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold ${getAchColorClass(sAch)}">${sAch}%</span>`;
+
+        document.getElementById('spvCardLine5').textContent =
+          `GROWTH: ${sGrowth > 0 ? '+' : ''}${sGrowth}% (TOTAL SALES LY: ${formatRupiah(totalLy)})`;
+        document.getElementById('spvCardLine6').textContent =
+          `SALES LY DP: ${formatRupiah(spv.salesLyDp)} | SALES LY CV: ${formatRupiah(spv.salesLyCv)}`;
+      } else {
+        detailCard.classList.add('hidden');
       }
 
       // Table Body + Total Footer
