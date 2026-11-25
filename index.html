@@ -154,7 +154,10 @@
           <div class="flex items-center gap-2.5">
             <span class="w-1.5 h-6 rounded-full bg-indigo-600"></span>
             <div>
-              
+              <h2 class="text-sm font-bold text-slate-900">Filter &amp; Slicer — Sales by Brand &amp; Inventory</h2>
+              <p class="text-xs text-slate-500">
+                Rentang tanggal (type="date", format DD/MM/YYYY) • Brand Utama sync atas-bawah • Ganti Brand me-reset Dept &amp; Category
+              </p>
             </div>
           </div>
           <button onclick="resetBrandFilters()" class="self-start sm:self-auto text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition">
@@ -232,7 +235,8 @@
             <span class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs">Rp</span>
           </div>
           <div id="kpiBrandSales" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums truncate">Rp 0</div>
-          
+          <p id="kpiBrandSalesPeriodLine" class="text-xs font-semibold text-indigo-700 mt-1.5 truncate">Periode Terpilih: Rp 0</p>
+          <p id="kpiBrandSalesYearLine" class="text-xs text-slate-500 mt-0.5 truncate">Total Setahun (tanpa filter): Rp 0</p>
         </div>
 
         <!-- Card 2: Total Qty Sold (Pcs) -->
@@ -362,7 +366,10 @@
           <div class="flex items-center gap-2.5">
             <span class="w-1.5 h-6 rounded-full bg-indigo-600"></span>
             <div>
-              
+              <h2 class="text-sm font-bold text-slate-900">Filter &amp; Slicer — Sales by Person (Barcode)</h2>
+              <p class="text-xs font-semibold text-indigo-700 mt-0.5">
+                Data Barcode hanya 01/11/2026 - 02/11/2026 (128 baris) • <span id="personPeriodBadge" class="font-mono text-slate-700">Periode: 01/11/2026 - 02/11/2026</span> • <span id="personRowCountBadge" class="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-bold">Dihitung dari 0 baris</span>
+              </p>
             </div>
           </div>
           <button onclick="resetPersonFilters()" class="self-start sm:self-auto text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition">
@@ -568,7 +575,10 @@
           <div class="flex items-center gap-2.5">
             <span class="w-1.5 h-6 rounded-full bg-indigo-600"></span>
             <div>
-              
+              <h2 class="text-sm font-bold text-slate-900">Filter &amp; Slicer — Sales by SPV</h2>
+              <p id="spvPeriodNote" class="text-xs font-medium text-slate-600 mt-0.5">
+                Periode: 01/01/2026 - 31/01/2026 — Data SPV adalah data YTD, tidak difilter harian • Sales TY di SPV adalah akumulasi sampai tanggal terakhir di file
+              </p>
             </div>
           </div>
           <button onclick="resetSpvFilters()" class="self-start sm:self-auto text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition">
@@ -608,7 +618,10 @@
         </div>
 
         <!-- Mandatory SPV Debug Line -->
-        
+        <div id="spvDebugLine" class="bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-700">
+          SPV tampil: 0 baris | NAMA pertama: - | Dropdown SPV: 1 opsi
+        </div>
+
         <!-- Date Range Error Banner (DARI > SAMPAI) -->
         <div id="spvDateError" class="hidden bg-rose-50 border border-rose-200 rounded-xl px-4 py-2.5 flex items-center justify-between gap-3 text-xs text-rose-800">
           <span class="font-bold">DARI &gt; SAMPAI — Tanggal mulai lebih besar dari tanggal akhir.</span>
@@ -711,9 +724,10 @@
         <div class="p-4 sm:p-5 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div>
             <div class="flex items-center gap-2">
-              <span id="spvTableCountBadge" class="hidden">0 SPV</span>
-<span id="spvTableCount" class="hidden"></span>
-              
+              <h3 class="text-base font-bold text-slate-900">Tabel Kinerja Semua SPV</h3>
+              <span id="spvTableCountBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700">0 SPV</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">NAMA | JABATAN | SALES TY DP | SALES TY CV | TARGET DP | TARGET CV | ACH | GROWTH + baris TOTAL</p>
           </div>
 
           <button onclick="exportCSV('spv')" class="self-start md:self-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 transition">
@@ -1526,7 +1540,10 @@
       }, { m0_3: 0, m4_6: 0, m6_9: 0, m9_12: 0, m12_plus: 0 });
 
       document.getElementById('kpiBrandSales').textContent = formatRupiah(periodSales);
-      
+      document.getElementById('kpiBrandSalesPeriodLine').textContent =
+        `Periode Terpilih: ${formatRupiah(periodSales)} (${isoToDDMMYYYY(fromISO)} - ${isoToDDMMYYYY(toISO)})`;
+      document.getElementById('kpiBrandSalesYearLine').textContent =
+        `Total Setahun (tanpa filter): ${formatRupiah(totalSetahunAll)}`;
 
       document.getElementById('kpiBrandQty').textContent = `${formatQty(periodQty)} Pcs`;
       document.getElementById('kpiBrandQtySub').textContent =
