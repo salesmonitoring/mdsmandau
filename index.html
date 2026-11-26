@@ -1955,9 +1955,8 @@
       const msPerDay = 24 * 60 * 60 * 1000;
       const selectedDays = Math.round((d2 - d1) / msPerDay) + 1;
       const yearStart = new Date(d1.getFullYear(), 0, 1);
-      const yearEnd = new Date(d1.getFullYear(), 11, 31);
-      const daysInYear = Math.round((yearEnd - yearStart) / msPerDay) + 1;
-      return Math.max(0, selectedDays / daysInYear);
+      
+      return 1;
     }
 
     function calculateSpvRowsForRange(rows, fromISO, toISO) {
