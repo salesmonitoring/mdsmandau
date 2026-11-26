@@ -2076,9 +2076,9 @@
         // Cek apakah target di sheet berupa target harian/bulanan berulang atau target tahunan tetap
         spvMetaMap.forEach((meta, nama) => {
           const item = resultMap.get(nama);
-          const isRepeatedTarget = meta.rowCount > 1 && Math.abs(meta.sumTargetDp - meta.maxTargetDp * meta.rowCount) < 1;
-          const annualTargetDp = isRepeatedTarget ? meta.maxTargetDp : meta.sumTargetDp;
-          const annualTargetCv = isRepeatedTarget ? meta.maxTargetCv : meta.sumTargetCv;
+          const distinctDates = new Set(meta.rows.map(r => r.date || r.tanggal || r.Date)).size || 1;
+const annualTargetDp = meta.sumTargetDp / distinctDates;
+const annualTargetCv = meta.sumTargetCv / distinctDates;
           item.targetDp = annualTargetDp * prorataFactor;
           item.targetCv = annualTargetCv * prorataFactor;
         });
