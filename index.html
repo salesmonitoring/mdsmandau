@@ -2085,7 +2085,8 @@
         // Cek apakah target di sheet berupa target harian/bulanan berulang atau target tahunan tetap
         spvMetaMap.forEach((meta, nama) => {
           const item = resultMap.get(nama);
-          const distinctDates = new Set(meta.rows.map(r => r.date || r.tanggal || r.Date)).size || 1;
+          if (!item) return;
+          const distinctDates = new Set((meta.rows || []).map(r => r.date || r.tanggal || r.Date)).size || 1;
 const annualTargetDp = meta.sumTargetDp / distinctDates;
 const annualTargetCv = meta.sumTargetCv / distinctDates;
           item.targetDp = annualTargetDp * prorataFactor;
