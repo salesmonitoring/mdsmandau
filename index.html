@@ -2454,6 +2454,13 @@ const annualTargetCv = meta.sumTargetCv / distinctDates;
     window.addEventListener('DOMContentLoaded', () => {
       loadAllData();
     });
+  function applySpvDateFilter() {
+  const fromEl = document.getElementById('spvFromDate');
+  const toEl = document.getElementById('spvToDate');
+  if (fromEl && fromEl.value) STATE.spvAppliedFrom = fromEl.value;
+  if (toEl && toEl.value) STATE.spvAppliedTo = toEl.value;
+  renderSpvView();
+}
   </script>
 </body>
 </html>
