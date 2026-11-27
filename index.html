@@ -1623,8 +1623,9 @@ main { padding-top: 8px !important; }
     }
 
     function renderBrandCharts(topSales, agingTotals) {
-  const ctx = document.getElementById('chartBrandTop10').getContext('2d');
-  if (STATE.charts.brandTop10) STATE.charts.brandTop10.destroy();
+  const canvas = document.getElementById('chartBrandTop10');
+const old1 = Chart.getChart(canvas); if (old1) old1.destroy();
+const ctx = canvas.getContext('2d');
   const labels = topSales.map(r => r.brand);
   const values = topSales.map(r => r.sales);
       brandTop10 = new Chart(ctx, {
@@ -1642,8 +1643,9 @@ main { padding-top: 8px !important; }
     }
   }
 });
-      const ctx2 = document.getElementById('chartBrandAging').getContext('2d');
-      if (STATE.charts.brandAging) STATE.charts.brandAging.destroy();
+      const canvas2 = document.getElementById('chartBrandAging');
+const old2 = Chart.getChart(canvas2); if (old2) old2.destroy();
+const ctx2 = canvas2.getContext('2d');
       STATE.charts.brandAging = new Chart(ctx2, {
         type: 'doughnut',
         data: {
