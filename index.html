@@ -1622,41 +1622,21 @@ main { padding-top: 8px !important; }
       );
     }
 
-    function renderBrandCharts(top10, agingTotals) {
-      const ctx1 = document.getElementById('chartBrandTop10').getContext('2d');
-      if (STATE.charts.brandTop10) STATE.charts.brandTop10.destroy();
-      STATE.charts.brandTop10 = new Chart(ctx1, {
-        type: 'bar',
-        data: {
-          labels: top10.map(x => x.brand),
-          datasets: [{
-            label: 'Net Sales (Rp)',
-            data: top10.map(x => x.sales),
-            backgroundColor: '#4F46E5',
-            hoverBackgroundColor: '#3730A3',
-            borderRadius: 6,
-            maxBarThickness: 26
-          }]
-        },
-        options: {
-          indexAxis: 'y',
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: { callbacks: { label: c => ' ' + formatRupiah(c.raw) } }
-          },
-          scales: {
-            x: {
-              beginAtZero: true,
-              grid: { color: '#F1F5F9' },
-              ticks: { font: { size: 11 }, callback: v => 'Rp ' + (v / 1000000).toFixed(0) + 'jt' }
-            },
-            y: { grid: { display: false }, ticks: { font: { size: 11, weight: '600' }, color: '#0F172A' } }
-          }
-        }
-      });
-
+    brandTop10 = new Chart(ctx, {
+  type: 'doughnut',
+  data: { labels, datasets: [{ data: values,
+    backgroundColor: ['#22C55E','#3B82F6','#F59E0B','#EF4444','#8B5CF6','#EC4899','#06B6D4','#84CC16','#F97316','#64748B'],
+    borderColor: '#fff', borderWidth: 2 }] },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '55%',
+    plugins: {
+      legend: { display: true, position: 'bottom', labels: { boxWidth: 12, font: { size: 11 }, color: '#0F172A' } },
+      tooltip: { callbacks: { label: c => ' ' + formatRupiah(c.raw) } }
+    }
+  }
+});
       const ctx2 = document.getElementById('chartBrandAging').getContext('2d');
       if (STATE.charts.brandAging) STATE.charts.brandAging.destroy();
       STATE.charts.brandAging = new Chart(ctx2, {
