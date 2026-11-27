@@ -2496,17 +2496,23 @@ const annualTargetCv = meta.sumTargetCv / distinctDates;
   </script>
 <script>
 function titleCase(str){
-  return str.toLowerCase().replace(/(^|\s|[-(])\w/g, function(c){ return c.toUpperCase(); });
+  return str.toLowerCase().replace(/(^|\s|[-(/])\w/g, function(c){ return c.toUpperCase(); });
 }
 function fixCaps(){
-  document.querySelectorAll('td, th, header, button, h1, h2, h3, option, label').forEach(function(el){
-    if(el.children.length === 0 && el.textContent.trim()){
-      el.textContent = titleCase(el.textContent);
+  var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+  var node;
+  while(node = walker.nextNode()){
+    var t = node.nodeValue;
+    if(t && t.trim() && t === t.toUpperCase() && /[A-Z]/.test(t)){
+      node.nodeValue = titleCase(t);
     }
+  }
+  document.querySelectorAll('*').forEach(function(el){
+    el.style.textTransform = 'none';
   });
 }
 fixCaps();
-setInterval(fixCaps, 1000);
+setInterval(fixCaps, 1500);
 </script>
 </body>
 </html>
