@@ -1623,7 +1623,7 @@ main { padding-top: 8px !important; }
     }
 
     function renderBrandCharts(topSales, agingTotals) {
-  const ctx = document.getElementById('chartBrandTop').getContext('2d');
+  const ctx = document.getElementById('chartBrandTop10').getContext('2d');
   if (STATE.charts.brandTop10) STATE.charts.brandTop10.destroy();
   const labels = topSales.map(r => r.brand);
   const values = topSales.map(r => r.sales);
