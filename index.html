@@ -1898,16 +1898,13 @@ main { padding-top: 8px !important; }
           }
         }
       });
-
-      const top5 = sorted.slice(0, 5);
-      const otherSum = sorted.slice(5).reduce((s, r) => s + r.sales, 0);
-      const labels = top5.map(x => (x.nama && x.nama !== '-') ? x.nama.slice(0, 18) : x.barcode);
-      const data = top5.map(x => x.sales);
-      if (otherSum > 0) {
-        labels.push('Lainnya');
-        data.push(otherSum);
-      }
-
+const sortedFiltered = sorted.filter(x => {
+  const n = (x.nama || '').toString().trim().toUpperCase();
+  return n && n !== '-' && n !== 'NO SALES PERSON' && n !== 'NO SALES' && !n.includes('NO SALES');
+});
+const top5 = sortedFiltered.slice(0, 5);
+const labels = top5.map(x => (x.nama && x.nama !== '-') ? x.nama.slice(0, 18) : x.barcode);
+const data = top5.map(x => x.sales);
       const ctx2 = document.getElementById('chartPersonShare').getContext('2d');
       if (STATE.charts.personShare) STATE.charts.personShare.destroy();
       STATE.charts.personShare = new Chart(ctx2, {
