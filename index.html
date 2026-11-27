@@ -1622,7 +1622,12 @@ main { padding-top: 8px !important; }
       );
     }
 
-    brandTop10 = new Chart(ctx, {
+    function renderBrandCharts(topSales, agingTotals) {
+  const ctx = document.getElementById('chartBrandTop').getContext('2d');
+  if (STATE.charts.brandTop10) STATE.charts.brandTop10.destroy();
+  const labels = topSales.map(r => r.brand);
+  const values = topSales.map(r => r.sales);
+      brandTop10 = new Chart(ctx, {
   type: 'doughnut',
   data: { labels, datasets: [{ data: values,
     backgroundColor: ['#22C55E','#3B82F6','#F59E0B','#EF4444','#8B5CF6','#EC4899','#06B6D4','#84CC16','#F97316','#64748B'],
@@ -1660,7 +1665,7 @@ main { padding-top: 8px !important; }
           }
         }
       });
-
+    }
     // =========================================================================
     // 7. TAB 2: SALES BY PERSON / BARCODE (DD/MM/YYYY + DEFAULT NOV 1-2, 2026)
     // =========================================================================
