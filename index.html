@@ -2494,5 +2494,19 @@ const annualTargetCv = meta.sumTargetCv / distinctDates;
   renderSpvView();
 }
   </script>
+<script>
+function titleCase(str){
+  return str.toLowerCase().replace(/(^|\s|[-(])\w/g, function(c){ return c.toUpperCase(); });
+}
+function fixCaps(){
+  document.querySelectorAll('td, th, header, button, h1, h2, h3, option, label').forEach(function(el){
+    if(el.children.length === 0 && el.textContent.trim()){
+      el.textContent = titleCase(el.textContent);
+    }
+  });
+}
+fixCaps();
+setInterval(fixCaps, 1000);
+</script>
 </body>
 </html>
