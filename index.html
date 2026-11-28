@@ -2117,153 +2117,57 @@ const ctx2 = canvas2.getContext('2d');
 
       renderPersonCharts(rows);
     }
-function rendershopntalkView() {
-      const fromISO = document.getElementById('shopntalkFromDate').value;
-      const toISO = document.getElementById('shopntalkToDate').value;
-      const fromDisp = isoToDDMMYYYY(fromISO) || '-';
-      const toDisp = isoToDDMMYYYY(toISO) || '-';
+function renderShopntalkView(){
+  const fromISO = document.getElementById('shopntalkFromDate').value;
+  const toISO = document.getElementById('shopntalkToDate').value;
+  const selectedBarcode = document.getElementById('shopntalkBarcodeSelect').value || '';
+  const sortBy = document.getElementById('shopntalkSortSelect').value || 'netSales_desc';
+  const searchVal = (document.getElementById('shopntalkTableSearch').value || '').toLowerCase();
 
-      document.getElementById('shopntalkFromDisplay').textContent = fromDisp;
-      document.getElementById('shopntalkToDisplay').textContent = toDisp;
-      document.getElementById('shopntalkPeriodBadge').textContent = `Periode: ${fromDisp} - ${toDisp}`;
+  const filteredRows = STATE.masterBarcode.filter(r => {
+    const d = r.isoDate || '';
+    if(fromISO && d < fromISO) return false;
+    if(toISO && d > toISO) return false;
+    if(selectedBarcode && String(r.barcode) !== selectedBarcode) return false;
+    if(searchVal && !(String(r.nama||'').toLowerCase().includes(searchVal) || String(r.barcode||'').includes(searchVal) || String(r.jabatan||'').toLowerCase().includes(searchVal))) return false;
+    return true;
+  });
 
-      const dateErrEl = document.getElementById('shopntalkDateError');
-      if (fromISO && toISO && fromISO > toISO) {
-        dateErrEl.classList.remove('hidden');
-        return;
-      }
-      dateErrEl.classList.add('hidden');
+  const map = {};
+  filteredRows.forEach(r => {
+    const key = r.barcode + '|' + r.nama;
+    if(!map[key]) map[key] = { barcode: r.barcode, nama: r.nama, jabatan: r.jabatan, sales: 0, qty: 0, target: r.target || 0 };
+    map[key].sales += r.netSales || 0;
+    map[key].qty += r.netQty || 0;
+  });
 
-      const selectedBarcode = document.getElementById('shopntalkBarcodeSelect').value;
-      const searchVal = document.getElementById('shopntalkTableSearch').value.trim().toLowerCase();
+  let rows = Object.values(map);
+  rows.forEach(r => { r.ach = r.target ? (r.sales / r.target * 100) : 0; });
 
-      const masterMetaByBarcode = new Map();
-      STATE.masterBarcode.forEach(r => {
-        if (!r.barcode) return;
-        if (!masterMetaByBarcode.has(r.barcode)) {
-          masterMetaByBarcode.set(r.barcode, {
-            nama: r.nama || '-',
-            target: r.target || 0,
-            jabatan: (r.jabatan && r.jabatan !== '-') ? r.jabatan : '-'
-          });
-        } else {
-          const meta = masterMetaByBarcode.get(r.barcode);
-          if ((!meta.nama || meta.nama === '-') && r.nama) meta.nama = r.nama;
-          if (r.target > meta.target) meta.target = r.target;
-          if ((!meta.jabatan || meta.jabatan === '-') && r.jabatan && r.jabatan !== '-') meta.jabatan = r.jabatan;
-        }
-      });
+  if(sortBy === 'netSales_desc') rows.sort((a,b) => b.sales - a.sales);
+  if(sortBy === 'netSales_asc') rows.sort((a,b) => a.sales - b.sales);
+  if(sortBy === 'netQty_desc') rows.sort((a,b) => b.qty - a.qty);
+  if(sortBy === 'name_asc') rows.sort((a,b) => String(a.nama).localeCompare(String(b.nama)));
 
-      const filteredRows = STATE.masterBarcode.filter(r => {
-        if (fromISO && r.isoDate && r.isoDate < fromISO) return false;
-        if (toISO && r.isoDate && r.isoDate > toISO) return false;
-        if (selectedBarcode !== 'ALL' && r.barcode !== selectedBarcode) return false;
-        if (searchVal) {
-          const meta = masterMetaByBarcode.get(r.barcode);
-          const hay = `${r.barcode} ${r.nama || ''} ${meta?.nama || ''}`.toLowerCase();
-          if (!hay.includes(searchVal)) return false;
-        }
-        return true;
-      });
+  const totalSales = rows.reduce((s,r) => s + r.sales, 0);
+  const totalQty = rows.reduce((s,r) => s + r.qty, 0);
+  const totalTarget = rows.reduce((s,r) => s + r.target, 0);
 
-      document.getElementById('shopntalkRowCountBadge').textContent = `Dihitung dari ${filteredRows.length} baris`;
+  document.getElementById('shopntalkTotalSales').textContent = 'Rp ' + totalSales.toLocaleString('id-ID');
+  document.getElementById('shopntalkTotalQty').textContent = totalQty.toLocaleString('id-ID') + ' Pcs';
+  document.getElementById('shopntalkTotalTarget').textContent = 'Rp ' + totalTarget.toLocaleString('id-ID');
+  document.getElementById('shopntalkAch').textContent = (totalTarget ? (totalSales/totalTarget*100) : 0).toFixed(1) + '%';
+  document.getElementById('shopntalkActiveCount').textContent = rows.length + ' Spg';
+  document.getElementById('shopntalkRowCount').textContent = 'Dihitung dari ' + filteredRows.length + ' baris';
+  document.getElementById('shopntalkAvgPrice').textContent = 'Avg Price/Pc: Rp ' + (totalQty ? Math.round(totalSales/totalQty) : 0).toLocaleString('id-ID');
 
-      const aggMap = new Map();
-      filteredRows.forEach(r => {
-        if (!aggMap.has(r.barcode)) {
-          const meta = masterMetaByBarcode.get(r.barcode) || { nama: '-', target: 0, jabatan: '-' };
-          aggMap.set(r.barcode, {
-            barcode: r.barcode,
-            nama: r.nama || meta.nama || '-',
-            sales: 0,
-            qty: 0,
-            target: r.target || meta.target || 0,
-            jabatan: (r.jabatan && r.jabatan !== '-') ? r.jabatan : (meta.jabatan || '-')
-          });
-        }
-        const item = aggMap.get(r.barcode);
-        if ((!item.nama || item.nama === '-') && r.nama) item.nama = r.nama;
-        if ((!item.jabatan || item.jabatan === '-') && r.jabatan && r.jabatan !== '-') item.jabatan = r.jabatan;
-        if (r.target > item.target) item.target = r.target;
-        item.sales += r.netSales;
-        item.qty += r.netQty;
-      });
+  const tbody = document.getElementById('shopntalkTableBody');
+  tbody.innerHTML = rows.map((r,i) => {
+    return '<tr><td>' + (i+1) + '</td><td>' + r.barcode + '</td><td>' + r.nama + '</td><td>' + (r.jabatan||'') + '</td><td>Rp ' + r.sales.toLocaleString('id-ID') + '</td><td>' + r.qty + '</td><td>Rp ' + r.target.toLocaleString('id-ID') + '</td><td>' + r.ach.toFixed(1) + '%</td></tr>';
+  }).join('') || '<tr><td colspan="8">Tidak ada data</td></tr>';
 
-      const rows = Array.from(aggMap.values()).map(item => {
-        const ach = item.target > 0 ? Math.round((item.sales / item.target) * 100) : 0;
-        return { ...item, nama: item.nama || '-', jabatan: item.jabatan || '-', ach };
-      });
-
-      const rankOrder = [...rows].sort((a, b) => b.sales - a.sales);
-      const rankMap = new Map();
-      rankOrder.forEach((item, idx) => rankMap.set(item.barcode, idx + 1));
-      rows.forEach(item => { item.rank = rankMap.get(item.barcode) || 0; });
-
-      const { key, dir } = STATE.sort.shopntalk;
-      rows.sort((a, b) => {
-        let va = a[key], vb = b[key];
-        if (typeof va === 'string') { va = va.toLowerCase(); vb = String(vb).toLowerCase(); }
-        if (va < vb) return dir === 'asc' ? -1 : 1;
-        if (va > vb) return dir === 'asc' ? 1 : -1;
-        return 0;
-      });
-
-      STATE.exportedRows.shopntalk = rows;
-
-      const spotCard = document.getElementById('shopntalkSpotlightCard');
-      if (selectedBarcode !== 'ALL' && rows.length > 0) {
-        const spg = rows[0];
-        spotCard.classList.remove('hidden');
-        document.getElementById('spotBarcodeBadge').textContent = `BARCODE: ${spg.barcode} • ${spg.jabatan}`;
-        document.getElementById('spotPeriodText').textContent = `${fromDisp} - ${toDisp}`;
-        document.getElementById('spotPersonName').textContent = spg.nama !== '-' ? spg.nama : spg.barcode;
-        document.getElementById('spotNetSales').textContent = formatRupiah(spg.sales);
-        document.getElementById('spotNetQty').textContent = `${formatQty(spg.qty)} Pcs`;
-        document.getElementById('spotDiscount').textContent = formatRupiah(spg.target);
-        document.getElementById('spotAvgPrice').textContent = `${spg.ach}%`;
-      } else {
-        spotCard.classList.add('hidden');
-      }
-
-      const totSales = rows.reduce((s, r) => s + r.sales, 0);
-      const totQty = rows.reduce((s, r) => s + r.qty, 0);
-      const totTarget = rows.reduce((s, r) => s + r.target, 0);
-      const activeCount = rows.length;
-      const avgSalesSpg = activeCount > 0 ? Math.round(totSales / activeCount) : 0;
-      const avgPricePc = totQty > 0 ? Math.round(totSales / totQty) : 0;
-      const achAll = totTarget > 0 ? Math.round((totSales / totTarget) * 100) : 0;
-
-      document.getElementById('kpishopntalkSales').textContent = formatRupiah(totSales);
-      document.getElementById('kpishopntalkSalesSub').textContent = `Periode ${fromDisp} - ${toDisp}`;
-      document.getElementById('kpishopntalkQty').textContent = `${formatQty(totQty)} Pcs`;
-      document.getElementById('kpishopntalkQtySub').textContent = `Avg Price/Pc: ${formatRupiah(avgPricePc)}`;
-      document.getElementById('kpishopntalkDisc').textContent = formatRupiah(totTarget);
-      document.getElementById('kpishopntalkDiscBadge').textContent = `${achAll}% ACH`;
-      document.getElementById('kpishopntalkActive').textContent = `${activeCount} SPG`;
-      document.getElementById('kpishopntalkAvgSub').textContent = `Avg Sales/SPG: ${formatRupiah(avgSalesSpg)}`;
-
-      document.getElementById('shopntalkTableCountBadge').textContent = `${rows.length} SPG`;
-      const tbody = document.getElementById('shopntalkTableBody');
-      if (!rows.length) {
-        tbody.innerHTML = `<tr><td colspan="8" class="py-10 px-4 text-center text-slate-400">Tidak ada data Barcode/SPG pada rentang ${fromDisp} - ${toDisp}.</td></tr>`;
-      } else {
-        tbody.innerHTML = rows.map(r => `
-          <tr onclick="selectshopntalkRow('${escapeHTML(r.barcode).replace(/'/g, "\'")}')" class="cursor-pointer hover:bg-indigo-50/40 transition">
-            <td class="py-3 px-4 text-center font-bold text-slate-500">${r.rank}</td>
-            <td class="py-3 px-4 font-mono text-xs font-bold text-indigo-700 whitespace-nowrap">${escapeHTML(r.barcode)}</td>
-            <td class="py-3 px-4 font-bold text-slate-900 whitespace-nowrap">${escapeHTML(r.nama)}</td>
-            <td class="py-3 px-4 text-right font-extrabold text-slate-900 whitespace-nowrap">${formatRupiah(r.sales)}</td>
-            <td class="py-3 px-4 text-right font-semibold text-slate-700 whitespace-nowrap">${formatQty(r.qty)}</td>
-            <td class="py-3 px-4 text-right font-semibold text-slate-700 whitespace-nowrap">${formatRupiah(r.target)}</td>
-            <td class="py-3 px-4 text-center whitespace-nowrap">
-              <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-extrabold ${getAchColorClass(r.ach)}">${r.ach}%</span>
-            </td>
-            <td class="py-3 px-4 text-xs font-bold uppercase text-purple-700 whitespace-nowrap">${escapeHTML(r.jabatan)}</td>
-          </tr>`).join('');
-      }
-
-      rendershopntalkCharts(rows);
-    }
+  renderShopntalkCharts(rows);
+}
 
     function rendershopntalkCharts(rows) {
       const sorted = [...rows].sort((a, b) => b.sales - a.sales);
