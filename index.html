@@ -1,1707 +1,1963 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MDS Mandau City - Monitoring Sales & Inventory</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <title>MDS Mandau City - Monitoring Sales &amp; Inventory</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- PapaParse for quote-safe CSV parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <!-- Chart.js via CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <style>
-    :root {
-      --bg: #f8fafc;
-      --surface: #ffffff;
-      --border: #e2e8f0;
-      --text-main: #0f172a;
-      --text-muted: #64748b;
-      --primary: #1e3a8a;
-      --primary-light: #eff6ff;
-      --accent: #0ea5e9;
-      --success: #16a34a;
-      --success-bg: #dcfce7;
-      --danger: #dc2626;
-      --danger-bg: #fee2e2;
-      --warning: #d97706;
-      --warning-bg: #fef3c7;
-      --radius: 12px;
-      --shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
-    }
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: var(--bg);
-      color: var(--text-main);
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    .tabular-nums {
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* Header */
-    .header {
-      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
-      color: #ffffff;
-      padding: 20px 28px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .header-inner {
-      max-width: 1440px;
-      margin: 0 auto;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-    }
-
-    .brand-title {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 1.35rem;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-    }
-
-    .brand-subtitle {
-      font-size: 0.82rem;
-      color: #cbd5e1;
-      margin-top: 2px;
-    }
-
-    .header-controls {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .date-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255, 255, 255, 0.1);
-      padding: 6px 12px;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-    }
-
-    .date-group label {
-      font-size: 0.78rem;
-      color: #e2e8f0;
-      font-weight: 500;
-    }
-
-    .date-group input[type="date"] {
-      background: rgba(15, 23, 42, 0.45);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      color: #ffffff;
-      padding: 5px 8px;
-      border-radius: 6px;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.82rem;
-      outline: none;
-    }
-
-    .date-group input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: invert(1);
-      cursor: pointer;
-    }
-
-    .btn-refresh {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #ffffff;
-      color: var(--primary);
-      border: none;
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-
-    .btn-refresh:hover {
-      background: #f1f5f9;
-    }
-
-    .btn-refresh:disabled {
-      opacity: 0.65;
-      cursor: not-allowed;
-    }
-
-    /* Navigation Tabs */
-    .nav-bar {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 0 28px;
-      position: sticky;
-      top: 0;
-      z-index: 30;
-    }
-
-    .nav-inner {
-      max-width: 1440px;
-      margin: 0 auto;
-      display: flex;
-      gap: 6px;
-      overflow-x: auto;
-    }
-
-    .tab-btn {
-      background: transparent;
-      border: none;
-      border-bottom: 3px solid transparent;
-      padding: 14px 18px;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.88rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.15s ease;
-    }
-
-    .tab-btn:hover {
-      color: var(--text-main);
-    }
-
-    .tab-btn.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
-    }
-
-    /* Container */
-    .container {
-      max-width: 1440px;
-      margin: 0 auto;
-      padding: 24px 28px 48px;
-    }
-
-    .tab-panel {
-      display: none;
-    }
-
-    .tab-panel.active {
-      display: block;
-    }
-
-    /* KPI Cards */
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    .kpi-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px 20px;
-      box-shadow: var(--shadow);
-    }
-
-    .kpi-label {
-      font-size: 0.76rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-    }
-
-    .kpi-value {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 1.38rem;
-      font-weight: 700;
-      color: var(--text-main);
-    }
-
-    .kpi-sub {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-
-    /* Charts Row */
-    .charts-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 18px;
-      margin-bottom: 24px;
-    }
-
-    @media (max-width: 960px) {
-      .charts-grid {
-        grid-template-columns: 1fr;
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          }
+        }
       }
-    }
-
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
-      box-shadow: var(--shadow);
-      margin-bottom: 24px;
-    }
-
-    .card-header {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .card-title {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--text-main);
-    }
-
-    .chart-wrapper {
-      position: relative;
-      height: 290px;
-      width: 100%;
-    }
-
-    /* Filters */
-    .filter-row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .input-control, .select-control {
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.84rem;
-      color: var(--text-main);
-      background: #ffffff;
-      outline: none;
-    }
-
-    .input-control:focus, .select-control:focus {
-      border-color: var(--primary);
-    }
-
-    /* Tables */
-    .table-responsive {
-      overflow-x: auto;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.84rem;
-      text-align: left;
-    }
-
-    thead th {
-      background: #f1f5f9;
-      color: #334155;
-      font-weight: 600;
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-      padding: 11px 14px;
-      border-bottom: 1px solid var(--border);
-      white-space: nowrap;
-    }
-
-    tbody td {
-      padding: 10px 14px;
-      border-bottom: 1px solid #f1f5f9;
-      color: var(--text-main);
-      white-space: nowrap;
-    }
-
-    tbody tr:hover {
-      background: #f8fafc;
-    }
-
-    tfoot td {
-      background: #f8fafc;
-      font-weight: 700;
-      padding: 12px 14px;
-      border-top: 2px solid var(--border);
-      white-space: nowrap;
-    }
-
-    .text-right { text-align: right; }
-    .text-center { text-align: center; }
-
-    /* Badges & Status */
-    .badge {
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 999px;
-      font-size: 0.74rem;
-      font-weight: 600;
-    }
-
-    .badge-dp { background: #dbeafe; color: #1e40af; }
-    .badge-cv { background: #fef3c7; color: #92400e; }
-    .badge-wa { background: #dcfce7; color: #166534; }
-    .badge-haptik { background: #e0e7ff; color: #3730a3; }
-    .badge-live { background: #fce7f3; color: #9d174d; }
-
-    .pos { color: var(--success); font-weight: 600; }
-    .neg { color: var(--danger); font-weight: 600; }
-    .neu { color: var(--text-muted); font-weight: 500; }
+    };
+  </script>
+  <style>
+    .tabular-nums { font-variant-numeric: tabular-nums; }
+    input[type="date"] { min-height: 44px; }
   </style>
+  <style>
+.overflow-x-auto, .overflow-x-scroll {
+  overflow: visible !important;
+  overflow-x: visible !important;
+}
+table {
+  width: 100% !important;
+  min-width: 0 !important;
+  table-layout: auto !important;
+  font-size: 11px !important;
+}
+th, td {
+  padding: 5px 3px !important;
+  white-space: nowrap !important;
+}
+th:nth-child(2), td:nth-child(2) {
+  white-space: normal !important;
+  max-width: 140px !important;
+}
+header > div { padding-top: 6px !important; padding-bottom: 6px !important; }
+main { padding-top: 8px !important; }
+</style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased pb-24 md:pb-12">
 
-  <!-- Header -->
-  <header class="header">
-    <div class="header-inner">
-      <div>
-        <div class="brand-title">MDS Mandau City - Monitoring Sales &amp; Inventory</div>
-        <div class="brand-subtitle" id="lastSyncText">Sinkronisasi data Google Sheets...</div>
-      </div>
-      <div class="header-controls">
-        <div class="date-group">
-          <label for="startDate">Dari</label>
-          <input type="date" id="startDate" />
-          <label for="endDate">s/d</label>
-          <input type="date" id="endDate" />
+  <!-- ======================================================================= -->
+  <!-- Z-STEP 1 (TOP-LEFT -> TOP-RIGHT): EXECUTIVE HEADER & VIEW NAVIGATION    -->
+  <!-- ======================================================================= -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-xs">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+      <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3.5">
+
+        <!-- TOP-LEFT: Brand Identity & LIVE Status Badge -->
+        <div class="flex items-start sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-3.5">
+            <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-600 to-slate-900 flex items-center justify-center text-white shadow-sm shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18h18M7 16l4-4 4 4 5-6" />
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight leading-snug">
+                MDS Mandau City - Monitoring Sales &amp; Inventory
+              </h1>
+              <div class="flex items-center gap-2 mt-1 flex-wrap">
+                <span class="text-xs font-medium text-slate-500">SALES BY BRAND MDS MANDAU CITY</span>
+                <span class="text-slate-300">•</span>
+                <span id="statusBadge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                  <span>Memuat Data Spreadsheet...</span>
+                </span>
+                <span id="syncTimeLabel" class="text-[11px] text-slate-400 hidden sm:inline"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mobile Compact Action Buttons -->
+          <div class="flex xl:hidden items-center gap-1.5 shrink-0">
+            <button onclick="resetCurrentTabFilters()" title="Reset Filter" class="p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+              <svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8m0-5v5h5"/>
+              </svg>
+            </button>
+            <button onclick="loadAllData()" title="Refresh Live Data" class="p-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition">
+              <svg id="refreshIconMob" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5M5.64 17.36A9 9 0 0 0 20.49 15M18.36 6.64A9 9 0 0 0 3.51 9"/>
+              </svg>
+            </button>
+          </div>
         </div>
-        <button type="button" class="btn-refresh" id="btnRefresh" onclick="loadAllSheets(true)">
-          <span id="refreshIcon">&#8635;</span>
-          <span id="refreshLabel">Refresh Live Data</span>
-        </button>
+
+        <!-- TOP-RIGHT: View Switcher Tabs + Reset Filters & Refresh Live Data -->
+        <div class="flex flex-wrap items-center justify-between xl:justify-end gap-2.5">
+          <nav class="hidden md:flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+            <button onclick="switchTab('brand')" id="nav-desk-brand" class="px-3.5 py-2 rounded-lg text-xs font-bold bg-white text-indigo-700 shadow-xs transition">
+              Sales by Brand &amp; Inventory
+            </button>
+            <button onclick="switchTab('person')" id="nav-desk-person" class="px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition">
+              Sales by Person (Barcode)
+            </button>
+            <button onclick="switchTab('shopntalk')" id="nav-desk-shopntalk" class="px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition">
+              Sales shopntalk
+            </button>
+            <button onclick="switchTab('spv')" id="nav-desk-spv" class="px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition">
+              Sales by SPV
+            </button>
+          </nav>
+
+          <div class="hidden xl:flex items-center gap-2">
+            <button onclick="resetCurrentTabFilters()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition">
+              <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8m0-5v5h5"/>
+              </svg>
+              <span>Reset Filters</span>
+            </button>
+            <button onclick="loadAllData()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-xs transition">
+              <svg id="refreshIconDesk" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5M5.64 17.36A9 9 0 0 0 20.49 15M18.36 6.64A9 9 0 0 0 3.51 9"/>
+              </svg>
+              <span>Refresh Live Data</span>
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
   </header>
 
-  <!-- Navigation Tabs -->
-  <nav class="nav-bar">
-    <div class="nav-inner">
-      <button type="button" class="tab-btn active" data-tab="tab-brand" onclick="switchTab('tab-brand', this)">Sales by Brand &amp; Inventory</button>
-      <button type="button" class="tab-btn" data-tab="tab-person" onclick="switchTab('tab-person', this)">Sales by Person (Barcode)</button>
-      <button type="button" class="tab-btn" data-tab="tab-spv" onclick="switchTab('tab-spv', this)">Sales by SPV</button>
-      <button type="button" class="tab-btn" data-tab="tab-shopntalk" onclick="switchTab('tab-shopntalk', this)">Shop n Talk</button>
+  <!-- ======================================================================= -->
+  <!-- ERROR ALERT (ZERO SAMPLE DATA)                                          -->
+  <!-- ======================================================================= -->
+  <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+
+
+    <!-- Red Error Alert Box (Shown when fetch fails or rows are 0) -->
+    <div id="errorAlertBox" class="hidden mt-4 bg-rose-50 border border-rose-300 text-rose-900 rounded-xl p-4 shadow-xs">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="space-y-1">
+          <div class="text-xs sm:text-sm font-extrabold text-rose-800">
+            Jika dibuka dari file lokal dan GAGAL, upload ke Netlify / buka via https, lalu Refresh
+          </div>
+          <p class="text-xs text-rose-800 font-semibold">
+            Pastikan juga akses Google Spreadsheet (1c-FwaTcO_0lSEIv2TS10z_PXvfqmkDjsNJap2y7joOc) terbuka (Anyone with the link).
+          </p>
+          <p id="errorAlertDetail" class="text-xs text-rose-700 font-mono break-words"></p>
+        </div>
+        <button onclick="loadAllData()" class="self-start sm:self-auto px-4 py-2 rounded-xl bg-rose-700 hover:bg-rose-800 text-white text-xs font-bold transition shrink-0">
+          Coba Lagi
+        </button>
+      </div>
     </div>
-  </nav>
+  </div>
 
-  <!-- Main Content -->
-  <main class="container">
+  <!-- ======================================================================= -->
+  <!-- MAIN CONTENT CONTAINER (Z-STEPS 2, 3, 4, 5)                             -->
+  <!-- ======================================================================= -->
+  <main class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-4 space-y-6">
 
-    <!-- TAB 1: BRAND & INVENTORY -->
-    <section id="tab-brand" class="tab-panel active">
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-label">Total Net Sales</div>
-          <div class="kpi-value tabular-nums" id="brandTotalSales">Rp 0</div>
-          <div class="kpi-sub tabular-nums" id="brandVsLySub">vs LY: 0.0%</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Sales Dept (DP)</div>
-          <div class="kpi-value tabular-nums" id="brandDpSales">Rp 0</div>
-          <div class="kpi-sub tabular-nums" id="brandDpShare">0.0% kontribusi</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Sales Consignment (CV)</div>
-          <div class="kpi-value tabular-nums" id="brandCvSales">Rp 0</div>
-          <div class="kpi-sub tabular-nums" id="brandCvShare">0.0% kontribusi</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Total Stock On Hand</div>
-          <div class="kpi-value tabular-nums" id="invTotalQty">0 pcs</div>
-          <div class="kpi-sub tabular-nums" id="invTotalVal">Nilai: Rp 0</div>
-        </div>
-      </div>
+    <!-- ===================================================================== -->
+    <!-- MODULE 1: SALES BY BRAND & INVENTORY                                  -->
+    <!-- ===================================================================== -->
+    <div id="view-brand" class="space-y-6">
 
-      <div class="charts-grid">
-        <div class="card" style="margin-bottom:0;">
-          <div class="card-header">
-            <div class="card-title">Top 10 Brand Performance (Net Sales)</div>
+      <!-- Z-STEP 2: FILTER & SLICER CONTROL BAR (BRAND SYNC + DEPT/CAT RESET) -->
+      <section class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+          <div class="flex items-center gap-2.5">
+            <span class="w-1.5 h-6 rounded-full bg-indigo-600"></span>
+            <div>
+              <h2 class="text-sm font-bold text-slate-900">Filter &amp; Slicer — Sales by Brand &amp; Inventory</h2>
+              <p class="text-xs text-slate-500">
+                Rentang tanggal (type="date", format DD/MM/YYYY) • Brand Utama sync atas-bawah • Ganti Brand me-reset Dept &amp; Category
+              </p>
+            </div>
           </div>
-          <div class="chart-wrapper">
-            <canvas id="brandBarChart"></canvas>
-          </div>
+          <button onclick="resetBrandFilters()" class="self-start sm:self-auto text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition">
+            ↺ Reset Filter Tab Ini
+          </button>
         </div>
-        <div class="card" style="margin-bottom:0;">
-          <div class="card-header">
-            <div class="card-title">Kontribusi DP vs CV</div>
-          </div>
-          <div class="chart-wrapper">
-            <canvas id="deptDonutChart"></canvas>
-          </div>
-        </div>
-      </div>
 
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">Detail Sales &amp; Stock per Brand</div>
-          <div class="filter-row">
-            <select id="brandDeptFilter" class="select-control" onchange="renderBrandTab()">
-              <option value="ALL">Semua Kategori (DP &amp; CV)</option>
-              <option value="DP">DP (Direct Purchase)</option>
-              <option value="CV">CV (Consignment)</option>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3.5">
+          <!-- From Date -->
+          <div>
+            <label for="brandFromDate" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Dari Tanggal</label>
+            <input type="date" id="brandFromDate" value="2026-01-01" onchange="renderBrandView()" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/15" />
+            <span id="brandFromDisplay" class="block text-[11px] text-slate-400 mt-0.5 font-mono">01/01/2026</span>
+          </div>
+
+          <!-- To Date -->
+          <div>
+            <label for="brandToDate" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Sampai Tanggal</label>
+            <input type="date" id="brandToDate" value="2026-01-31" onchange="renderBrandView()" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/15" />
+            <span id="brandToDisplay" class="block text-[11px] text-slate-400 mt-0.5 font-mono">31/01/2026</span>
+          </div>
+
+          <!-- Primary Brand Dropdown (Top) -->
+          <div>
+            <label for="brandTopSelect" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Brand Utama</label>
+            <select id="brandTopSelect" onchange="onBrandDropdownChange('top')" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/15">
+              <option value="ALL">Semua Brand</option>
             </select>
-            <input type="text" id="brandSearchInput" class="input-control" placeholder="Cari brand..." oninput="renderBrandTab()" />
+          </div>
+
+          <!-- Dept Dropdown -->
+          <div>
+            <label for="brandDeptSelect" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Dept</label>
+            <select id="brandDeptSelect" onchange="renderBrandView()" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/15">
+              <option value="ALL">Semua Dept</option>
+            </select>
+          </div>
+
+          <!-- Category Dropdown -->
+          <div>
+            <label for="brandCategorySelect" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Category</label>
+            <select id="brandCategorySelect" onchange="renderBrandView()" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/15">
+              <option value="ALL">Semua Category</option>
+            </select>
+          </div>
+
+          <!-- Sort By Dropdown -->
+          <div>
+            <label for="brandSortSelect" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Urutkan</label>
+            <select id="brandSortSelect" onchange="onBrandSortDropdownChange()" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/15">
+              <option value="sales:desc">Sales Tertinggi (Rp)</option>
+              <option value="sales:asc">Sales Terendah (Rp)</option>
+              <option value="qty:desc">Qty Terjual Terbanyak</option>
+              <option value="invTotal:desc">Stock Inventory Terbesar</option>
+              <option value="brand:asc">Nama Brand (A–Z)</option>
+            </select>
           </div>
         </div>
-        <div class="table-responsive">
-          <table>
+
+        <!-- Date Range Error Banner (DARI > SAMPAI) -->
+        <div id="brandDateError" class="hidden bg-rose-50 border border-rose-200 rounded-xl px-4 py-2.5 flex items-center justify-between gap-3 text-xs text-rose-800">
+          <span class="font-bold">DARI &gt; SAMPAI — Tanggal mulai lebih besar dari tanggal akhir.</span>
+          <button onclick="swapDates('brandFromDate', 'brandToDate', renderBrandView)" class="px-3 py-1 rounded-lg bg-rose-700 text-white font-bold hover:bg-rose-800 transition shrink-0">
+            Tukar Tanggal
+          </button>
+        </div>
+      </section>
+
+      <!-- Z-STEP 3: KPI CARDS ROW (4 CLEAN CARDS) -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <!-- Card 1: Total Net Sales (Rp) + Period & Year lines -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Net Sales (Rp)</span>
+            <span class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs">Rp</span>
+          </div>
+          <div id="kpiBrandSales" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums truncate">Rp 0</div>
+          <p id="kpiBrandSalesPeriodLine" class="text-xs font-semibold text-indigo-700 mt-1.5 truncate">Periode Terpilih: Rp 0</p>
+          <p id="kpiBrandSalesYearLine" class="text-xs text-slate-500 mt-0.5 truncate">Total Setahun (tanpa filter): Rp 0</p>
+        </div>
+
+        <!-- Card 2: Total Qty Sold (Pcs) -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Qty Sold (Pcs)</span>
+            <span class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs">QTY</span>
+          </div>
+          <div id="kpiBrandQty" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums">0 Pcs</div>
+          <p id="kpiBrandQtySub" class="text-xs text-slate-500 mt-1.5 truncate">0 Brands aktif</p>
+        </div>
+
+        <!-- Card 3: Avg Price / Pc -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Avg Price / Pc</span>
+            <span class="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold text-xs">AVG</span>
+          </div>
+          <div id="kpiBrandAvgPrice" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums truncate">Rp 0</div>
+          <p id="kpiBrandAvgSub" class="text-xs text-slate-500 mt-1.5 truncate">Rata-rata harga per pcs terjual</p>
+        </div>
+
+        <!-- Card 4: Total Inventory Stock (Column J = index 9) -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Inventory Stock</span>
+            
+          </div>
+          <div id="kpiBrandInv" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums">0 Pcs</div>
+          <p id="kpiBrandInvSub" class="text-xs font-semibold text-slate-600 mt-1.5 truncate">TOTAL INVENTORY STOCK: 0 Pcs | 0 baris | Kolom J TOTAL</p>
+        </div>
+      </section>
+
+      <!-- Z-STEP 4: VISUAL ANALYTICS ROW (60% / 40% SPLIT) -->
+      <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div class="lg:col-span-7 bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex flex-col">
+          <div class="flex items-start justify-between gap-2 mb-4">
+            <div>
+              <h3 class="text-base font-bold text-slate-900">Top 10 Brands by Sales</h3>
+              <p class="text-xs text-slate-500">Kontribusi penjualan bersih (Rp) dari MASTER BRAND sesuai filter aktif</p>
+            </div>
+            <span class="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 text-[11px] font-bold">Top 10</span>
+          </div>
+          <div class="relative h-72 w-full">
+            <canvas id="chartBrandTop10"></canvas>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5 bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex flex-col">
+          <div class="flex items-start justify-between gap-2 mb-4">
+            <div>
+              <h3 class="text-base font-bold text-slate-900">Inventory Aging Breakdown</h3>
+              <p class="text-xs text-slate-500">Komposisi umur stok (Kolom E–I) dari MASTER INVENTORY</p>
+            </div>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 text-[11px] font-bold">Pcs</span>
+          </div>
+          <div class="relative h-72 w-full">
+            <canvas id="chartBrandAging"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Z-STEP 5: BOTTOM DETAILED DATA TABLE + SYNCED BOTTOM BRAND DROPDOWN -->
+      <section class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div class="p-4 sm:p-5 border-b border-slate-200 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h3 class="text-base font-bold text-slate-900">Detail Sales by Brand &amp; Inventory</h3>
+              <span id="brandTableCountBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700">0 rows</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">Dropdown Brand bawah tersinkronisasi dengan Brand Utama di atas • Klik header untuk mengurutkan</p>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+            <!-- Synced Bottom Brand Dropdown -->
+            <select id="brandBottomSelect" onchange="onBrandDropdownChange('bottom')" class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none">
+              <option value="ALL">Semua Brand</option>
+            </select>
+
+            <div class="relative">
+              <input type="text" id="brandTableSearch" oninput="renderBrandView()" placeholder="Cari Brand, Dept, Category..." class="w-full sm:w-56 rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-indigo-600 focus:outline-none" />
+              <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/>
+              </svg>
+            </div>
+
+            <button onclick="exportCSV('brand')" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 transition">
+              <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+              </svg>
+              <span>Export CSV</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
             <thead>
-              <tr>
-                <th>Rank</th>
-                <th>Brand</th>
-                <th>Kategori</th>
-                <th class="text-right">Sales TY</th>
-                <th class="text-right">Sales LY</th>
-                <th class="text-right">vs LY</th>
-                <th class="text-right">Qty Sold</th>
-                <th class="text-right">Stock SOH</th>
+              <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider select-none">
+                <th onclick="toggleBrandSort('brand')" class="py-3.5 px-4 cursor-pointer hover:text-indigo-600">Brand ↕</th>
+                <th onclick="toggleBrandSort('dept')" class="py-3.5 px-4 cursor-pointer hover:text-indigo-600">Dept ↕</th>
+                <th onclick="toggleBrandSort('category')" class="py-3.5 px-4 cursor-pointer hover:text-indigo-600">Category ↕</th>
+                <th onclick="toggleBrandSort('sales')" class="py-3.5 px-4 text-right cursor-pointer hover:text-indigo-600">Sales (Rp) ↕</th>
+                <th onclick="toggleBrandSort('qty')" class="py-3.5 px-4 text-right cursor-pointer hover:text-indigo-600">Qty ↕</th>
+                <th onclick="toggleBrandSort('invTotal')" class="py-3.5 px-4 text-right bg-indigo-50/40 text-indigo-800 cursor-pointer">TOTAL INVENTORY ↕</th>
+                <th onclick="toggleBrandSort('m0_3')" class="py-3.5 px-3 text-right cursor-pointer hover:text-indigo-600">0-3 Bln ↕</th>
+                <th onclick="toggleBrandSort('m4_6')" class="py-3.5 px-3 text-right cursor-pointer hover:text-indigo-600">4-6 Bln ↕</th>
+                <th onclick="toggleBrandSort('m6_9')" class="py-3.5 px-3 text-right cursor-pointer hover:text-indigo-600">6-9 Bln ↕</th>
+                <th onclick="toggleBrandSort('m9_12')" class="py-3.5 px-3 text-right cursor-pointer hover:text-indigo-600">9-12 Bln ↕</th>
+                <th onclick="toggleBrandSort('m12_plus')" class="py-3.5 px-4 text-right cursor-pointer hover:text-rose-600">&gt;12 Bln ↕</th>
               </tr>
             </thead>
-            <tbody id="brandTableBody"></tbody>
-            <tfoot id="brandTableFoot"></tfoot>
+            <tbody id="brandTableBody" class="divide-y divide-slate-100 text-xs sm:text-sm tabular-nums"></tbody>
           </table>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
 
-    <!-- TAB 2: SALES BY PERSON (BARCODE) -->
-    <section id="tab-person" class="tab-panel">
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-label">Total Net Sales SPG</div>
-          <div class="kpi-value tabular-nums" id="personTotalSales">Rp 0</div>
-          <div class="kpi-sub tabular-nums" id="personActiveCount">0 SPG aktif</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Total Target Bulanan (SPG Aktif)</div>
-          <div class="kpi-value tabular-nums" id="personTotalTarget">Rp 0</div>
-          <div class="kpi-sub tabular-nums" id="personTargetSub">Target per SPG: Rp 2.494.996</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Achievement (ACH)</div>
-          <div class="kpi-value tabular-nums" id="personTotalAch">0.0%</div>
-          <div class="kpi-sub">Total Net Sales / Total Target</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Total Qty Terjual</div>
-          <div class="kpi-value tabular-nums" id="personTotalQty">0 pcs</div>
-          <div class="kpi-sub tabular-nums" id="personAvgSales">Rata-rata: Rp 0 / SPG</div>
-        </div>
-      </div>
+    <!-- ===================================================================== -->
+    <!-- MODULE 2: SALES BY PERSON (BARCODE)                                   -->
+    <!-- ===================================================================== -->
+    <div id="view-person" class="hidden space-y-6">
 
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">Performa Penjualan per SPG (Barcode)</div>
-          <div class="filter-row">
-            <select id="personJabatanFilter" class="select-control" onchange="renderPersonTab()">
-              <option value="ALL">Semua Jabatan</option>
+      <!-- Z-STEP 2: FILTER & SLICER CONTROL BAR (DEFAULT 2026-11-01 - 2026-11-02) -->
+      <section class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+          <div class="flex items-center gap-2.5">
+            <span class="w-1.5 h-6 rounded-full bg-indigo-600"></span>
+            <div>
+              <h2 class="text-sm font-bold text-slate-900">Filter &amp; Slicer — Sales by Person (Barcode)</h2>
+              <p class="text-xs font-semibold text-indigo-700 mt-0.5">
+                Data Barcode hanya 01/11/2026 - 02/11/2026 (128 baris) • <span id="personPeriodBadge" class="font-mono text-slate-700">Periode: 01/11/2026 - 02/11/2026</span> • <span id="personRowCountBadge" class="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-bold">Dihitung dari 0 baris</span>
+              </p>
+            </div>
+          </div>
+          <button onclick="resetPersonFilters()" class="self-start sm:self-auto text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition">
+            ↺ Reset Filter Tab Ini
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          <!-- From Date -->
+          <div>
+            <label for="personFromDate" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Dari Tanggal</label>
+            <input type="date" id="personFromDate" value="2026-11-01" onchange="renderPersonView()" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/15" />
+            <span id="personFromDisplay" class="block text-[11px] text-slate-400 mt-0.5 font-mono">01/11/2026</span>
+          </div>
+
+          <!-- To Date -->
+          <div>
+            <label for="personToDate" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Sampai Tanggal</label>
+            <input type="date" id="personToDate" value="2026-11-02" onchange="renderPersonView()" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/15" />
+            <span id="personToDisplay" class="block text-[11px] text-slate-400 mt-0.5 font-mono">02/11/2026</span>
+          </div>
+
+          <!-- Barcode / SPG Dropdown -->
+          <div>
+            <label for="personBarcodeSelect" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Barcode / SPG</label>
+            <select id="personBarcodeSelect" onchange="renderPersonView()" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/15">
+              <option value="ALL">Semua Barcode / SPG</option>
             </select>
-            <input type="text" id="personSearchInput" class="input-control" placeholder="Cari barcode atau nama SPG..." oninput="renderPersonTab()" />
+          </div>
+
+          <!-- Sort By Dropdown -->
+          <div>
+            <label for="personSortSelect" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Urutkan</label>
+            <select id="personSortSelect" onchange="onPersonSortDropdownChange()" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/15">
+              <option value="sales:desc">Sales Tertinggi (Rp)</option>
+              <option value="sales:asc">Sales Terendah (Rp)</option>
+              <option value="qty:desc">Qty Terbanyak (Pcs)</option>
+              <option value="target:desc">Target Terbesar (Rp)</option>
+              <option value="ach:desc">ACH Tertinggi (%)</option>
+              <option value="nama:asc">Nama (A–Z)</option>
+            </select>
           </div>
         </div>
-        <div class="table-responsive">
-          <table>
+
+        <!-- Date Range Error Banner (DARI > SAMPAI) -->
+        <div id="personDateError" class="hidden bg-rose-50 border border-rose-200 rounded-xl px-4 py-2.5 flex items-center justify-between gap-3 text-xs text-rose-800">
+          <span class="font-bold">DARI &gt; SAMPAI — Tanggal mulai lebih besar dari tanggal akhir.</span>
+          <button onclick="swapDates('personFromDate', 'personToDate', renderPersonView)" class="px-3 py-1 rounded-lg bg-rose-700 text-white font-bold hover:bg-rose-800 transition shrink-0">
+            Tukar Tanggal
+          </button>
+        </div>
+      </section>
+
+      <!-- Spotlight Card when specific Barcode is selected -->
+      <section id="personSpotlightCard" class="hidden bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-900 rounded-2xl p-5 text-white shadow-sm">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span id="spotBarcodeBadge" class="px-2.5 py-0.5 rounded-md bg-indigo-500/30 border border-indigo-300/30 text-xs font-mono font-bold text-indigo-100">BARCODE</span>
+              <span id="spotPeriodText" class="text-xs text-slate-300">Periode</span>
+            </div>
+            <h3 id="spotPersonName" class="text-lg sm:text-xl font-extrabold mt-1">Sales Person</h3>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 tabular-nums">
+            <div class="bg-white/10 rounded-xl px-3.5 py-2.5">
+              <span class="text-[11px] text-slate-300 block">Sales</span>
+              <span id="spotNetSales" class="text-sm sm:text-base font-extrabold text-emerald-300">Rp 0</span>
+            </div>
+            <div class="bg-white/10 rounded-xl px-3.5 py-2.5">
+              <span class="text-[11px] text-slate-300 block">Qty</span>
+              <span id="spotNetQty" class="text-sm sm:text-base font-extrabold">0 Pcs</span>
+            </div>
+            <div class="bg-white/10 rounded-xl px-3.5 py-2.5">
+              <span class="text-[11px] text-slate-300 block">Target</span>
+              <span id="spotDiscount" class="text-sm sm:text-base font-extrabold text-amber-300">Rp 0</span>
+            </div>
+            <div class="bg-white/10 rounded-xl px-3.5 py-2.5">
+              <span class="text-[11px] text-slate-300 block">ACH</span>
+              <span id="spotAvgPrice" class="text-sm sm:text-base font-extrabold text-indigo-200">0%</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Z-STEP 3: KPI CARDS ROW (4 CLEAN CARDS) -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-2.5">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total SPG Net Sales (Rp)</span>
+            <span class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs">NET</span>
+          </div>
+          <div id="kpiPersonSales" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums truncate">Rp 0</div>
+          <p id="kpiPersonSalesSub" class="text-xs text-slate-500 mt-1.5 truncate">Periode 01/11/2026 - 02/11/2026</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-2.5">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Net Qty (Pcs)</span>
+            <span class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs">PCS</span>
+          </div>
+          <div id="kpiPersonQty" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums">0 Pcs</div>
+          <p id="kpiPersonQtySub" class="text-xs text-slate-500 mt-1.5 truncate">Avg Price/Pc: Rp 0</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-2.5">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Target &amp; ACH</span>
+            <span id="kpiPersonDiscBadge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-700">0%</span>
+          </div>
+          <div id="kpiPersonDisc" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums truncate">Rp 0</div>
+          <p class="text-xs text-slate-500 mt-1.5 truncate">Target bulanan SPG terpilih</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-2.5">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Barcodes / SPG</span>
+            <span class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center font-bold text-xs">SPG</span>
+          </div>
+          <div id="kpiPersonActive" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums">0 SPG</div>
+          <p id="kpiPersonAvgSub" class="text-xs text-slate-500 mt-1.5 truncate">Avg Sales/SPG: Rp 0</p>
+        </div>
+      </section>
+
+      <!-- Z-STEP 4: VISUAL ANALYTICS ROW (60% / 40% SPLIT) -->
+      <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div class="lg:col-span-7 bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div class="mb-4">
+            <h3 class="text-base font-bold text-slate-900">Top 10 Sales Persons — Sales vs Target</h3>
+            <p class="text-xs text-slate-500">Perbandingan penjualan dan target bulanan per person pada rentang tanggal</p>
+          </div>
+          <div class="relative h-72 w-full">
+            <canvas id="chartPersonTop10"></canvas>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5 bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div class="mb-4">
+            <h3 class="text-base font-bold text-slate-900">Top Performers Revenue Share</h3>
+            <p class="text-xs text-slate-500">Porsi kontribusi Net Sales Top 5 SPG dibanding lainnya</p>
+          </div>
+          <div class="relative h-72 w-full">
+            <canvas id="chartPersonShare"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Z-STEP 5: BOTTOM DETAILED DATA TABLE + CSV EXPORT -->
+      <section class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div class="p-4 sm:p-5 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-base font-bold text-slate-900">Ranking &amp; Detail Sales by Person (Barcode)</h3>
+              <span id="personTableCountBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700">0 SPG</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">Klik baris person untuk melihat atau menutup kartu Spotlight</p>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+            <div class="relative">
+              <input type="text" id="personTableSearch" oninput="renderPersonView()" placeholder="Cari Barcode atau Nama SPG..." class="w-full sm:w-64 rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-indigo-600 focus:outline-none" />
+              <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/>
+              </svg>
+            </div>
+            <button onclick="exportCSV('person')" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 transition">
+              <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+              </svg>
+              <span>Export CSV</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
             <thead>
-              <tr>
-                <th>Rank</th>
-                <th>Barcode</th>
-                <th>Nama</th>
-                <th class="text-right">Sales</th>
-                <th class="text-right">Qty</th>
-                <th class="text-right">Target</th>
-                <th class="text-right">Ach</th>
-                <th>Jabatan</th>
+              <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider select-none">
+                <th class="py-3.5 px-4 w-14 text-center">RANK</th>
+                <th onclick="togglePersonSort('barcode')" class="py-3.5 px-4 cursor-pointer hover:text-indigo-600">BARCODE ↕</th>
+                <th onclick="togglePersonSort('nama')" class="py-3.5 px-4 cursor-pointer hover:text-indigo-600">NAMA ↕</th>
+                <th onclick="togglePersonSort('sales')" class="py-3.5 px-4 text-right cursor-pointer hover:text-indigo-600">SALES ↕</th>
+                <th onclick="togglePersonSort('qty')" class="py-3.5 px-4 text-right cursor-pointer hover:text-indigo-600">QTY ↕</th>
+                <th onclick="togglePersonSort('target')" class="py-3.5 px-4 text-right cursor-pointer hover:text-indigo-600">TARGET ↕</th>
+                <th onclick="togglePersonSort('ach')" class="py-3.5 px-4 text-center cursor-pointer hover:text-indigo-600">ACH ↕</th>
+                <th onclick="togglePersonSort('jabatan')" class="py-3.5 px-4 cursor-pointer hover:text-indigo-600">JABATAN ↕</th>
               </tr>
             </thead>
-            <tbody id="personTableBody"></tbody>
-            <tfoot id="personTableFoot"></tfoot>
+            <tbody id="personTableBody" class="divide-y divide-slate-100 text-xs sm:text-sm tabular-nums"></tbody>
           </table>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
 
-    <!-- TAB 3: SALES BY SPV -->
-    <section id="tab-spv" class="tab-panel">
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-label">Total Sales SPV</div>
-          <div class="kpi-value tabular-nums" id="spvTotalSalesCard">Rp 0</div>
-          <div class="kpi-sub tabular-nums" id="spvVsLyCard">vs LY: 0.0%</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Total Sales DP</div>
-          <div class="kpi-value tabular-nums" id="spvDpCard">Rp 0</div>
-          <div class="kpi-sub tabular-nums" id="spvDpAchCard">Ach: 0.0%</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Total Sales CV</div>
-          <div class="kpi-value tabular-nums" id="spvCvCard">Rp 0</div>
-          <div class="kpi-sub tabular-nums" id="spvCvAchCard">Ach: 0.0%</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Overall Achievement</div>
-          <div class="kpi-value tabular-nums" id="spvTotalAchCard">0.0%</div>
-          <div class="kpi-sub tabular-nums" id="spvTotalTargetCard">Target Prorata: Rp 0</div>
-        </div>
-      </div>
+    <!-- MODULE 3: SALES SHOPNTALK                                   -->
+    <!-- ===================================================================== -->
+    <div id="view-shopntalk" class="hidden space-y-6">
 
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">Monitoring Pencapaian Supervisor (SPV)</div>
-          <div class="filter-row">
-            <select id="spvNameFilter" class="select-control" onchange="renderSpvTab()">
+      <!-- Z-STEP 2: FILTER & SLICER CONTROL BAR (DEFAULT 2026-11-01 - 2026-11-05) -->
+      <section class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+          <div class="flex items-center gap-2.5">
+            <span class="w-1.5 h-6 rounded-full bg-indigo-600"></span>
+            <div>
+              <h2 class="text-sm font-bold text-slate-900">Filter &amp; Slicer — Sales shopntalk (Barcode)</h2>
+              <p class="text-xs font-semibold text-indigo-700 mt-0.5">
+                Sheet shopntalk (GID 1151225502) • <span id="shopntalkPeriodBadge" class="font-mono text-slate-700">Periode: 01/11/2026 - 05/11/2026</span> • <span id="shopntalkRowCount" class="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-bold">Dihitung dari 0 baris</span>
+              </p>
+            </div>
+          </div>
+          <button onclick="resetShopntalkFilters()" class="self-start sm:self-auto text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition">
+            ↺ Reset Filter Tab Ini
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          <!-- From Date -->
+          <div>
+            <label for="shopntalkFromDate" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Dari Tanggal</label>
+            <input type="date" id="shopntalkFromDate" value="2026-11-01" onchange="renderShopntalkView()" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/15" />
+            <span id="shopntalkFromDisplay" class="block text-[11px] text-slate-400 mt-0.5 font-mono">01/11/2026</span>
+          </div>
+
+          <!-- To Date -->
+          <div>
+            <label for="shopntalkToDate" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Sampai Tanggal</label>
+            <input type="date" id="shopntalkToDate" value="2026-11-05" onchange="renderShopntalkView()" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/15" />
+            <span id="shopntalkToDisplay" class="block text-[11px] text-slate-400 mt-0.5 font-mono">05/11/2026</span>
+          </div>
+
+          <!-- Barcode / SPG Dropdown -->
+          <div>
+            <label for="shopntalkBarcodeSelect" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Barcode / SPG</label>
+            <select id="shopntalkBarcodeSelect" onchange="renderShopntalkView()" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/15">
+              <option value="ALL">Semua Barcode / SPG</option>
+            </select>
+          </div>
+
+          <!-- Sort By Dropdown -->
+          <div>
+            <label for="shopntalkSortSelect" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Urutkan</label>
+            <select id="shopntalkSortSelect" onchange="onShopntalkSortDropdownChange()" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/15">
+              <option value="sales:desc">Sales Tertinggi (Rp)</option>
+              <option value="sales:asc">Sales Terendah (Rp)</option>
+              <option value="qty:desc">Qty Terbanyak (Pcs)</option>
+              <option value="target:desc">Target Terbesar (Rp)</option>
+              <option value="ach:desc">ACH Tertinggi (%)</option>
+              <option value="nama:asc">Nama (A–Z)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Date Range Error Banner (DARI > SAMPAI) -->
+        <div id="shopntalkDateError" class="hidden bg-rose-50 border border-rose-200 rounded-xl px-4 py-2.5 flex items-center justify-between gap-3 text-xs text-rose-800">
+          <span class="font-bold">DARI &gt; SAMPAI — Tanggal mulai lebih besar dari tanggal akhir.</span>
+          <button onclick="swapDates('shopntalkFromDate', 'shopntalkToDate', renderShopntalkView)" class="px-3 py-1 rounded-lg bg-rose-700 text-white font-bold hover:bg-rose-800 transition shrink-0">
+            Tukar Tanggal
+          </button>
+        </div>
+      </section>
+
+      <!-- Spotlight Card when specific Barcode is selected -->
+      <section id="shopntalkSpotlightCard" class="hidden bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-900 rounded-2xl p-5 text-white shadow-sm">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span id="spotShopntalkBarcodeBadge" class="px-2.5 py-0.5 rounded-md bg-indigo-500/30 border border-indigo-300/30 text-xs font-mono font-bold text-indigo-100">BARCODE</span>
+              <span id="spotShopntalkPeriodText" class="text-xs text-slate-300">Periode</span>
+            </div>
+            <h3 id="spotShopntalkName" class="text-lg sm:text-xl font-extrabold mt-1">Sales shopntalk</h3>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 tabular-nums">
+            <div class="bg-white/10 rounded-xl px-3.5 py-2.5">
+              <span class="text-[11px] text-slate-300 block">Sales</span>
+              <span id="spotShopntalkNetSales" class="text-sm sm:text-base font-extrabold text-emerald-300">Rp 0</span>
+            </div>
+            <div class="bg-white/10 rounded-xl px-3.5 py-2.5">
+              <span class="text-[11px] text-slate-300 block">Qty</span>
+              <span id="spotShopntalkNetQty" class="text-sm sm:text-base font-extrabold">0 Pcs</span>
+            </div>
+            <div class="bg-white/10 rounded-xl px-3.5 py-2.5">
+              <span class="text-[11px] text-slate-300 block">Target</span>
+              <span id="spotShopntalkTarget" class="text-sm sm:text-base font-extrabold text-amber-300">Rp 0</span>
+            </div>
+            <div class="bg-white/10 rounded-xl px-3.5 py-2.5">
+              <span class="text-[11px] text-slate-300 block">ACH</span>
+              <span id="spotShopntalkAch" class="text-sm sm:text-base font-extrabold text-indigo-200">0%</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Z-STEP 3: KPI CARDS ROW (4 CLEAN CARDS) -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-2.5">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total SPG Net Sales (Rp)</span>
+            <span class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs">NET</span>
+          </div>
+          <div id="shopntalkTotalSales" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums truncate">Rp 0</div>
+          <p id="shopntalkSalesSub" class="text-xs text-slate-500 mt-1.5 truncate">Periode 01/11/2026 - 05/11/2026</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-2.5">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Net Qty (Pcs)</span>
+            <span class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs">PCS</span>
+          </div>
+          <div id="shopntalkTotalQty" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums">0 Pcs</div>
+          <p id="shopntalkAvgPrice" class="text-xs text-slate-500 mt-1.5 truncate">Avg Price/Pc: Rp 0</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-2.5">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Target &amp; ACH</span>
+            <span id="shopntalkAch" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-700">0.0%</span>
+          </div>
+          <div id="shopntalkTotalTarget" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums truncate">Rp 0</div>
+          <p class="text-xs text-slate-500 mt-1.5 truncate">Target bulanan SPG terpilih</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-2.5">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Barcodes / SPG</span>
+            <span class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center font-bold text-xs">SPG</span>
+          </div>
+          <div id="shopntalkActiveCount" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums">0 SPG</div>
+          <p id="shopntalkAvgSub" class="text-xs text-slate-500 mt-1.5 truncate">Data sheet shopntalk</p>
+        </div>
+      </section>
+
+      <!-- Z-STEP 4: VISUAL ANALYTICS ROW (60% / 40% SPLIT) -->
+      <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div class="lg:col-span-7 bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div class="mb-4">
+            <h3 class="text-base font-bold text-slate-900">Top 10 Sales Persons — Sales vs Target</h3>
+            <p class="text-xs text-slate-500">Perbandingan penjualan dan target bulanan per person pada rentang tanggal</p>
+          </div>
+          <div class="relative h-72 w-full">
+            <canvas id="chartshopntalkTop10"></canvas>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5 bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div class="mb-4">
+            <h3 class="text-base font-bold text-slate-900">Top Performers Revenue Share</h3>
+            <p class="text-xs text-slate-500">Porsi kontribusi Net Sales Top 5 SPG dibanding lainnya</p>
+          </div>
+          <div class="relative h-72 w-full">
+            <canvas id="chartshopntalkShare"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Z-STEP 5: BOTTOM DETAILED DATA TABLE + CSV EXPORT -->
+      <section class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div class="p-4 sm:p-5 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-base font-bold text-slate-900">Ranking &amp; Detail Sales shopntalk (Barcode)</h3>
+              <span id="shopntalkTableCountBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700">0 SPG</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">Klik baris person untuk melihat atau menutup kartu Spotlight</p>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+            <div class="relative">
+              <input type="text" id="shopntalkTableSearch" oninput="renderShopntalkView()" placeholder="Cari Barcode atau Nama SPG..." class="w-full sm:w-64 rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-indigo-600 focus:outline-none" />
+              <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/>
+              </svg>
+            </div>
+            <button onclick="exportCSV('shopntalk')" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 transition">
+              <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+              </svg>
+              <span>Export CSV</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider select-none">
+                <th class="py-3.5 px-4 w-14 text-center">RANK</th>
+                <th onclick="toggleShopntalkSort('barcode')" class="py-3.5 px-4 cursor-pointer hover:text-indigo-600">BARCODE ↕</th>
+                <th onclick="toggleShopntalkSort('nama')" class="py-3.5 px-4 cursor-pointer hover:text-indigo-600">NAMA ↕</th>
+                <th onclick="toggleShopntalkSort('sales')" class="py-3.5 px-4 text-right cursor-pointer hover:text-indigo-600">SALES ↕</th>
+                <th onclick="toggleShopntalkSort('qty')" class="py-3.5 px-4 text-right cursor-pointer hover:text-indigo-600">QTY ↕</th>
+                <th onclick="toggleShopntalkSort('target')" class="py-3.5 px-4 text-right cursor-pointer hover:text-indigo-600">TARGET ↕</th>
+                <th onclick="toggleShopntalkSort('ach')" class="py-3.5 px-4 text-center cursor-pointer hover:text-indigo-600">ACH ↕</th>
+                <th onclick="toggleShopntalkSort('jabatan')" class="py-3.5 px-4 cursor-pointer hover:text-indigo-600">JABATAN ↕</th>
+              </tr>
+            </thead>
+            <tbody id="shopntalkTableBody" class="divide-y divide-slate-100 text-xs sm:text-sm tabular-nums"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===================================================================== -->
+    
+
+    <!-- MODULE 3: SALES BY SPV (DROPDOWN NAMA KOLOM C)                      -->
+    <!-- ===================================================================== -->
+    <div id="view-spv" class="hidden space-y-6">
+
+      <!-- Z-STEP 2: SPV FILTER & DATE RANGE BOX -->
+      <section class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+          <div class="flex items-center gap-2.5">
+            <span class="w-1.5 h-6 rounded-full bg-indigo-600"></span>
+            <div>
+              <h2 class="text-sm font-bold text-slate-900">Filter &amp; Slicer — Sales by SPV</h2>
+              <p id="spvPeriodNote" class="text-xs font-medium text-slate-600 mt-0.5">
+                Periode: 01/01/2026 - 31/01/2026 — Data SPV adalah data YTD, tidak difilter harian • Sales TY di SPV adalah akumulasi sampai tanggal terakhir di file
+              </p>
+            </div>
+          </div>
+          <button onclick="resetSpvFilters()" class="self-start sm:self-auto text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition">
+            ↺ Reset Filter SPV
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3.5 items-start">
+          <!-- Dropdown SPV (NAMA dari Kolom C) -->
+          <div class="lg:col-span-4">
+            <label for="spvJabatanSelect" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Dropdown SPV (NAMA)</label>
+            <select id="spvJabatanSelect" onchange="renderSpvView()" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/15">
               <option value="ALL">Semua SPV</option>
             </select>
           </div>
+
+          <!-- Dari Tanggal (SPV only) -->
+          <div class="lg:col-span-3">
+            <label for="spvFromDate" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Dari Tanggal (DD/MM/YYYY)</label>
+            <input type="date" id="spvFromDate" value="2026-01-01" onchange="applySpvDateFilter()" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/15" />
+            <span id="spvFromDisplay" class="block text-[11px] text-slate-400 mt-0.5 font-mono">01/01/2026</span>
+          </div>
+
+          <!-- Sampai Tanggal (SPV only) -->
+          <div class="lg:col-span-3">
+            <label for="spvToDate" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Sampai Tanggal (DD/MM/YYYY)</label>
+            <input type="date" id="spvToDate" value="2026-01-31" onchange="applySpvDateFilter()" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/15" />
+            <span id="spvToDisplay" class="block text-[11px] text-slate-400 mt-0.5 font-mono">31/01/2026</span>
+          </div>
+
+          <!-- Terapkan Button -->
+          <div class="lg:col-span-2">
+            <button onclick="applySpvDateFilter()" class="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-bold shadow-xs transition">
+              Terapkan
+            </button>
+          </div>
         </div>
-        <div class="table-responsive">
-          <table>
+
+        <!-- Mandatory SPV Debug Line -->
+        <div id="spvDebugLine" class="bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-700">
+          SPV tampil: 0 baris | NAMA pertama: - | Dropdown SPV: 1 opsi
+        </div>
+
+        <!-- Date Range Error Banner (DARI > SAMPAI) -->
+        <div id="spvDateError" class="hidden bg-rose-50 border border-rose-200 rounded-xl px-4 py-2.5 flex items-center justify-between gap-3 text-xs text-rose-800">
+          <span class="font-bold">DARI &gt; SAMPAI — Tanggal mulai lebih besar dari tanggal akhir.</span>
+          <button onclick="swapDates('spvFromDate', 'spvToDate', applySpvDateFilter)" class="px-3 py-1 rounded-lg bg-rose-700 text-white font-bold hover:bg-rose-800 transition shrink-0">
+            Tukar Tanggal
+          </button>
+        </div>
+      </section>
+
+      <!-- Z-STEP 3: KPI CARDS ROW (4 CLEAN CARDS) -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-2.5">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Sales TY (DP + CV)</span>
+            <span class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs">TY</span>
+          </div>
+          <div id="kpiSpvTotalTy" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums truncate">Rp 0</div>
+          <p id="kpiSpvDpCvSub" class="text-xs text-slate-600 font-medium mt-1.5 truncate">DP: Rp 0 • CV: Rp 0</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-2.5">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Target (DP + CV)</span>
+            <span class="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs">TGT</span>
+          </div>
+          <div id="kpiSpvTarget" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums truncate">Rp 0</div>
+          <p id="kpiSpvTargetSub" class="text-xs text-slate-500 mt-1.5 truncate">Target DP + Target CV</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-2.5">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Achievement (ACH %)</span>
+            <span id="kpiSpvAchBadge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800">0%</span>
+          </div>
+          <div id="kpiSpvAch" class="text-xl sm:text-2xl font-extrabold text-rose-600 tabular-nums">0%</div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-2.5">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Growth (vs LY)</span>
+            <span id="kpiSpvGrowthBadge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700">0%</span>
+          </div>
+          <div id="kpiSpvGrowth" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums">0%</div>
+          <p id="kpiSpvLySub" class="text-xs text-slate-500 mt-1.5 truncate">TOTAL SALES LY: Rp 0</p>
+        </div>
+      </section>
+
+      <!-- Single Selected SPV Detail Card (NAMA 18px 700 + JABATAN 12.5px Ungu Uppercase) -->
+      <section id="spvDetailCard" class="hidden bg-white rounded-2xl p-5 border-2 border-indigo-200 shadow-xs space-y-3 text-xs sm:text-sm tabular-nums">
+        <div class="border-b border-slate-100 pb-2.5">
+          <div id="spvCardNama" style="font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 700; line-height: 1.3;" class="text-slate-900"></div>
+          <div id="spvCardJabatan" style="font-size: 12.5px; font-weight: 700; color: #7C3AED; text-transform: uppercase; letter-spacing: 0.04em;" class="mt-0.5"></div>
+        </div>
+        <!-- Line 2 -->
+        <div id="spvCardLine2" class="font-semibold text-slate-800"></div>
+        <!-- Line 3 -->
+        <div id="spvCardLine3" class="font-semibold text-slate-700"></div>
+        <!-- Line 4 -->
+        <div id="spvCardLine4" class="flex items-center gap-2 font-bold"></div>
+        <!-- Line 5 -->
+        <div id="spvCardLine5" class="font-semibold text-slate-800"></div>
+        <!-- Line 6 -->
+        <div id="spvCardLine6" class="text-slate-600"></div>
+      </section>
+
+      <!-- Z-STEP 4: VISUAL ANALYTICS ROW (BAR DP vs CV + RING ACH & GROWTH) -->
+      <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div class="lg:col-span-6 bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+          <div class="mb-3">
+            <h3 class="text-base font-bold text-slate-900">Sales TY DP vs Sales TY CV</h3>
+          </div>
+          <div class="relative h-72 w-full">
+            <canvas id="chartSpvGrouped"></canvas>
+          </div>
+        </div>
+
+        <div class="lg:col-span-3 bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex items-center justify-center">
+          <div class="relative h-64 w-full flex items-center justify-center">
+            <canvas id="chartSpvRingAch"></canvas>
+            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span id="spvCenterAchVal" class="text-2xl font-extrabold text-slate-900 tabular-nums">0%</span>
+              <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">ACH</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-3 bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex items-center justify-center">
+          <div class="relative h-64 w-full flex items-center justify-center">
+            <canvas id="chartSpvRingGrowth"></canvas>
+            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span id="spvCenterGrowthVal" class="text-2xl font-extrabold text-slate-900 tabular-nums">0%</span>
+              <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">GROWTH</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Z-STEP 5: ALL SPV TABLE + TOTAL ROW + CSV EXPORT -->
+      <section class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div class="p-4 sm:p-5 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-base font-bold text-slate-900">Tabel Kinerja Semua SPV</h3>
+              <span id="spvTableCountBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700">0 SPV</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">NAMA | JABATAN | SALES DP | vs LY | Ach | SALES CV | vs LY | Ach | TOTAL SALES | vs LY | Ach + baris TOTAL</p>
+          </div>
+
+          <button onclick="exportCSV('spv')" class="self-start md:self-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 transition">
+            <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+            </svg>
+            <span>Export CSV</span>
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
             <thead>
-              <tr>
-                <th>NAMA</th>
-                <th>JABATAN</th>
-                <th class="text-right">SALES DP</th>
-                <th class="text-right">vs LY</th>
-                <th class="text-right">Ach</th>
-                <th class="text-right">SALES CV</th>
-                <th class="text-right">vs LY</th>
-                <th class="text-right">Ach</th>
-                <th class="text-right">TOTAL SALES</th>
-                <th class="text-right">vs LY</th>
-                <th class="text-right">Ach</th>
+              <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider select-none">
+                <th class="py-3.5 px-4">NAMA</th>
+                <th class="py-3.5 px-4">JABATAN</th>
+                <th class="py-3.5 px-4 text-right text-indigo-700">SALES DP</th>
+                <th class="py-3.5 px-3 text-center">vs LY</th>
+                <th class="py-3.5 px-3 text-center">Ach</th>
+                <th class="py-3.5 px-4 text-right text-sky-700">SALES CV</th>
+                <th class="py-3.5 px-3 text-center">vs LY</th>
+                <th class="py-3.5 px-3 text-center">Ach</th>
+                <th class="py-3.5 px-4 text-right text-slate-900">TOTAL SALES</th>
+                <th class="py-3.5 px-3 text-center">vs LY</th>
+                <th class="py-3.5 px-3 text-center">Ach</th>
               </tr>
             </thead>
-            <tbody id="spvTableBody"></tbody>
-            <tfoot id="spvTableFoot"></tfoot>
+            <tbody id="spvTableBody" class="divide-y divide-slate-100 text-xs sm:text-sm tabular-nums"></tbody>
+            <tfoot id="spvTableFoot" class="bg-slate-100 border-t-2 border-slate-300 font-extrabold text-xs sm:text-sm tabular-nums"></tfoot>
           </table>
         </div>
-      </div>
-    </section>
-
-    <!-- TAB 4: SHOP N TALK -->
-    <section id="tab-shopntalk" class="tab-panel">
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-label">Total Sales Shop n Talk</div>
-          <div class="kpi-value tabular-nums" id="sntTotalSales">Rp 0</div>
-          <div class="kpi-sub tabular-nums" id="sntTotalTrx">0 Transaksi</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Channel WhatsApp (WA)</div>
-          <div class="kpi-value tabular-nums" id="sntWaSales">Rp 0</div>
-          <div class="kpi-sub tabular-nums" id="sntWaShare">0.0% kontribusi</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Channel HAPTIK</div>
-          <div class="kpi-value tabular-nums" id="sntHaptikSales">Rp 0</div>
-          <div class="kpi-sub tabular-nums" id="sntHaptikShare">0.0% kontribusi</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Channel LIVE</div>
-          <div class="kpi-value tabular-nums" id="sntLiveSales">Rp 0</div>
-          <div class="kpi-sub tabular-nums" id="sntLiveShare">0.0% kontribusi</div>
-        </div>
-      </div>
-
-      <div class="charts-grid">
-        <div class="card" style="margin-bottom:0;">
-          <div class="card-header">
-            <div class="card-title">Top SPG Shop n Talk</div>
-          </div>
-          <div class="chart-wrapper">
-            <canvas id="sntSpgChart"></canvas>
-          </div>
-        </div>
-        <div class="card" style="margin-bottom:0;">
-          <div class="card-header">
-            <div class="card-title">Kontribusi Channel</div>
-          </div>
-          <div class="chart-wrapper">
-            <canvas id="sntChannelChart"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">Rekapitulasi Transaksi Shop n Talk</div>
-          <div class="filter-row">
-            <select id="sntChannelFilter" class="select-control" onchange="renderSntTab()">
-              <option value="ALL">Semua Channel</option>
-              <option value="WA">WA</option>
-              <option value="HAPTIK">HAPTIK</option>
-              <option value="LIVE">LIVE</option>
-            </select>
-            <input type="text" id="sntSearchInput" class="input-control" placeholder="Cari SPG atau Brand..." oninput="renderSntTab()" />
-          </div>
-        </div>
-        <div class="table-responsive">
-          <table>
-            <thead>
-              <tr>
-                <th>Rank</th>
-                <th>Nama SPG</th>
-                <th>Channel</th>
-                <th>Brand</th>
-                <th class="text-right">Transaksi</th>
-                <th class="text-right">Qty</th>
-                <th class="text-right">Net Sales</th>
-              </tr>
-            </thead>
-            <tbody id="sntTableBody"></tbody>
-            <tfoot id="sntTableFoot"></tfoot>
-          </table>
-        </div>
-      </div>
-    </section>
+      </section>
+    </div>
 
   </main>
 
+  <!-- Mobile Bottom Navigation -->
+  <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur border-t border-slate-200 px-2 py-1.5 shadow-[0_-4px_12px_rgba(15,23,42,0.06)]">
+    <div class="grid grid-cols-4 gap-1">
+      <button onclick="switchTab('brand')" id="nav-mob-brand" class="py-2 px-1 rounded-xl text-[11px] font-bold bg-indigo-50 text-indigo-700 text-center transition">
+        Brand &amp; Inv
+      </button>
+      <button onclick="switchTab('person')" id="nav-mob-person" class="py-2 px-1 rounded-xl text-[11px] font-semibold text-slate-600 hover:bg-slate-50 text-center transition">
+        By Person
+      </button>
+      <button onclick="switchTab('shopntalk')" id="nav-mob-shopntalk" class="py-2 px-1 rounded-xl text-[11px] font-semibold text-slate-600 hover:bg-slate-50 text-center transition">
+        By shopntalk
+      </button>
+      <button onclick="switchTab('spv')" id="nav-mob-spv" class="py-2 px-1 rounded-xl text-[11px] font-semibold text-slate-600 hover:bg-slate-50 text-center transition">
+        By SPV
+      </button>
+    </div>
+  </nav>
+
+  <!-- Toast Notification -->
+  <div id="toastBox" class="hidden fixed bottom-20 md:bottom-6 right-4 z-50 bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-lg">
+    <span id="toastText">Siap</span>
+  </div>
+
   <script>
+    // =========================================================================
+    // 1. DIRECT SPREADSHEET ID CSV EXPORT (GID) & GVIZ JSON (GID) FALLBACK
+    // =========================================================================
     const SHEET_ID = '1c-FwaTcO_0lSEIv2TS10z_PXvfqmkDjsNJap2y7joOc';
-    const GIDS = {
-      brand: '460134977',
-      barcode: '292538885',
-      spv: '1979255634',
-      inventory: '1747791644',
-      shopntalk: '1151225502'
+    const EXP_BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`; const GVIZ_BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
+
+    const SHEET_CONFIGS = {
+      brand: {
+        name: 'MASTER BRAND',
+        gid: '460134977',
+        urls: [
+          { mode: 'csv', type: 'Export CSV (GID)', label: 'Export MASTER BRAND (460134977)', url: `${EXP_BASE}&gid=460134977` }, { mode: 'gviz', type: 'Fallback Gviz JSON (GID)', label: 'Gviz MASTER BRAND (460134977)', url: `${GVIZ_BASE}&gid=460134977` }
+        ]
+      },
+      barcode: {
+        name: 'MASTER BARCODE',
+        gid: '292538885',
+        urls: [
+          { mode: 'csv', type: 'Export CSV (GID)', label: 'Export MASTER BARCODE (292538885)', url: `${EXP_BASE}&gid=292538885` }, { mode: 'gviz', type: 'Fallback Gviz JSON (GID)', label: 'Gviz MASTER BARCODE (292538885)', url: `${GVIZ_BASE}&gid=292538885` }
+        ]
+      },
+      spv: {
+        name: 'MASTER SPV',
+        gid: '1979255634',
+        urls: [
+          { mode: 'csv', type: 'Export CSV (GID)', label: 'Export MASTER SPV (1979255634)', url: `${EXP_BASE}&gid=1979255634` }, { mode: 'gviz', type: 'Fallback Gviz JSON (GID)', label: 'Gviz MASTER SPV (1979255634)', url: `${GVIZ_BASE}&gid=1979255634` }
+        ]
+      },
+      inventory: {
+        name: 'MASTER INVENTORY',
+        gid: '1747791644',
+        urls: [
+          { mode: 'csv', type: 'Export CSV (GID)', label: 'Export MASTER INVENTORY (1747791644)', url: `${EXP_BASE}&gid=1747791644` }, { mode: 'gviz', type: 'Fallback Gviz JSON (GID)', label: 'Gviz MASTER INVENTORY (1747791644)', url: `${GVIZ_BASE}&gid=1747791644` }
+        ]
+      },
+      shopntalk: {
+        name: 'shopntalk',
+        gid: '1151225502',
+        urls: [
+          { mode: 'csv', type: 'Export CSV (GID)', label: 'Export shopntalk (1151225502)', url: `${EXP_BASE}&gid=1151225502` }, { mode: 'gviz', type: 'Fallback Gviz JSON (GID)', label: 'Gviz shopntalk (1151225502)', url: `${GVIZ_BASE}&gid=1151225502` }
+        ]
+      },
     };
 
-    const TARGET_PER_SPG = 2494996;
-    const DEFAULT_START_DATE = '2026-11-01';
-    const DEFAULT_END_DATE = '2026-11-28';
-
-    const rawData = {
-      brand: [],
-      barcode: [],
-      spv: [],
-      inventory: [],
-      shopntalk: []
+    const STATE = {
+      activeTab: 'brand',
+      isLoading: false,
+      masterBrand: [],
+      masterBarcode: [],
+      masterSpv: [],
+      masterInventory: [],
+      shopntalk: [],
+      spvAppliedFrom: '2026-01-01',
+      spvAppliedTo: '2026-01-31',
+      sort: {
+        brand: { key: 'sales', dir: 'desc' },
+        person: { key: 'sales', dir: 'desc' },
+        shopntalk: { key: 'sales', dir: 'desc' }
+      },
+      exportedRows: {
+        brand: [],
+        person: [],
+        shopntalk: [],
+        spv: []
+      },
+      charts: {
+        brandTop10: null,
+        brandAging: null,
+        personTop10: null,
+        personShare: null,
+        shopntalkTop10: null,
+        shopntalkShare: null,
+        spvGrouped: null,
+        spvRingAch: null,
+        spvRingGrowth: null
+      }
     };
 
-    let charts = {
-      brandBar: null,
-      deptDonut: null,
-      sntSpg: null,
-      sntChannel: null
-    };
+    // =========================================================================
+    // 2. DATE & NUMBER PARSERS
+    // =========================================================================
+    function parseTgl(s) {
+  if (!s) return null;
+  s = String(s).trim();
+  if (!s) return null;
+  if (s.includes('-') && s.length === 10) {
+    const p = s.split('-');
+    return new Date(+p[0], +p[1] - 1, +p[2]);
+  }
+  if (s.includes('/')) {
+    const p = s.split('/');
+    return new Date(+p[2], +p[1] - 1, +p[0]);
+  }
+  const MONTHS = {januari:0, january:0, jan:0, februari:1, february:1, feb:1, maret:2, march:2, mar:2, april:3, apr:3, mei:4, may:4, juni:5, june:5, jun:5, juli:6, july:6, jul:6, agustus:7, august:7, aug:7, september:8, sept:8, sep:8, oktober:9, october:9, okt:9, oct:9, november:10, nov:10, desember:11, december:11, dec:11, des:11};
+  const m = s.toLowerCase().replace(/,/g,'').replace(/\./g,'').split(/\s+/);
+  if (m.length === 3) {
+    let d, mo, y;
+    if (MONTHS[m[0]] !== undefined) { mo = MONTHS[m[0]]; d = +m[1]; y = +m[2]; }
+    else if (MONTHS[m[1]] !== undefined) { d = +m[0]; mo = MONTHS[m[1]]; y = +m[2]; }
+    else if (MONTHS[m[2]] !== undefined) { d = +m[1]; mo = MONTHS[m[2]]; y = +m[0]; }
+    if (d && mo !== undefined && y) return new Date(y, mo, d);
+  }
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+}
 
-    let isFetching = false;
-
-    // Global switchTab function so inline onclick and listeners both work cleanly
-    function switchTab(tabId, btnEl) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-      if (btnEl) {
-        btnEl.classList.add('active');
-      } else {
-        const matchingBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
-        if (matchingBtn) matchingBtn.classList.add('active');
-      }
-      const panel = document.getElementById(tabId);
-      if (panel) panel.classList.add('active');
-    }
-
-    // Formatting Utilities
-    function formatRp(val) {
-      const num = Math.round(Number(val) || 0);
-      return 'Rp ' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    }
-
-    function formatNum(val) {
-      const num = Math.round(Number(val) || 0);
-      return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    }
-
-    function formatGrowthSpan(ty, ly) {
-      if (!ly || ly === 0) {
-        return '<span class="neu">0.0%</span>';
-      }
-      const pct = ((ty - ly) / Math.abs(ly)) * 100;
-      const cls = pct >= 0 ? 'pos' : 'neg';
-      const sign = pct > 0 ? '+' : '';
-      return `<span class="${cls}">${sign}${pct.toFixed(1)}%</span>`;
-    }
-
-    function formatAchSpan(ach) {
-      const val = isFinite(ach) && !isNaN(ach) ? ach : 0;
-      const cls = val >= 100 ? 'pos' : (val >= 80 ? 'neu' : 'neg');
-      return `<span class="${cls}">${val.toFixed(1)}%</span>`;
-    }
-
-    // Parse Indonesian/Standard numeric strings safely
-    function parseNumber(val) {
-      if (typeof val === 'number') return isNaN(val) ? 0 : val;
-      if (!val) return 0;
-      let str = String(val).trim();
-      if (!str || str === '-' || str === '#DIV/0!' || str === '#N/A' || str === '#VALUE!') return 0;
-      str = str.replace(/Rp/gi, '').replace(/\s+/g, '');
-      let isNeg = false;
-      if (str.startsWith('(') && str.endsWith(')')) {
-        isNeg = true;
-        str = str.slice(1, -1);
-      }
-      str = str.replace(/%/g, '');
-      const lastComma = str.lastIndexOf(',');
-      const lastDot = str.lastIndexOf('.');
-      if (lastComma > -1 && lastDot > -1) {
-        if (lastComma > lastDot) {
-          str = str.replace(/\./g, '').replace(',', '.');
-        } else {
-          str = str.replace(/,/g, '');
-        }
-      } else if (lastComma > -1) {
-        const parts = str.split(',');
-        if (parts.length === 2 && parts[1].length <= 2) {
-          str = str.replace(',', '.');
-        } else {
-          str = str.replace(/,/g, '');
-        }
-      } else if (lastDot > -1) {
-        const parts = str.split('.');
-        if (parts.length > 2 || (parts.length === 2 && parts[1].length === 3)) {
-          str = str.replace(/\./g, '');
-        }
-      }
-      const num = parseFloat(str);
-      if (isNaN(num)) return 0;
-      return isNeg ? -num : num;
-    }
-
-    // Parse Google Sheets Date or YYYY-MM-DD / DD/MM/YYYY / Month names
-    const MONTH_MAP = {
-      jan: '01', januari: '01', january: '01',
-      feb: '02', februari: '02', february: '02',
-      mar: '03', maret: '03', march: '03',
-      apr: '04', april: '04',
-      mei: '05', may: '05',
-      jun: '06', juni: '06', june: '06',
-      jul: '07', juli: '07', july: '07',
-      agu: '08', ags: '08', agustus: '08', aug: '08', august: '08',
-      sep: '09', sept: '09', september: '09',
-      okt: '10', oktober: '10', oct: '10', october: '10',
-      nov: '11', november: '11',
-      des: '12', desember: '12', dec: '12', december: '12'
-    };
-
-    function parseSheetDate(raw) {
-      if (!raw) return null;
-      if (raw instanceof Date && !isNaN(raw)) {
-        return toISODate(raw);
-      }
-      const s = String(raw).trim();
-      // Gviz Date(YYYY,M,D)
-      const gvizMatch = s.match(/^Date\((\d{4}),\s*(\d{1,2}),\s*(\d{1,2})/);
-      if (gvizMatch) {
-        const y = parseInt(gvizMatch[1], 10);
-        const m = parseInt(gvizMatch[2], 10) + 1;
-        const d = parseInt(gvizMatch[3], 10);
-        return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-      }
-      // ISO YYYY-MM-DD
-      const isoMatch = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
-      if (isoMatch) {
-        return `${isoMatch[1]}-${String(isoMatch[2]).padStart(2, '0')}-${String(isoMatch[3]).padStart(2, '0')}`;
-      }
-      // DD/MM/YYYY or DD-MM-YYYY
-      const dmyMatch = s.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
-      if (dmyMatch) {
-        return `${dmyMatch[3]}-${String(dmyMatch[2]).padStart(2, '0')}-${String(dmyMatch[1]).padStart(2, '0')}`;
-      }
-      // DD-MMM-YYYY or DD MMM YYYY (e.g., 05-Nov-2026 or 5 November 2026)
-      const dMonYMatch = s.match(/^(\d{1,2})[-\s/]([a-zA-Z]+)[-\s/](\d{2,4})/);
-      if (dMonYMatch) {
-        const day = String(parseInt(dMonYMatch[1], 10)).padStart(2, '0');
-        const monKey = dMonYMatch[2].toLowerCase();
-        const mon = MONTH_MAP[monKey];
-        let yr = dMonYMatch[3];
-        if (yr.length === 2) yr = '20' + yr;
-        if (mon) return `${yr}-${mon}-${day}`;
-      }
-      const parsed = new Date(s);
-      if (!isNaN(parsed)) {
-        return toISODate(parsed);
-      }
-      return null;
-    }
-
-    function toISODate(d) {
+    function dateToISO(d) {
+      if (!(d instanceof Date) || isNaN(d.getTime())) return '';
       const y = d.getFullYear();
       const m = String(d.getMonth() + 1).padStart(2, '0');
       const day = String(d.getDate()).padStart(2, '0');
-      return `${y}-${m}-${day}`;
+      return `${y}-${m}-${day}`; }  function isoToDDMMYYYY(isoStr) { if (!isoStr \vert{}\vert{} typeof isoStr !== 'string') return ''; const p = isoStr.split('-'); if (p.length !== 3) return isoStr; return `${p[2]}/${p[1]}/${p[0]}`;
     }
 
-    // Fetch single sheet via GVIZ JSON with CSV fallback
-    async function fetchSheetData(gid) {
-      const gvizUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${gid}`;
-      try {
-        const res = await fetch(gvizUrl);
-        if (!res.ok) throw new Error('GVIZ HTTP ' + res.status);
-        const text = await res.text();
-        const jsonStr = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
-        const data = JSON.parse(jsonStr);
-        const cols = data.table.cols.map((c, idx) => (c.label || c.id || `COL_${idx}`).trim());
-        const rows = (data.table.rows || []).map(r => {
-          const obj = {};
-          (r.c || []).forEach((cell, i) => {
-            const key = cols[i] || `COL_${i}`;
-            let val = cell ? (cell.v !== null && cell.v !== undefined ? cell.v : '') : '';
-            if (typeof val === 'string' && val.startsWith('Date(') && cell && cell.f) {
-              val = parseSheetDate(val) || cell.f;
-            } else if (typeof val === 'string' && val.startsWith('Date(')) {
-              val = parseSheetDate(val) || val;
-            }
-            obj[key] = val;
-            obj[`__COL_${i}`] = val;
-          });
-          return obj;
+    function parseNumber(v) {
+      if (v === null || v === undefined) return 0;
+      let s = String(v).trim().replace(/Rp/gi, '').replace(/%/g, '').replace(/\s/g, '');
+      if (s === '' || s === '-') return 0;
+      s = s.replace(/\./g, '').replace(/,/g, '.');
+      const n = Number(s);
+      return isNaN(n) ? 0 : n;
+    }
+
+    function formatRupiah(num) {
+      const n = Math.round(Number(num) || 0);
+      return 'Rp ' + n.toLocaleString('id-ID');
+    }
+
+    function formatQty(num) {
+      return Math.round(Number(num) || 0).toLocaleString('id-ID');
+    }
+
+    function escapeHTML(str) {
+      const div = document.createElement('div');
+      div.textContent = str == null ? '' : String(str);
+      return div.innerHTML;
+    }
+
+    // =========================================================================
+    // 3. QUOTE-SAFE CSV FETCH & SHEET PARSERS
+    // =========================================================================
+    function parseCSVMatrix(csvText) {
+      const cleaned = String(csvText || '').replace(/^\uFEFF/, '');
+      if (typeof Papa !== 'undefined' && Papa.parse) {
+        const res = Papa.parse(cleaned, {
+          header: false,
+          skipEmptyLines: false
         });
-        return { headers: cols, rows };
-      } catch (err) {
-        const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
-        const res = await fetch(csvUrl);
-        const csvText = await res.text();
-        return parseCSV(csvText);
+        return Array.isArray(res.data) ? res.data : [];
       }
+      return cleaned.split(/\r?\n/).map(line => line.split(','));
     }
 
-    function parseCSV(text) {
-      const lines = [];
-      let current = '';
-      let inQuotes = false;
-      let row = [];
-      for (let i = 0; i < text.length; i++) {
-        const ch = text[i];
-        const next = text[i + 1];
-        if (ch === '"' && inQuotes && next === '"') {
-          current += '"';
-          i++;
-        } else if (ch === '"') {
-          inQuotes = !inQuotes;
-        } else if (ch === ',' && !inQuotes) {
-          row.push(current.trim());
-          current = '';
-        } else if ((ch === '
-' || (ch === '' && next === '
-')) && !inQuotes) {
-          if (ch === '') i++;
-          row.push(current.trim());
-          if (row.some(cell => cell !== '')) lines.push(row);
-          row = [];
-          current = '';
-        } else {
-          current += ch;
-        }
+    function parseGvizMatrix(gvizText) {
+      const m = String(gvizText || '').match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);?\s*$/);
+      if (!m || !m[1]) return [];
+      const payload = JSON.parse(m[1]);
+      const table = payload?.table;
+      if (!table || !Array.isArray(table.rows)) return [];
+      const matrix = [];
+      if (Array.isArray(table.cols) && table.cols.some(c => c && c.label)) {
+        matrix.push(table.cols.map(c => String(c?.label ?? '').trim()));
       }
-      if (current !== '' || row.length > 0) {
-        row.push(current.trim());
-        if (row.some(cell => cell !== '')) lines.push(row);
-      }
-      if (lines.length === 0) return { headers: [], rows: [] };
-      const headers = lines[0].map((h, i) => h || `COL_${i}`);
-      const rows = lines.slice(1).map(r => {
-        const obj = {};
-        headers.forEach((h, i) => {
-          obj[h] = r[i] !== undefined ? r[i] : '';
-          obj[`__COL_${i}`] = r[i] !== undefined ? r[i] : '';
-        });
-        return obj;
+      table.rows.forEach(r => {
+        const cells = Array.isArray(r?.c) ? r.c : [];
+        matrix.push(cells.map(cell => {
+          if (!cell) return '';
+          if (cell.f !== undefined && cell.f !== null && String(cell.f).trim() !== '') return String(cell.f).trim();
+          if (cell.v !== undefined && cell.v !== null) return String(cell.v).trim();
+          return '';
+        }));
       });
-      return { headers, rows };
+      return matrix;
     }
 
-    // Flexible Column Finder
-    function getField(row, candidates, fallbackIdx = -1) {
-      const keys = Object.keys(row).filter(k => !k.startsWith('__COL_'));
-      for (const cand of candidates) {
-        const exact = keys.find(k => k.toLowerCase() === cand.toLowerCase());
-        if (exact !== undefined && row[exact] !== '') return row[exact];
-      }
-      for (const cand of candidates) {
-        const partial = keys.find(k => k.toLowerCase().includes(cand.toLowerCase()));
-        if (partial !== undefined && row[partial] !== '') return row[partial];
-      }
-      if (fallbackIdx >= 0 && row[`__COL_${fallbackIdx}`] !== undefined) {
-        return row[`__COL_${fallbackIdx}`];
-      }
-      return '';
-    }
-
-    // Ensure Dari / s/d dates default automatically to current month (2026-11-01 to 2026-11-28)
-    function ensureActiveDateRange() {
-      const startEl = document.getElementById('startDate');
-      const endEl = document.getElementById('endDate');
-      if (!startEl.value) startEl.value = DEFAULT_START_DATE;
-      if (!endEl.value) endEl.value = DEFAULT_END_DATE;
-      return { startStr: startEl.value, endStr: endEl.value };
-    }
-
-    function isDateInRange(dateStr, startStr, endStr) {
-      if (!dateStr) return true;
-      if (startStr && dateStr < startStr) return false;
-      if (endStr && dateStr > endStr) return false;
-      return true;
-    }
-
-    function getShiftYearDate(isoDate, deltaYears) {
-      if (!isoDate) return null;
-      const parts = isoDate.split('-');
-      if (parts.length !== 3) return null;
-      const y = parseInt(parts[0], 10) + deltaYears;
-      return `${y}-${parts[1]}-${parts[2]}`;
-    }
-
-    // Load All Sheets
-    async function loadAllSheets(isManual = false) {
-      if (isFetching) return;
-      isFetching = true;
-      const btn = document.getElementById('btnRefresh');
-      const lbl = document.getElementById('refreshLabel');
-      btn.disabled = true;
-      lbl.textContent = 'Memuat...';
-
-      ensureActiveDateRange();
-
-      try {
-        const [brandRes, barcodeRes, spvRes, invRes, sntRes] = await Promise.all([
-          fetchSheetData(GIDS.brand),
-          fetchSheetData(GIDS.barcode),
-          fetchSheetData(GIDS.spv),
-          fetchSheetData(GIDS.inventory),
-          fetchSheetData(GIDS.shopntalk)
-        ]);
-
-        rawData.brand = brandRes.rows;
-        rawData.barcode = barcodeRes.rows;
-        rawData.spv = spvRes.rows;
-        rawData.inventory = invRes.rows;
-        rawData.shopntalk = sntRes.rows;
-
-        populateFilters();
-        renderAllTabs();
-
-        const now = new Date();
-        const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        document.getElementById('lastSyncText').textContent = `Live Data Terhubung • Update terakhir: ${timeStr}`;
-      } catch (err) {
-        console.error('Error loading sheets:', err);
-        document.getElementById('lastSyncText').textContent = 'Gagal memuat data Google Sheets. Silakan klik Refresh.';
-      } finally {
-        isFetching = false;
-        btn.disabled = false;
-        lbl.textContent = 'Refresh Live Data';
-      }
-    }
-
-    function populateFilters() {
-      // Populate Jabatan in Tab Person
-      const jabatanSet = new Set();
-      rawData.barcode.forEach(r => {
-        const jab = String(getField(r, ['jabatan', 'posisi', 'role', 'status'], 6)).trim();
-        if (jab && isNaN(jab)) jabatanSet.add(jab);
-      });
-      const jabSelect = document.getElementById('personJabatanFilter');
-      const prevJab = jabSelect.value;
-      jabSelect.innerHTML = '<option value="ALL">Semua Jabatan</option>';
-      Array.from(jabatanSet).sort().forEach(j => {
-        const opt = document.createElement('option');
-        opt.value = j;
-        opt.textContent = j;
-        jabSelect.appendChild(opt);
-      });
-      if (Array.from(jabatanSet).includes(prevJab)) jabSelect.value = prevJab;
-
-      // Populate SPV Names from Column C (index 2) / Nama
-      const spvSet = new Set();
-      rawData.spv.forEach(r => {
-        const nama = String(getField(r, ['nama', 'spv', 'supervisor', 'nama spv'], 2)).trim();
-        if (nama && !parseSheetDate(nama)) spvSet.add(nama);
-      });
-      const spvSelect = document.getElementById('spvNameFilter');
-      const prevSpv = spvSelect.value;
-      spvSelect.innerHTML = '<option value="ALL">Semua SPV</option>';
-      Array.from(spvSet).sort().forEach(n => {
-        const opt = document.createElement('option');
-        opt.value = n;
-        opt.textContent = n;
-        spvSelect.appendChild(opt);
-      });
-      if (Array.from(spvSet).includes(prevSpv)) spvSelect.value = prevSpv;
-    }
-
-    function renderAllTabs() {
-      ensureActiveDateRange();
-      renderBrandTab();
-      renderPersonTab();
-      renderSpvTab();
-      renderSntTab();
-    }
-
-    // ==========================================
-    // TAB 1: BRAND & INVENTORY
-    // ==========================================
-    function renderBrandTab() {
-      const { startStr, endStr } = ensureActiveDateRange();
-      const lyStartStr = getShiftYearDate(startStr, -1);
-      const lyEndStr = getShiftYearDate(endStr, -1);
-      const deptFilter = document.getElementById('brandDeptFilter').value;
-      const searchQ = document.getElementById('brandSearchInput').value.trim().toLowerCase();
-
-      const brandMap = new Map();
-
-      // Aggregate Sales TY & LY
-      rawData.brand.forEach(r => {
-        const dStr = parseSheetDate(getField(r, ['tanggal', 'date', 'tgl', 'periode'], 0));
-        const brandName = String(getField(r, ['brand', 'nama brand', 'merk', 'description'], 1)).trim();
-        if (!brandName || brandName.toLowerCase() === 'total') return;
-
-        const deptRaw = String(getField(r, ['dept', 'kategori', 'type', 'jenis', 'dp/cv', 'divisi'], 2)).trim().toUpperCase();
-        const dept = deptRaw.includes('CV') ? 'CV' : 'DP';
-        const netSales = parseNumber(getField(r, ['net sales', 'sales ty', 'sales', 'nett sales', 'amount', 'omzet'], 3));
-        const lyColVal = parseNumber(getField(r, ['sales ly', 'ly', 'last year', 'sales_ly'], -1));
-        const qty = parseNumber(getField(r, ['qty', 'quantity', 'pcs', 'unit'], 4));
-
-        if (!brandMap.has(brandName)) {
-          brandMap.set(brandName, { brand: brandName, dept, salesTy: 0, salesLy: 0, qty: 0, soh: 0 });
-        }
-        const item = brandMap.get(brandName);
-
-        if (isDateInRange(dStr, startStr, endStr)) {
-          item.salesTy += netSales;
-          item.qty += qty;
-          if (lyColVal > 0) item.salesLy += lyColVal;
-        } else if (lyStartStr && lyEndStr && isDateInRange(dStr, lyStartStr, lyEndStr)) {
-          item.salesLy += netSales;
-        }
-      });
-
-      // Fallback if date column format prevented matches but rows exist
-      let totalMatchedTy = 0;
-      brandMap.forEach(v => { totalMatchedTy += v.salesTy; });
-      if (totalMatchedTy === 0 && rawData.brand.length > 0) {
-        brandMap.clear();
-        rawData.brand.forEach(r => {
-          const brandName = String(getField(r, ['brand', 'nama brand', 'merk', 'description'], 1)).trim();
-          if (!brandName || brandName.toLowerCase() === 'total') return;
-          const deptRaw = String(getField(r, ['dept', 'kategori', 'type', 'jenis', 'dp/cv', 'divisi'], 2)).trim().toUpperCase();
-          const dept = deptRaw.includes('CV') ? 'CV' : 'DP';
-          const netSales = parseNumber(getField(r, ['net sales', 'sales ty', 'sales', 'nett sales', 'amount', 'omzet'], 3));
-          const lyColVal = parseNumber(getField(r, ['sales ly', 'ly', 'last year', 'sales_ly'], -1));
-          const qty = parseNumber(getField(r, ['qty', 'quantity', 'pcs', 'unit'], 4));
-
-          if (!brandMap.has(brandName)) {
-            brandMap.set(brandName, { brand: brandName, dept, salesTy: 0, salesLy: 0, qty: 0, soh: 0 });
+    async function fetchSheetRows(config, rowParserFn) {
+      let lastErr = '';
+      for (let i = 0; i < config.urls.length; i++) {
+        const u = config.urls[i];
+        try {
+          const resp = await fetch(u.url, { cache: 'no-store' });
+          if (!resp.ok) {
+            lastErr = `HTTP ${resp.status} (${u.label})`;
+            continue;
           }
-          const item = brandMap.get(brandName);
-          item.salesTy += netSales;
-          item.salesLy += lyColVal;
-          item.qty += qty;
+          const text = await resp.text();
+          const trimmed = text.trim();
+          if (!trimmed || trimmed.startsWith('<!DOCTYPE html') || trimmed.includes('<html') || trimmed.includes('accounts.google.com')) {
+            lastErr = `Respon HTML / akses tertutup (${u.label})`;
+            continue;
+          }
+          const matrix = u.mode === 'gviz' ? parseGvizMatrix(text) : parseCSVMatrix(text);
+          const rows = rowParserFn(matrix);
+          if (rows.length > 0) {
+            return {
+              rows,
+              sourceType: u.type,
+              label: u.label,
+              url: u.url,
+              error: ''
+            };
+          }
+          lastErr = `0 baris terbaca (${u.label})`;
+        } catch (err) {
+          lastErr = `${err?.message \vert{}\vert{} 'Fetch error'} (${u.label})`;
+        }
+      }
+      return {
+        rows: [],
+        sourceType: 'GAGAL',
+        label: 'Gagal',
+        url: '',
+        error: lastErr || 'Semua URL gagal'
+      };
+    }
+
+    function findRowIndexContaining(matrix, targetWord) {
+      const target = targetWord.toLowerCase();
+      for (let i = 0; i < matrix.length; i++) {
+        const row = matrix[i] || [];
+        if (row.some(cell => String(cell ?? '').trim().toLowerCase() === target || String(cell ?? '').trim().toLowerCase().includes(target))) {
+          return i;
+        }
+      }
+      return -1;
+    }
+
+    // 1. MASTER BRAND (GID 460134977): A Tanggal | B Dept | C Brand | D Sales | E Qty | F Category
+    function parseMasterBrand(matrix) {
+      if (!Array.isArray(matrix) || matrix.length === 0) return [];
+      const hdrIdx = findRowIndexContaining(matrix, 'tanggal');
+      const startRow = hdrIdx >= 0 ? hdrIdx + 1 : 1;
+      const out = [];
+
+      for (let i = startRow; i < matrix.length; i++) {
+        const r = matrix[i] || [];
+        const rawDate = String(r[0] ?? '').trim();
+        const dept = String(r[1] ?? '').trim();
+        const brand = String(r[2] ?? '').trim();
+        if (!rawDate && !brand) continue;
+        if (!brand || brand.toLowerCase() === 'brand') continue;
+
+        const dt = parseTgl(rawDate);
+        const isoDate = dt ? dateToISO(dt) : '';
+        out.push({
+          rawDate,
+          isoDate,
+          dateObj: dt,
+          dept,
+          brand,
+          sales: parseNumber(r[3]),
+          qty: parseNumber(r[4]),
+          category: String(r[5] ?? '').trim() || 'GENERAL'
         });
       }
+      return out;
+    }
 
-      // Aggregate Inventory SOH
-      let totalSohQty = 0;
-      let totalSohVal = 0;
-      rawData.inventory.forEach(r => {
-        const brandName = String(getField(r, ['brand', 'nama brand', 'merk'], 1)).trim();
-        const sohQty = parseNumber(getField(r, ['soh', 'stock', 'stok', 'qty', 'ending'], 2));
-        const sohVal = parseNumber(getField(r, ['value', 'nilai', 'amount', 'retail'], 3));
-        totalSohQty += sohQty;
-        totalSohVal += sohVal;
-        if (brandName && brandMap.has(brandName)) {
-          brandMap.get(brandName).soh += sohQty;
+    // 2. MASTER BARCODE (GID 292538885) & SHOPNTALK (GID 1151225502): A Tanggal | B BARCODE | C NAMA | D NET SALES | E NET QTY | F TARGET | G JABATAN
+    function parseMasterBarcode(matrix) {
+      if (!Array.isArray(matrix) || matrix.length === 0) return [];
+      const hdrIdx = findRowIndexContaining(matrix, 'tanggal');
+      const startRow = hdrIdx >= 0 ? hdrIdx + 1 : 1;
+      const out = [];
+
+      for (let i = startRow; i < matrix.length; i++) {
+        const r = matrix[i] || [];
+        const rawDate = String(r[0] ?? '').trim();
+        const barcode = String(r[1] ?? '').trim();
+        if (!rawDate && !barcode) continue;
+        if (!barcode || barcode.toLowerCase() === 'barcode') continue;
+
+        const dt = parseTgl(rawDate);
+        const isoDate = dt ? dateToISO(dt) : '';
+        const nama = String(r[2] ?? '').trim();
+        const netSales = parseNumber(r[3]);
+        const netQty = parseNumber(r[4]);
+        const target = parseNumber(r[5]);
+        const jabatan = String(r[6] ?? '').trim() || '-';
+
+        out.push({
+          rawDate,
+          isoDate,
+          dateObj: dt,
+          barcode,
+          nama,
+          netSales,
+          netQty,
+          target,
+          jabatan
+        });
+      }
+      return out;
+    }
+
+    // 3. MASTER SPV (GID 1979255634):
+    // Struktur PASTI: A=TANGGAL (0), B=BARCODE (1), C=NAMA (2), D=JABATAN (3),
+    // E=SALES DP (4), F=SALES CV (5), G=TARGET DP (6), H=TARGET CV (7), I=SALES LY DP (8), J=SALES LY CV (9)
+    function isInvalidSpvNama(val) {
+      const s = String(val ?? '').trim();
+      if (!s) return true;
+      const low = s.toLowerCase();
+      if (low === 'nama' || low === 'jabatan' || low === 'spv' || low.startsWith('total') || low.startsWith('grand total')) return true;
+      // Skip jika isinya angka murni
+      if (/^[\d.,\s/-]+$/.test(s)) return true;
+      // Skip jika isinya tanggal (format DD/MM/YYYY, YYYY-MM-DD, atau nama bulan seperti "1 November 2026")
+      if (/^\d{1,2}[/-]\d{1,2}[/-]\d{2,4}$/.test(s)) return true;
+      if (/^\d{4}[/-]\d{1,2}[/-]\d{1,2}$/.test(s)) return true;
+      if (/^\d{1,2}\s+(jan|feb|mar|apr|mei|may|jun|jul|agu|aug|sep|okt|oct|nov|des|dec)[a-z]*\s+\d{2,4}$/i.test(s)) return true;
+      if (/^(januari|februari|maret|april|mei|juni|juli|agustus|september|oktober|november|desember)\s+\d{4}$/i.test(s)) return true;
+      return false;
+    }
+
+    function parseMasterSpv(matrix) {
+      if (!Array.isArray(matrix) || matrix.length === 0) return [];
+      let hdrIdx = -1;
+      for (let i = 0; i < matrix.length; i++) {
+        const row = matrix[i] || [];
+        const c0 = String(row[0] ?? '').trim().toLowerCase();
+        const c2 = String(row[2] ?? '').trim().toLowerCase();
+        const c3 = String(row[3] ?? '').trim().toLowerCase();
+        if (c2 === 'nama' || c3 === 'jabatan' || (c0 === 'tanggal' && (c2.includes('nama') || c3.includes('jabatan')))) {
+          hdrIdx = i;
+          break;
+        }
+      }
+      const startRow = hdrIdx >= 0 ? hdrIdx + 1 : 1;
+      const out = [];
+
+      for (let i = startRow; i < matrix.length; i++) {
+        const r = matrix[i] || [];
+        const tanggal = String(r[0] ?? '').trim();
+        const barcode = String(r[1] ?? '').trim();
+        const nama = String(r[2] ?? '').trim();
+        const jabatan = String(r[3] ?? '').trim();
+
+        // Skip baris jika Kolom C (NAMA) kosong, tanggal, angka, atau header/total
+        if (isInvalidSpvNama(nama)) continue;
+
+        const dt = parseTgl(tanggal);
+        const isoDate = dt ? dateToISO(dt) : '';
+
+        const salesDp = parseNumber(r[4]);
+        const salesCv = parseNumber(r[7]);
+        const targetDp = parseNumber(r[15]);
+        const targetCv = parseNumber(r[16]);
+        const salesLyDp = parseNumber(r[17]);
+        const salesLyCv = parseNumber(r[18]);
+
+        const totalSalesTy = salesDp + salesCv;
+        const totalSalesLy = salesLyDp + salesLyCv;
+        const totalTarget = targetDp + targetCv;
+
+        const ach = totalTarget > 0 ? Math.round((totalSalesTy / totalTarget) * 100) : 0;
+        const growth = totalSalesLy > 0 ? Math.round(((totalSalesTy - totalSalesLy) / totalSalesLy) * 100) : 0;
+
+        out.push({
+          tanggal,
+          isoDate,
+          dateObj: dt,
+          barcode,
+          nama,
+          jabatan,
+          salesDp,
+          salesCv,
+          targetDp,
+          targetCv,
+          salesLyDp,
+          salesLyCv,
+          totalSalesTy,
+          totalSalesLy,
+          totalTarget,
+          ach,
+          growth
+        });
+      }
+      return out;
+    }
+
+    // 4. MASTER INVENTORY (GID 1747791644): Header at row 0, data row 1+, Column J = index 9 (r[9]), Brand = index 3 (r[3])
+    function parseMasterInventory(matrix) {
+      if (!Array.isArray(matrix) || matrix.length <= 1) return [];
+      const nonEmpty = matrix.filter(row => Array.isArray(row) && row.some(c => String(c ?? '').trim() !== ''));
+      if (nonEmpty.length <= 1) return [];
+
+      const out = [];
+      for (let i = 1; i < nonEmpty.length; i++) {
+        const r = nonEmpty[i] || [];
+        const brandCell = r[3];
+        if (brandCell === undefined || brandCell === null) continue;
+        const brand = String(brandCell).trim();
+        if (!brand || brand.toLowerCase().includes('total')) continue;
+
+        const totalColJ = parseNumber(r[9]);
+        out.push({
+          raw: r,
+          divisi: String(r[0] ?? '').trim(),
+          group: String(r[1] ?? '').trim(),
+          dept: String(r[2] ?? '').trim(),
+          brand,
+          m0_3: parseNumber(r[4]),
+          m4_6: parseNumber(r[5]),
+          m6_9: parseNumber(r[6]),
+          m9_12: parseNumber(r[7]),
+          m12_plus: parseNumber(r[8]),
+          total: totalColJ
+        });
+      }
+      return out;
+    }
+
+    // =========================================================================
+    // 4. LOAD ALL SHEETS & UPDATE DEBUG BAR
+    // =========================================================================
+    async function loadAllData() {
+      if (STATE.isLoading) return;
+      STATE.isLoading = true;
+
+      document.getElementById('refreshIconDesk')?.classList.add('animate-spin');
+      document.getElementById('refreshIconMob')?.classList.add('animate-spin');
+      document.getElementById('errorAlertBox').classList.add('hidden');
+
+      const [resBrand, resBarcode, resSpv, resInventory, resShopntalk] = await Promise.all([
+        fetchSheetRows(SHEET_CONFIGS.brand, parseMasterBrand),
+        fetchSheetRows(SHEET_CONFIGS.barcode, parseMasterBarcode),
+        fetchSheetRows(SHEET_CONFIGS.spv, parseMasterSpv),
+        fetchSheetRows(SHEET_CONFIGS.inventory, parseMasterInventory),
+        fetchSheetRows(SHEET_CONFIGS.shopntalk, parseMasterBarcode)
+      ]);
+
+      STATE.masterBrand = resBrand.rows;
+      STATE.masterBarcode = resBarcode.rows;
+      STATE.masterSpv = resSpv.rows;
+      STATE.masterInventory = resInventory.rows;
+      STATE.shopntalk = resShopntalk.rows;
+
+      const X = STATE.masterBrand.length;
+      const Y = STATE.masterBarcode.length;
+      const Z = STATE.masterSpv.length;
+      const W = STATE.masterInventory.length;
+      const S = STATE.shopntalk.length;
+
+      const sumColJ = STATE.masterInventory
+        .filter(r => r.brand && !r.brand.toLowerCase().includes('total'))
+        .reduce((sum, r) => sum + parseNumber(r.raw?.[9] ?? r.total), 0);
+
+      const activeSourceLabel = resBrand.sourceType !== 'GAGAL' ? resBrand.sourceType : 'Export CSV + Fallback Gviz JSON';
+      const anySuccess = (X + Y + Z + W + S) > 0;
+
+      const dbgSumEl = document.getElementById('debugSummaryText');
+      if (dbgSumEl) {
+        dbgSumEl.textContent =
+          `BRAND: ${X} \vert{} BARCODE:${Y} | SPV: ${Z} \vert{} INVENTORY:${W} | SHOPNTALK: ${S} \vert{} Sumber:${activeSourceLabel} | Status: ${anySuccess ? 'LIVE' : 'GAGAL'} \vert{} INVENTORY: ${W} baris | SUM J: ${formatQty(sumColJ)}`; }  const dbgUrlEl = document.getElementById('debugUrlText'); if (dbgUrlEl) { const urlList = [resBrand, resBarcode, resSpv, resInventory, resShopntalk] .filter(r => r.url) .map(r => `${r.label}: ${r.url}`); dbgUrlEl.textContent = urlList.length ? urlList.join(' \vert{} ') : 'Tidak ada URL CSV yang berhasil dimuat.'; }  const badge = document.getElementById('statusBadge'); const syncTime = document.getElementById('syncTimeLabel'); syncTime.textContent = `Sync ${new Date().toLocaleTimeString('id-ID')}`;
+
+      if (anySuccess) {
+        badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200';
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span><span>LIVE</span>`;
+      } else {
+        badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-800 border border-rose-200';
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span><span>GAGAL</span>`;
+      }
+
+      const errors = [];
+      if (X === 0) errors.push(`BRAND (460134977): ${resBrand.error || '0 baris'}`);
+      if (Y === 0) errors.push(`BARCODE (292538885): ${resBarcode.error \vert{}\vert{} '0 baris'}`); if (Z === 0) errors.push(`SPV (1979255634): ${resSpv.error || '0 baris'}`);
+      if (W === 0) errors.push(`INVENTORY (1747791644): ${resInventory.error \vert{}\vert{} '0 baris'}`); if (S === 0) errors.push(`SHOPNTALK (1151225502): ${resShopntalk.error || '0 baris'}`);
+
+      if (errors.length > 0) {
+        document.getElementById('errorAlertBox').classList.remove('hidden');
+        const protoHint = window.location.protocol === 'file:'
+          ? '[Terdeteksi protokol file:// lokal — Jika dibuka dari file lokal dan GAGAL, upload ke Netlify / buka via https, lalu Refresh] '
+          : '';
+        document.getElementById('errorAlertDetail').textContent = protoHint + errors.join(' • ');
+      }
+
+      populateDropdowns();
+      renderAll();
+
+      STATE.isLoading = false;
+      document.getElementById('refreshIconDesk')?.classList.remove('animate-spin');
+      document.getElementById('refreshIconMob')?.classList.remove('animate-spin');
+    }
+
+    // =========================================================================
+    // 5. DROPDOWN POPULATION & SYNCHRONIZATION
+    // =========================================================================
+    function populateDropdowns() {
+      // Brand dropdowns (top & bottom synced)
+      const brands = [...new Set(STATE.masterBrand.map(r => r.brand).filter(Boolean))].sort();
+      const brandOptionsHTML = `<option value="ALL">Semua Brand</option>` +
+        brands.map(b => `<option value="${escapeHTML(b)}">${escapeHTML(b)}</option>`).join('');
+
+      const topBrandSel = document.getElementById('brandTopSelect');
+      const botBrandSel = document.getElementById('brandBottomSelect');
+      const prevBrand = topBrandSel.value || 'ALL';
+      topBrandSel.innerHTML = brandOptionsHTML;
+      botBrandSel.innerHTML = brandOptionsHTML;
+      topBrandSel.value = brands.includes(prevBrand) ? prevBrand : 'ALL';
+      botBrandSel.value = topBrandSel.value;
+
+      refreshBrandCascadingOptions(topBrandSel.value);
+
+      // Barcode / SPG dropdown (Person)
+      const barcodeMap = new Map();
+      STATE.masterBarcode.forEach(r => {
+        if (!r.barcode) return;
+        if (!barcodeMap.has(r.barcode)) {
+          barcodeMap.set(r.barcode, r.nama || '');
+        } else if (!barcodeMap.get(r.barcode) && r.nama) {
+          barcodeMap.set(r.barcode, r.nama);
         }
       });
+      const barcodes = [...barcodeMap.keys()].sort();
+      const barSel = document.getElementById('personBarcodeSelect');
+      const prevBar = barSel.value || 'ALL';
+      barSel.innerHTML = `<option value="ALL">Semua Barcode / SPG</option>` +
+        barcodes.map(b => {
+          const nm = barcodeMap.get(b);
+          const lbl = nm ? `${b} -${nm}` : b;
+          return `<option value="${escapeHTML(b)}">${escapeHTML(lbl)}</option>`;
+        }).join('');
+      barSel.value = barcodes.includes(prevBar) ? prevBar : 'ALL';
 
-      let list = Array.from(brandMap.values());
-      if (deptFilter !== 'ALL') {
-        list = list.filter(x => x.dept === deptFilter);
-      }
-      if (searchQ) {
-        list = list.filter(x => x.brand.toLowerCase().includes(searchQ));
-      }
-      list.sort((a, b) => b.salesTy - a.salesTy);
+      // Barcode / SPG dropdown (Shopntalk)
+      const stBarcodeMap = new Map();
+      STATE.shopntalk.forEach(r => {
+        if (!r.barcode) return;
+        if (!stBarcodeMap.has(r.barcode)) {
+          stBarcodeMap.set(r.barcode, r.nama || '');
+        } else if (!stBarcodeMap.get(r.barcode) && r.nama) {
+          stBarcodeMap.set(r.barcode, r.nama);
+        }
+      });
+      const stBarcodes = [...stBarcodeMap.keys()].sort();
+      const stBarSel = document.getElementById('shopntalkBarcodeSelect');
+      const prevStBar = stBarSel.value || 'ALL';
+      stBarSel.innerHTML = `<option value="ALL">Semua Barcode / SPG</option>` +
+        stBarcodes.map(b => {
+          const nm = stBarcodeMap.get(b);
+          const lbl = nm ? `${b} -${nm}` : b;
+          return `<option value="${escapeHTML(b)}">${escapeHTML(lbl)}</option>`;
+        }).join('');
+      stBarSel.value = stBarcodes.includes(prevStBar) ? prevStBar : 'ALL';
 
-      let sumTy = 0, sumLy = 0, sumDp = 0, sumCv = 0, sumQty = 0, sumSoh = 0;
-      list.forEach(x => {
-        sumTy += x.salesTy;
-        sumLy += x.salesLy;
-        sumQty += x.qty;
-        sumSoh += x.soh;
-        if (x.dept === 'CV') sumCv += x.salesTy;
-        else sumDp += x.salesTy;
+      // SPV NAMA dropdown (Kolom C unik, bebas duplikat/kosong/tanggal)
+      const spvNamas = [...new Set(STATE.masterSpv.map(r => r.nama).filter(n => !isInvalidSpvNama(n)))];
+      const spvSel = document.getElementById('spvJabatanSelect');
+      const prevSpv = spvSel.value || 'ALL';
+      spvSel.innerHTML = `<option value="ALL">Semua SPV</option>` +
+        spvNamas.map(n => `<option value="${escapeHTML(n)}">${escapeHTML(n)}</option>`).join('');
+      spvSel.value = spvNamas.includes(prevSpv) ? prevSpv : 'ALL';
+    }
+
+    function refreshBrandCascadingOptions(selectedBrand) {
+      const pool = selectedBrand && selectedBrand !== 'ALL'
+        ? STATE.masterBrand.filter(r => r.brand === selectedBrand)
+        : STATE.masterBrand;
+
+      const depts = [...new Set(pool.map(r => r.dept).filter(Boolean))].sort();
+      const categories = [...new Set(pool.map(r => r.category).filter(Boolean))].sort();
+
+      const deptSel = document.getElementById('brandDeptSelect');
+      const catSel = document.getElementById('brandCategorySelect');
+
+      deptSel.innerHTML = `<option value="ALL">Semua Dept</option>` +
+        depts.map(d => `<option value="${escapeHTML(d)}">${escapeHTML(d)}</option>`).join('');
+      catSel.innerHTML = `<option value="ALL">Semua Category</option>` +
+        categories.map(c => `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join('');
+
+      // Reset Dept and Category to ALL whenever Brand changes
+      deptSel.value = 'ALL';
+      catSel.value = 'ALL';
+    }
+
+    function onBrandDropdownChange(source) {
+      const topSel = document.getElementById('brandTopSelect');
+      const botSel = document.getElementById('brandBottomSelect');
+      const val = source === 'top' ? topSel.value : botSel.value;
+      topSel.value = val;
+      botSel.value = val;
+      refreshBrandCascadingOptions(val);
+      renderBrandView();
+    }
+
+    function swapDates(fromId, toId, onDone) {
+      const fromEl = document.getElementById(fromId);
+      const toEl = document.getElementById(toId);
+      const tmp = fromEl.value;
+      fromEl.value = toEl.value;
+      toEl.value = tmp;
+      if (typeof onDone === 'function') onDone();
+    }
+
+    function resetBrandFilters() {
+      document.getElementById('brandFromDate').value = '2026-01-01';
+      document.getElementById('brandToDate').value = '2026-01-31';
+      document.getElementById('brandTopSelect').value = 'ALL';
+      document.getElementById('brandBottomSelect').value = 'ALL';
+      refreshBrandCascadingOptions('ALL');
+      document.getElementById('brandSortSelect').value = 'sales:desc';
+      document.getElementById('brandTableSearch').value = '';
+      STATE.sort.brand = { key: 'sales', dir: 'desc' };
+      renderBrandView();
+    }
+
+    function resetPersonFilters() {
+      document.getElementById('personFromDate').value = '2026-11-01';
+      document.getElementById('personToDate').value = '2026-11-02';
+      document.getElementById('personBarcodeSelect').value = 'ALL';
+      document.getElementById('personSortSelect').value = 'sales:desc';
+      document.getElementById('personTableSearch').value = '';
+      STATE.sort.person = { key: 'sales', dir: 'desc' };
+      renderPersonView();
+    }
+
+    function resetShopntalkFilters() {
+      document.getElementById('shopntalkFromDate').value = '2026-11-01';
+      document.getElementById('shopntalkToDate').value = '2026-11-05';
+      document.getElementById('shopntalkBarcodeSelect').value = 'ALL';
+      document.getElementById('shopntalkSortSelect').value = 'sales:desc';
+      document.getElementById('shopntalkTableSearch').value = '';
+      STATE.sort.shopntalk = { key: 'sales', dir: 'desc' };
+      renderShopntalkView();
+    }
+
+    function resetSpvFilters() {
+      document.getElementById('spvJabatanSelect').value = 'ALL';
+      document.getElementById('spvFromDate').value = '2026-01-01';
+      document.getElementById('spvToDate').value = '2026-01-31';
+      STATE.spvAppliedFrom = '2026-01-01';
+      STATE.spvAppliedTo = '2026-01-31';
+      renderSpvView();
+    }
+
+    function resetCurrentTabFilters() {
+      if (STATE.activeTab === 'brand') resetBrandFilters();
+      else if (STATE.activeTab === 'person') resetPersonFilters();
+      else if (STATE.activeTab === 'shopntalk') resetShopntalkFilters();
+      else resetSpvFilters();
+      showToast('Filter berhasil di-reset');
+    }
+
+    // =========================================================================
+    // 6. TAB 1: SALES BY BRAND & INVENTORY (INVENTORY FROM COL J / INDEX 9)
+    // =========================================================================
+    function onBrandSortDropdownChange() {
+      const [key, dir] = document.getElementById('brandSortSelect').value.split(':');
+      STATE.sort.brand = { key, dir };
+      renderBrandView();
+    }
+
+    function toggleBrandSort(key) {
+      if (STATE.sort.brand.key === key) {
+        STATE.sort.brand.dir = STATE.sort.brand.dir === 'asc' ? 'desc' : 'asc';
+      } else {
+        STATE.sort.brand = { key, dir: 'desc' };
+      }
+      renderBrandView();
+    }
+
+    function renderBrandView() {
+      const fromISO = document.getElementById('brandFromDate').value;
+      const toISO = document.getElementById('brandToDate').value;
+      document.getElementById('brandFromDisplay').textContent = isoToDDMMYYYY(fromISO) || '-';
+      document.getElementById('brandToDisplay').textContent = isoToDDMMYYYY(toISO) || '-';
+
+      const dateErrEl = document.getElementById('brandDateError');
+      if (fromISO && toISO && fromISO > toISO) {
+        dateErrEl.classList.remove('hidden');
+        return;
+      }
+      dateErrEl.classList.add('hidden');
+
+      const brandVal = document.getElementById('brandTopSelect').value;
+      const deptVal = document.getElementById('brandDeptSelect').value;
+      const catVal = document.getElementById('brandCategorySelect').value;
+      const searchVal = document.getElementById('brandTableSearch').value.trim().toLowerCase();
+
+      // Unfiltered full-year total across all MASTER BRAND rows
+      const totalSetahunAll = STATE.masterBrand.reduce((s, r) => s + r.sales, 0);
+
+      // Sales rows filtered by Date + Brand + Dept + Category
+      const salesFiltered = STATE.masterBrand.filter(r => {
+        if (fromISO && r.isoDate && r.isoDate < fromISO) return false;
+        if (toISO && r.isoDate && r.isoDate > toISO) return false;
+        if (brandVal !== 'ALL' && r.brand !== brandVal) return false;
+        if (deptVal !== 'ALL' && r.dept !== deptVal) return false;
+        if (catVal !== 'ALL' && r.category !== catVal) return false;
+        return true;
       });
 
-      document.getElementById('brandTotalSales').textContent = formatRp(sumTy);
-      document.getElementById('brandVsLySub').innerHTML = `vs LY: ${formatGrowthSpan(sumTy, sumLy)}`;
-      document.getElementById('brandDpSales').textContent = formatRp(sumDp);
-      document.getElementById('brandDpShare').textContent = sumTy > 0 ? `${((sumDp / sumTy) * 100).toFixed(1)}% kontribusi` : '0.0% kontribusi';
-      document.getElementById('brandCvSales').textContent = formatRp(sumCv);
-      document.getElementById('brandCvShare').textContent = sumTy > 0 ? `${((sumCv / sumTy) * 100).toFixed(1)}% kontribusi` : '0.0% kontribusi';
-      document.getElementById('invTotalQty').textContent = `${formatNum(totalSohQty)} pcs`;
-      document.getElementById('invTotalVal').textContent = `Nilai: ${formatRp(totalSohVal)}`;
+      // Inventory rows: NEVER filtered by date or Dept; only filtered by Brand if Brand !== 'ALL'
+      const invFiltered = STATE.masterInventory.filter(inv => {
+        if (!inv.brand || inv.brand.toLowerCase().includes('total')) return false;
+        if (brandVal !== 'ALL' && inv.brand.toLowerCase() !== brandVal.toLowerCase()) return false;
+        return true;
+      });
 
-      // Render Table
+      // Build inventory map by Brand (summing Column J / r[9] and aging buckets E-I)
+      const invByBrand = new Map();
+      invFiltered.forEach(inv => {
+        const keyB = inv.brand.toLowerCase();
+        const colJVal = parseNumber(inv.raw?.[9] ?? inv.total);
+        if (!invByBrand.has(keyB)) {
+          invByBrand.set(keyB, {
+            brand: inv.brand,
+            dept: inv.dept,
+            total: 0,
+            m0_3: 0,
+            m4_6: 0,
+            m6_9: 0,
+            m9_12: 0,
+            m12_plus: 0
+          });
+        }
+        const entry = invByBrand.get(keyB);
+        entry.total += colJVal;
+        entry.m0_3 += inv.m0_3;
+        entry.m4_6 += inv.m4_6;
+        entry.m6_9 += inv.m6_9;
+        entry.m9_12 += inv.m9_12;
+        entry.m12_plus += inv.m12_plus;
+      });
+
+      // Aggregate sales by Brand + Dept + Category
+      const salesAggMap = new Map();
+      salesFiltered.forEach(r => {
+        const k = `${r.brand}\vert{}\vert{}${r.dept}||${r.category}`; if (!salesAggMap.has(k)) { salesAggMap.set(k, { brand: r.brand, dept: r.dept, category: r.category, sales: 0, qty: 0 }); } const item = salesAggMap.get(k); item.sales += r.sales; item.qty += r.qty; });  const mergedRows = Array.from(salesAggMap.values()).map(item => { const invEntry = invByBrand.get(item.brand.toLowerCase()) \vert{}\vert{} { total: 0, m0_3: 0, m4_6: 0, m6_9: 0, m9_12: 0, m12_plus: 0 }; return { ...item, invTotal: invEntry.total, m0_3: invEntry.m0_3, m4_6: invEntry.m4_6, m6_9: invEntry.m6_9, m9_12: invEntry.m9_12, m12_plus: invEntry.m12_plus }; }).filter(r => { if (!searchVal) return true; return `${r.brand} ${r.dept}${r.category}`.toLowerCase().includes(searchVal);
+      });
+
+      const { key, dir } = STATE.sort.brand;
+      mergedRows.sort((a, b) => {
+        let va = a[key], vb = b[key];
+        if (typeof va === 'string') {
+          va = va.toLowerCase();
+          vb = String(vb).toLowerCase();
+        }
+        if (va < vb) return dir === 'asc' ? -1 : 1;
+        if (va > vb) return dir === 'asc' ? 1 : -1;
+        return 0;
+      });
+
+      STATE.exportedRows.brand = mergedRows;
+
+      // KPI Calculations
+      const periodSales = salesFiltered.reduce((s, r) => s + r.sales, 0);
+      const periodQty = salesFiltered.reduce((s, r) => s + r.qty, 0);
+      const avgPricePc = periodQty > 0 ? Math.round(periodSales / periodQty) : 0;
+      const activeBrandCount = new Set(salesFiltered.map(r => r.brand)).size;
+
+      // Total Inventory Stock = strict sum of Column J (r[9]) across inventory rows (unfiltered by date/dept)
+      const totalInvStock = invFiltered.reduce((s, r) => s + parseNumber(r.raw?.[9] ?? r.total), 0);
+      const agingTotals = invFiltered.reduce((acc, r) => {
+        acc.m0_3 += r.m0_3;
+        acc.m4_6 += r.m4_6;
+        acc.m6_9 += r.m6_9;
+        acc.m9_12 += r.m9_12;
+        acc.m12_plus += r.m12_plus;
+        return acc;
+      }, { m0_3: 0, m4_6: 0, m6_9: 0, m9_12: 0, m12_plus: 0 });
+
+      document.getElementById('kpiBrandSales').textContent = formatRupiah(periodSales);
+      document.getElementById('kpiBrandSalesPeriodLine').textContent =
+        `Periode Terpilih: ${formatRupiah(periodSales)} (${isoToDDMMYYYY(fromISO)} -${isoToDDMMYYYY(toISO)})`;
+      document.getElementById('kpiBrandSalesYearLine').textContent =
+        `Total Setahun (tanpa filter): ${formatRupiah(totalSetahunAll)}`;
+
+      document.getElementById('kpiBrandQty').textContent = `${formatQty(periodQty)} Pcs`; document.getElementById('kpiBrandQtySub').textContent = `${activeBrandCount} Brands aktif • ${salesFiltered.length.toLocaleString('id-ID')} baris transaksi`;
+
+      document.getElementById('kpiBrandAvgPrice').textContent = formatRupiah(avgPricePc);
+
+      document.getElementById('kpiBrandInv').textContent = `${formatQty(totalInvStock)} Pcs`;
+      document.getElementById('kpiBrandInvSub').textContent =
+        `TOTAL INVENTORY STOCK: ${formatQty(totalInvStock)} Pcs \vert{}${invFiltered.length} baris | Kolom J TOTAL`;
+
+      // Table Render
+      document.getElementById('brandTableCountBadge').textContent = `${mergedRows.length} rows`;
       const tbody = document.getElementById('brandTableBody');
-      if (list.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" class="text-center" style="padding:24px;color:#64748b;">Tidak ada data brand pada periode ini.</td></tr>';
+      if (!mergedRows.length) {
+        tbody.innerHTML = `<tr><td colspan="11" class="py-10 px-4 text-center text-slate-400">Tidak ada data penjualan brand pada rentang tanggal / filter ini.</td></tr>`;
       } else {
-        tbody.innerHTML = list.map((item, idx) => `
-          <tr>
-            <td class="tabular-nums">${idx + 1}</td>
-            <td><strong>${escapeHtml(item.brand)}</strong></td>
-            <td><span class="badge ${item.dept === 'CV' ? 'badge-cv' : 'badge-dp'}">${item.dept}</span></td>
-            <td class="text-right tabular-nums">${formatRp(item.salesTy)}</td>
-            <td class="text-right tabular-nums">${formatRp(item.salesLy)}</td>
-            <td class="text-right tabular-nums">${formatGrowthSpan(item.salesTy, item.salesLy)}</td>
-            <td class="text-right tabular-nums">${formatNum(item.qty)}</td>
-            <td class="text-right tabular-nums">${formatNum(item.soh)}</td>
-          </tr>
-        `).join('');
+        tbody.innerHTML = mergedRows.map(r => `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="py-3 px-4 font-bold text-slate-900 whitespace-nowrap">${escapeHTML(r.brand)}</td>
+            <td class="py-3 px-4 font-mono text-xs font-bold text-indigo-700 whitespace-nowrap">${escapeHTML(r.dept)}</td>
+            <td class="py-3 px-4 text-xs text-slate-500 whitespace-nowrap">${escapeHTML(r.category)}</td>
+            <td class="py-3 px-4 text-right font-bold text-slate-900 whitespace-nowrap">${formatRupiah(r.sales)}</td>
+            <td class="py-3 px-4 text-right font-semibold text-slate-700 whitespace-nowrap">${formatQty(r.qty)}</td>
+            <td class="py-3 px-4 text-right font-extrabold text-indigo-800 bg-indigo-50/30 whitespace-nowrap">${formatQty(r.invTotal)}</td>
+            <td class="py-3 px-3 text-right text-slate-600 whitespace-nowrap">${formatQty(r.m0_3)}</td>
+            <td class="py-3 px-3 text-right text-slate-600 whitespace-nowrap">${formatQty(r.m4_6)}</td>
+            <td class="py-3 px-3 text-right text-slate-600 whitespace-nowrap">${formatQty(r.m6_9)}</td>
+            <td class="py-3 px-3 text-right text-slate-600 whitespace-nowrap">${formatQty(r.m9_12)}</td>
+            <td class="py-3 px-4 text-right font-semibold text-slate-700 whitespace-nowrap">${formatQty(r.m12_plus)}</td>
+          </tr>`).join('');
       }
 
-      document.getElementById('brandTableFoot').innerHTML = `
-        <tr>
-          <td colspan="3">TOTAL (${list.length} Brand)</td>
-          <td class="text-right tabular-nums">${formatRp(sumTy)}</td>
-          <td class="text-right tabular-nums">${formatRp(sumLy)}</td>
-          <td class="text-right tabular-nums">${formatGrowthSpan(sumTy, sumLy)}</td>
-          <td class="text-right tabular-nums">${formatNum(sumQty)}</td>
-          <td class="text-right tabular-nums">${formatNum(sumSoh)}</td>
-        </tr>
-      `;
-
-      // Update Charts
-      const top10 = list.slice(0, 10);
-      if (charts.brandBar) charts.brandBar.destroy();
-      charts.brandBar = new Chart(document.getElementById('brandBarChart'), {
-        type: 'bar',
-        data: {
-          labels: top10.map(x => x.brand),
-          datasets: [{
-            label: 'Net Sales (Rp)',
-            data: top10.map(x => x.salesTy),
-            backgroundColor: '#1e3a8a',
-            borderRadius: 6
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: ctx => formatRp(ctx.raw)
-              }
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                callback: val => 'Rp ' + (val / 1000000).toFixed(1) + 'jt'
-              }
-            }
-          }
-        }
-      });
-
-      if (charts.deptDonut) charts.deptDonut.destroy();
-      charts.deptDonut = new Chart(document.getElementById('deptDonutChart'), {
-        type: 'doughnut',
-        data: {
-          labels: ['DP (Direct Purchase)', 'CV (Consignment)'],
-          datasets: [{
-            data: [sumDp, sumCv],
-            backgroundColor: ['#1e3a8a', '#0ea5e9'],
-            borderWidth: 0
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: '65%',
-          plugins: {
-            legend: { position: 'bottom' },
-            tooltip: {
-              callbacks: {
-                label: ctx => `${ctx.label}: ${formatRp(ctx.raw)}`
-              }
-            }
-          }
-        }
-      });
+      renderBrandCharts(
+        [...mergedRows].sort((a, b) => b.sales - a.sales).slice(0, 10),
+        agingTotals
+      );
     }
 
-    // ==========================================
-    // TAB 2: SALES BY PERSON (BARCODE)
-    // ==========================================
-    function renderPersonTab() {
-      const { startStr, endStr } = ensureActiveDateRange();
-      const jabFilter = document.getElementById('personJabatanFilter').value;
-      const searchQ = document.getElementById('personSearchInput').value.trim().toLowerCase();
-
-      const spgMap = new Map();
-
-      const processRows = (ignoreDate) => {
-        spgMap.clear();
-        rawData.barcode.forEach(r => {
-          const dStr = parseSheetDate(getField(r, ['tanggal', 'date', 'tgl'], 0));
-          if (!ignoreDate && !isDateInRange(dStr, startStr, endStr)) return;
-
-          const barcodeRaw = String(getField(r, ['barcode', 'id', 'nik', 'kode'], 1)).trim();
-          const namaRaw = String(getField(r, ['nama', 'spg', 'name', 'nama spg'], 2)).trim();
-          if (!barcodeRaw && !namaRaw) return;
-          if (namaRaw.toLowerCase() === 'total') return;
-
-          const uniqueKey = (barcodeRaw || namaRaw).toUpperCase();
-          const sales = parseNumber(getField(r, ['sales', 'net sales', 'nett sales', 'amount', 'omzet'], 3));
-          const qty = parseNumber(getField(r, ['qty', 'quantity', 'pcs', 'unit'], 4));
-          const jabatan = String(getField(r, ['jabatan', 'posisi', 'role', 'status'], 6)).trim() || '-';
-
-          if (!spgMap.has(uniqueKey)) {
-            spgMap.set(uniqueKey, {
-              barcode: barcodeRaw || '-',
-              nama: namaRaw || '-',
-              sales: 0,
-              qty: 0,
-              target: TARGET_PER_SPG,
-              jabatan: jabatan
-            });
-          }
-
-          const entry = spgMap.get(uniqueKey);
-          entry.sales += sales;
-          entry.qty += qty;
-          if ((!entry.jabatan || entry.jabatan === '-') && jabatan !== '-') {
-            entry.jabatan = jabatan;
-          }
-          if ((!entry.nama || entry.nama === '-') && namaRaw) {
-            entry.nama = namaRaw;
-          }
-        });
-      };
-
-      processRows(false);
-      if (spgMap.size === 0 && rawData.barcode.length > 0) {
-        processRows(true);
-      }
-
-      let list = Array.from(spgMap.values());
-      if (jabFilter !== 'ALL') {
-        list = list.filter(x => x.jabatan === jabFilter);
-      }
-      if (searchQ) {
-        list = list.filter(x =>
-          x.barcode.toLowerCase().includes(searchQ) ||
-          x.nama.toLowerCase().includes(searchQ)
-        );
-      }
-
-      list.sort((a, b) => b.sales - a.sales);
-
-      let totalSales = 0;
-      let totalQty = 0;
-      list.forEach(x => {
-        totalSales += x.sales;
-        totalQty += x.qty;
+    function renderBrandCharts(topSales, agingTotals) {
+  const canvas = document.getElementById('chartBrandTop10');
+const old1 = Chart.getChart(canvas); if (old1) old1.destroy();
+const ctx = canvas.getContext('2d');
+  const labels = topSales.map(r => r.brand);
+  const values = topSales.map(r => r.sales);
+      brandTop10 = new Chart(ctx, {
+  type: 'doughnut',
+  data: { labels, datasets: [{ data: values,
+    backgroundColor: ['#22C55E','#3B82F6','#F59E0B','#EF4444','#8B5CF6','#EC4899','#06B6D4','#84CC16','#F97316','#64748B'],
+    borderColor: '#fff', borderWidth: 2 }] },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '55%',
+    plugins: {
+      legend: { display: true, position: 'bottom', labels: { boxWidth: 12, font: { size: 11 }, color: '#0F172A' } },
+      tooltip: { callbacks: { label: c => ' ' + formatRupiah(c.raw) } }
+    }
+  }
+});
+      const canvas2 = document.getElementById('chartBrandAging');
+const old2 = Chart.getChart(canvas2); if (old2) old2.destroy();
+const ctx2 = canvas2.getContext('2d');
+      STATE.charts.brandAging = new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+          labels: ['0-3 Bln', '4-6 Bln', '6-9 Bln', '9-12 Bln', '>12 Bln'],
+          datasets: [{
+            data: [agingTotals.m0_3, agingTotals.m4_6, agingTotals.m6_9, agingTotals.m9_12, agingTotals.m12_plus],
+            backgroundColor: ['#10B981', '#3B82F6', '#6366F1', '#F59E0B', '#F43F5E'],
+            borderWidth: 2,
+            borderColor: '#FFFFFF'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '62%',
+          plugins: {
+            legend: { position: 'bottom', labels: { usePointStyle: true, padding: 12, font: { size: 11, weight: '600' } } },
+            tooltip: { callbacks: { label: c => ` ${c.label}: ${formatQty(c.raw)} Pcs` } } } } }); } // ========================================================================= // 7. TAB 2: SALES BY PERSON / BARCODE (DD/MM/YYYY + DEFAULT NOV 1-2, 2026) // ========================================================================= function onPersonSortDropdownChange() { const [key, dir] = document.getElementById('personSortSelect').value.split(':'); STATE.sort.person = { key, dir }; renderPersonView(); }  function togglePersonSort(key) { if (STATE.sort.person.key === key) { STATE.sort.person.dir = STATE.sort.person.dir === 'asc' ? 'desc' : 'asc'; } else { STATE.sort.person = { key, dir: 'desc' }; } renderPersonView(); }  function selectPersonRow(barcode) { const sel = document.getElementById('personBarcodeSelect'); sel.value = sel.value === barcode ? 'ALL' : barcode; renderPersonView(); }  function renderPersonView() { const fromISO = document.getElementById('personFromDate').value; const toISO = document.getElementById('personToDate').value; const fromDisp = isoToDDMMYYYY(fromISO) \vert{}\vert{} '-'; const toDisp = isoToDDMMYYYY(toISO) \vert{}\vert{} '-';  document.getElementById('personFromDisplay').textContent = fromDisp; document.getElementById('personToDisplay').textContent = toDisp; document.getElementById('personPeriodBadge').textContent = `Periode: ${fromDisp} - ${toDisp}`;  const dateErrEl = document.getElementById('personDateError'); if (fromISO && toISO && fromISO > toISO) { dateErrEl.classList.remove('hidden'); return; } dateErrEl.classList.add('hidden');  const selectedBarcode = document.getElementById('personBarcodeSelect').value; const searchVal = document.getElementById('personTableSearch').value.trim().toLowerCase();  // Lookup NAMA (Kolom C), TARGET (Kolom F), and JABATAN (Kolom G) by BARCODE across MASTER BARCODE const masterMetaByBarcode = new Map(); STATE.masterBarcode.forEach(r => { if (!r.barcode) return; if (!masterMetaByBarcode.has(r.barcode)) { masterMetaByBarcode.set(r.barcode, { nama: r.nama \vert{}\vert{} '-', target: r.target \vert{}\vert{} 0, jabatan: (r.jabatan && r.jabatan !== '-') ? r.jabatan : '-' }); } else { const meta = masterMetaByBarcode.get(r.barcode); if ((!meta.nama \vert{}\vert{} meta.nama === '-') && r.nama) meta.nama = r.nama; if (r.target > meta.target) meta.target = r.target; if ((!meta.jabatan \vert{}\vert{} meta.jabatan === '-') && r.jabatan && r.jabatan !== '-') meta.jabatan = r.jabatan; } });  const filteredRows = STATE.masterBarcode.filter(r => { if (fromISO && r.isoDate && r.isoDate < fromISO) return false; if (toISO && r.isoDate && r.isoDate > toISO) return false; if (selectedBarcode !== 'ALL' && r.barcode !== selectedBarcode) return false; if (searchVal) { const meta = masterMetaByBarcode.get(r.barcode); const hay = `${r.barcode} ${r.nama \vert{}\vert{} ''}${meta?.nama || ''}`.toLowerCase();
+          if (!hay.includes(searchVal)) return false;
+        }
+        return true;
       });
 
-      // Target per SPG = Rp 2.494.996, Total Target = Rp 2.494.996 x jumlah SPG
-      const totalUniqueTarget = TARGET_PER_SPG * list.length;
-      const totalAch = totalUniqueTarget > 0 ? (totalSales / totalUniqueTarget) * 100 : 0;
-      const avgSales = list.length > 0 ? totalSales / list.length : 0;
-
-      document.getElementById('personTotalSales').textContent = formatRp(totalSales);
-      document.getElementById('personActiveCount').textContent = `${list.length} SPG aktif`;
-      document.getElementById('personTotalTarget').textContent = formatRp(totalUniqueTarget);
-      document.getElementById('personTargetSub').textContent = `Target per SPG: ${formatRp(TARGET_PER_SPG)} × ${list.length}`;
-      document.getElementById('personTotalAch').innerHTML = formatAchSpan(totalAch);
-      document.getElementById('personTotalQty').textContent = `${formatNum(totalQty)} pcs`;
-      document.getElementById('personAvgSales').textContent = `Rata-rata: ${formatRp(avgSales)} / SPG`;
-
+      document.getElementById('personRowCountBadge').textContent = `Dihitung dari ${filteredRows.length} baris`;  const aggMap = new Map(); filteredRows.forEach(r => { if (!aggMap.has(r.barcode)) { const meta = masterMetaByBarcode.get(r.barcode) \vert{}\vert{} { nama: '-', target: 0, jabatan: '-' }; aggMap.set(r.barcode, { barcode: r.barcode, nama: r.nama \vert{}\vert{} meta.nama \vert{}\vert{} '-', sales: 0, qty: 0, target: r.target \vert{}\vert{} meta.target \vert{}\vert{} 0, jabatan: (r.jabatan && r.jabatan !== '-') ? r.jabatan : (meta.jabatan \vert{}\vert{} '-') }); } const item = aggMap.get(r.barcode); if ((!item.nama \vert{}\vert{} item.nama === '-') && r.nama) item.nama = r.nama; if ((!item.jabatan \vert{}\vert{} item.jabatan === '-') && r.jabatan && r.jabatan !== '-') item.jabatan = r.jabatan; // TARGET tidak di-SUM jika Barcode muncul di banyak tanggal; ambil nilai MAX / pertama if (r.target > item.target) item.target = r.target; item.sales += r.netSales; item.qty += r.netQty; });  const rows = Array.from(aggMap.values()).map(item => { const ach = item.target > 0 ? Math.round((item.sales / item.target) * 100) : 0; return { ...item, nama: item.nama \vert{}\vert{} '-', jabatan: item.jabatan \vert{}\vert{} '-', ach }; });  // Rank berdasarkan SALES terbesar ke terkecil (RANK 1 = SALES paling besar) const rankOrder = [...rows].sort((a, b) => b.sales - a.sales); const rankMap = new Map(); rankOrder.forEach((item, idx) => rankMap.set(item.barcode, idx + 1)); rows.forEach(item => { item.rank = rankMap.get(item.barcode) \vert{}\vert{} 0; });  const { key, dir } = STATE.sort.person; rows.sort((a, b) => { let va = a[key], vb = b[key]; if (typeof va === 'string') { va = va.toLowerCase(); vb = String(vb).toLowerCase(); } if (va < vb) return dir === 'asc' ? -1 : 1; if (va > vb) return dir === 'asc' ? 1 : -1; return 0; });  STATE.exportedRows.person = rows;  // Spotlight Card const spotCard = document.getElementById('personSpotlightCard'); if (selectedBarcode !== 'ALL' && rows.length > 0) { const spg = rows[0]; spotCard.classList.remove('hidden'); document.getElementById('spotBarcodeBadge').textContent = `BARCODE: ${spg.barcode} • ${spg.jabatan}`; document.getElementById('spotPeriodText').textContent = `${fromDisp} - ${toDisp}`; document.getElementById('spotPersonName').textContent = spg.nama !== '-' ? spg.nama : spg.barcode; document.getElementById('spotNetSales').textContent = formatRupiah(spg.sales); document.getElementById('spotNetQty').textContent = `${formatQty(spg.qty)} Pcs`;
+        document.getElementById('spotDiscount').textContent = formatRupiah(spg.target);
+        document.getElementById('spotAvgPrice').textContent = `${spg.ach}\%`; } else { spotCard.classList.add('hidden'); }  // KPIs const totSales = rows.reduce((s, r) => s + r.sales, 0); const totQty = rows.reduce((s, r) => s + r.qty, 0); const totTarget = rows.reduce((s, r) => s + r.target, 0); const activeCount = rows.length; const avgSalesSpg = activeCount > 0 ? Math.round(totSales / activeCount) : 0; const avgPricePc = totQty > 0 ? Math.round(totSales / totQty) : 0; const achAll = totTarget > 0 ? Math.round((totSales / totTarget) * 100) : 0;  document.getElementById('kpiPersonSales').textContent = formatRupiah(totSales); document.getElementById('kpiPersonSalesSub').textContent = `Periode ${fromDisp} - ${toDisp}`; document.getElementById('kpiPersonQty').textContent = `${formatQty(totQty)} Pcs`;
+      document.getElementById('kpiPersonQtySub').textContent = `Avg Price/Pc: ${formatRupiah(avgPricePc)}`;
+      document.getElementById('kpiPersonDisc').textContent = formatRupiah(totTarget);
+      document.getElementById('kpiPersonDiscBadge').textContent = `${achAll}\% ACH`; document.getElementById('kpiPersonActive').textContent = `${activeCount} SPG`;
+      document.getElementById('kpiPersonAvgSub').textContent = `Avg Sales/SPG: ${formatRupiah(avgSalesSpg)}`;  // Table Render: RANK \vert{} BARCODE \vert{} NAMA \vert{} SALES \vert{} QTY \vert{} TARGET \vert{} ACH \vert{} JABATAN document.getElementById('personTableCountBadge').textContent = `${rows.length} SPG`;
       const tbody = document.getElementById('personTableBody');
-      if (list.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" class="text-center" style="padding:24px;color:#64748b;">Tidak ada data SPG pada periode filter ini.</td></tr>';
+      if (!rows.length) {
+        tbody.innerHTML = `<tr><td colspan="8" class="py-10 px-4 text-center text-slate-400">Tidak ada data Barcode/SPG pada rentang ${fromDisp} -${toDisp}.</td></tr>`;
       } else {
-        tbody.innerHTML = list.map((item, idx) => {
-          const spgAch = TARGET_PER_SPG > 0 ? (item.sales / TARGET_PER_SPG) * 100 : 0;
-          return `
-            <tr>
-              <td class="tabular-nums">${idx + 1}</td>
-              <td class="tabular-nums">${escapeHtml(item.barcode)}</td>
-              <td><strong>${escapeHtml(item.nama)}</strong></td>
-              <td class="text-right tabular-nums">${formatRp(item.sales)}</td>
-              <td class="text-right tabular-nums">${formatNum(item.qty)}</td>
-              <td class="text-right tabular-nums">${formatRp(TARGET_PER_SPG)}</td>
-              <td class="text-right tabular-nums">${formatAchSpan(spgAch)}</td>
-              <td>${escapeHtml(item.jabatan)}</td>
-            </tr>
-          `;
-        }).join('');
+        tbody.innerHTML = rows.map(r => `
+          <tr onclick="selectPersonRow('${escapeHTML(r.barcode).replace(/'/g, "\'")}')" class="cursor-pointer hover:bg-indigo-50/40 transition">
+            <td class="py-3 px-4 text-center font-bold text-slate-500">${r.rank}</td>
+            <td class="py-3 px-4 font-mono text-xs font-bold text-indigo-700 whitespace-nowrap">${escapeHTML(r.barcode)}</td>
+            <td class="py-3 px-4 font-bold text-slate-900 whitespace-nowrap">${escapeHTML(r.nama)}</td>
+            <td class="py-3 px-4 text-right font-extrabold text-slate-900 whitespace-nowrap">${formatRupiah(r.sales)}</td>
+            <td class="py-3 px-4 text-right font-semibold text-slate-700 whitespace-nowrap">${formatQty(r.qty)}</td>
+            <td class="py-3 px-4 text-right font-semibold text-slate-700 whitespace-nowrap">${formatRupiah(r.target)}</td>
+            <td class="py-3 px-4 text-center whitespace-nowrap">
+              <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-extrabold ${getAchColorClass(r.ach)}">${r.ach}%</span>
+            </td>
+            <td class="py-3 px-4 text-xs font-bold uppercase text-purple-700 whitespace-nowrap">${escapeHTML(r.jabatan)}</td>
+          </tr>`).join('');
       }
 
-      document.getElementById('personTableFoot').innerHTML = `
-        <tr>
-          <td colspan="3">TOTAL (${list.length} SPG)</td>
-          <td class="text-right tabular-nums">${formatRp(totalSales)}</td>
-          <td class="text-right tabular-nums">${formatNum(totalQty)}</td>
-          <td class="text-right tabular-nums">${formatRp(totalUniqueTarget)}</td>
-          <td class="text-right tabular-nums">${formatAchSpan(totalAch)}</td>
-          <td>-</td>
-        </tr>
-      `;
+      renderPersonCharts(rows);
     }
 
-    // ==========================================
-    // TAB 3: SALES BY SPV
-    // ==========================================
-    function renderSpvTab() {
-      const { startStr, endStr } = ensureActiveDateRange();
-      const lyStartStr = getShiftYearDate(startStr, -1);
-      const lyEndStr = getShiftYearDate(endStr, -1);
-      const spvFilter = document.getElementById('spvNameFilter').value;
-
-      let prorateRatio = 1;
-      if (startStr && endStr) {
-        const sDate = new Date(startStr + 'T00:00:00');
-        const eDate = new Date(endStr + 'T00:00:00');
-        if (!isNaN(sDate) && !isNaN(eDate) && eDate >= sDate) {
-          const selectedDays = Math.floor((eDate - sDate) / (1000 * 60 * 60 * 24)) + 1;
-          const daysInMonth = new Date(eDate.getFullYear(), eDate.getMonth() + 1, 0).getDate();
-          prorateRatio = Math.min(1, selectedDays / daysInMonth);
-        }
-      }
-
-      const spvMap = new Map();
-
-      rawData.spv.forEach(r => {
-        const dStr = parseSheetDate(getField(r, ['tanggal', 'date', 'tgl'], 0));
-        const jabatan = String(getField(r, ['jabatan', 'posisi', 'area'], 1)).trim() || 'SPV';
-        const nama = String(getField(r, ['nama', 'spv', 'supervisor', 'nama spv'], 2)).trim();
-        if (!nama || parseSheetDate(nama) || nama.toLowerCase() === 'total') return;
-
-        const salesDp = parseNumber(getField(r, ['sales dp', 'dp', 'net sales dp'], 3));
-        const lyDpCol = parseNumber(getField(r, ['ly dp', 'sales dp ly', 'dp ly'], 4));
-        const targetDpMonthly = parseNumber(getField(r, ['target dp', 'budget dp'], 5));
-
-        const salesCv = parseNumber(getField(r, ['sales cv', 'cv', 'net sales cv'], 6));
-        const lyCvCol = parseNumber(getField(r, ['ly cv', 'sales cv ly', 'cv ly'], 7));
-        const targetCvMonthly = parseNumber(getField(r, ['target cv', 'budget cv'], 8));
-
-        if (!spvMap.has(nama)) {
-          spvMap.set(nama, {
-            nama,
-            jabatan,
-            dpTy: 0,
-            dpLy: 0,
-            dpTargetMonthly: targetDpMonthly,
-            cvTy: 0,
-            cvLy: 0,
-            cvTargetMonthly: targetCvMonthly
-          });
-        }
-
-        const item = spvMap.get(nama);
-        if ((!item.dpTargetMonthly || item.dpTargetMonthly === 0) && targetDpMonthly > 0) {
-          item.dpTargetMonthly = targetDpMonthly;
-        }
-        if ((!item.cvTargetMonthly || item.cvTargetMonthly === 0) && targetCvMonthly > 0) {
-          item.cvTargetMonthly = targetCvMonthly;
-        }
-
-        if (isDateInRange(dStr, startStr, endStr)) {
-          item.dpTy += salesDp;
-          item.cvTy += salesCv;
-          if (lyDpCol > 0) item.dpLy += lyDpCol;
-          if (lyCvCol > 0) item.cvLy += lyCvCol;
-        } else if (lyStartStr && lyEndStr && isDateInRange(dStr, lyStartStr, lyEndStr)) {
-          item.dpLy += salesDp;
-          item.cvLy += salesCv;
-        }
-      });
-
-      let list = Array.from(spvMap.values());
-      if (spvFilter !== 'ALL') {
-        list = list.filter(x => x.nama === spvFilter);
-      }
-
-      let sumDpTy = 0, sumDpLy = 0, sumDpTarget = 0;
-      let sumCvTy = 0, sumCvLy = 0, sumCvTarget = 0;
-
-      const tbody = document.getElementById('spvTableBody');
-      if (list.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="11" class="text-center" style="padding:24px;color:#64748b;">Tidak ada data SPV pada periode ini.</td></tr>';
-      } else {
-        tbody.innerHTML = list.map(item => {
-          const dpTargetProrated = item.dpTargetMonthly * prorateRatio;
-          const cvTargetProrated = item.cvTargetMonthly * prorateRatio;
-          const totalTy = item.dpTy + item.cvTy;
-          const totalLy = item.dpLy + item.cvLy;
-          const totalTargetProrated = dpTargetProrated + cvTargetProrated;
-
-          sumDpTy += item.dpTy;
-          sumDpLy += item.dpLy;
-          sumDpTarget += dpTargetProrated;
-
-          sumCvTy += item.cvTy;
-          sumCvLy += item.cvLy;
-          sumCvTarget += cvTargetProrated;
-
-          const achDp = dpTargetProrated > 0 ? (item.dpTy / dpTargetProrated) * 100 : 0;
-          const achCv = cvTargetProrated > 0 ? (item.cvTy / cvTargetProrated) * 100 : 0;
-          const achTot = totalTargetProrated > 0 ? (totalTy / totalTargetProrated) * 100 : 0;
-
-          return `
-            <tr>
-              <td><strong>${escapeHtml(item.nama)}</strong></td>
-              <td>${escapeHtml(item.jabatan)}</td>
-              <td class="text-right tabular-nums">${formatRp(item.dpTy)}</td>
-              <td class="text-right tabular-nums">${formatGrowthSpan(item.dpTy, item.dpLy)}</td>
-              <td class="text-right tabular-nums">${formatAchSpan(achDp)}</td>
-              <td class="text-right tabular-nums">${formatRp(item.cvTy)}</td>
-              <td class="text-right tabular-nums">${formatGrowthSpan(item.cvTy, item.cvLy)}</td>
-              <td class="text-right tabular-nums">${formatAchSpan(achCv)}</td>
-              <td class="text-right tabular-nums"><strong>${formatRp(totalTy)}</strong></td>
-              <td class="text-right tabular-nums">${formatGrowthSpan(totalTy, totalLy)}</td>
-              <td class="text-right tabular-nums">${formatAchSpan(achTot)}</td>
-            </tr>
-          `;
-        }).join('');
-      }
-
-      const grandTotalTy = sumDpTy + sumCvTy;
-      const grandTotalLy = sumDpLy + sumCvLy;
-      const grandTotalTarget = sumDpTarget + sumCvTarget;
-
-      const grandAchDp = sumDpTarget > 0 ? (sumDpTy / sumDpTarget) * 100 : 0;
-      const grandAchCv = sumCvTarget > 0 ? (sumCvTy / sumCvTarget) * 100 : 0;
-      const grandAchTot = grandTotalTarget > 0 ? (grandTotalTy / grandTotalTarget) * 100 : 0;
-
-      document.getElementById('spvTotalSalesCard').textContent = formatRp(grandTotalTy);
-      document.getElementById('spvVsLyCard').innerHTML = `vs LY: ${formatGrowthSpan(grandTotalTy, grandTotalLy)}`;
-      document.getElementById('spvDpCard').textContent = formatRp(sumDpTy);
-      document.getElementById('spvDpAchCard').innerHTML = `Ach: ${formatAchSpan(grandAchDp)}`;
-      document.getElementById('spvCvCard').textContent = formatRp(sumCvTy);
-      document.getElementById('spvCvAchCard').innerHTML = `Ach: ${formatAchSpan(grandAchCv)}`;
-      document.getElementById('spvTotalAchCard').innerHTML = formatAchSpan(grandAchTot);
-      document.getElementById('spvTotalTargetCard').textContent = `Target Prorata: ${formatRp(grandTotalTarget)}`;
-
-      document.getElementById('spvTableFoot').innerHTML = `
-        <tr>
-          <td colspan="2">TOTAL</td>
-          <td class="text-right tabular-nums">${formatRp(sumDpTy)}</td>
-          <td class="text-right tabular-nums">${formatGrowthSpan(sumDpTy, sumDpLy)}</td>
-          <td class="text-right tabular-nums">${formatAchSpan(grandAchDp)}</td>
-          <td class="text-right tabular-nums">${formatRp(sumCvTy)}</td>
-          <td class="text-right tabular-nums">${formatGrowthSpan(sumCvTy, sumCvLy)}</td>
-          <td class="text-right tabular-nums">${formatAchSpan(grandAchCv)}</td>
-          <td class="text-right tabular-nums">${formatRp(grandTotalTy)}</td>
-          <td class="text-right tabular-nums">${formatGrowthSpan(grandTotalTy, grandTotalLy)}</td>
-          <td class="text-right tabular-nums">${formatAchSpan(grandAchTot)}</td>
-        </tr>
-      `;
+    // =========================================================================
+    // 7B. TAB SHOPNTALK (SHEET shopntalk GID 1151225502)
+    // =========================================================================
+    function onShopntalkSortDropdownChange() {
+      const raw = document.getElementById('shopntalkSortSelect').value || 'sales:desc';
+      const [key, dir] = raw.includes(':') ? raw.split(':') : [raw, 'desc'];
+      const normalizedKey = key === 'name' ? 'nama' : key;
+      STATE.sort.shopntalk = { key: normalizedKey, dir: dir || 'desc' };
+      renderShopntalkView();
     }
 
-    // ==========================================
-    // TAB 4: SHOP N TALK
-    // ==========================================
-    function renderSntTab() {
-      const { startStr, endStr } = ensureActiveDateRange();
-      const chFilter = document.getElementById('sntChannelFilter').value;
-      const searchQ = document.getElementById('sntSearchInput').value.trim().toLowerCase();
+    function toggleShopntalkSort(key) {
+      if (STATE.sort.shopntalk.key === key) {
+        STATE.sort.shopntalk.dir = STATE.sort.shopntalk.dir === 'asc' ? 'desc' : 'asc';
+      } else {
+        STATE.sort.shopntalk = { key, dir: key === 'nama' ? 'asc' : 'desc' };
+      }
+      renderShopntalkView();
+    }
 
-      const aggMap = new Map();
-      const spgTotals = new Map();
-      let waTotal = 0, haptikTotal = 0, liveTotal = 0;
+    function selectShopntalkRow(barcode) {
+      const sel = document.getElementById('shopntalkBarcodeSelect');
+      sel.value = sel.value === barcode ? 'ALL' : barcode;
+      renderShopntalkView();
+    }
 
-      const processSnt = (ignoreDate) => {
-        aggMap.clear();
-        spgTotals.clear();
-        waTotal = 0;
-        haptikTotal = 0;
-        liveTotal = 0;
+    function renderShopntalkView() {
+      const fromISO = document.getElementById('shopntalkFromDate').value;
+      const toISO = document.getElementById('shopntalkToDate').value;
+      const fromDisp = isoToDDMMYYYY(fromISO) || '-';
+      const toDisp = isoToDDMMYYYY(toISO) || '-';
 
-        rawData.shopntalk.forEach(r => {
-          const dStr = parseSheetDate(getField(r, ['tanggal', 'date', 'tgl'], 0));
-          if (!ignoreDate && !isDateInRange(dStr, startStr, endStr)) return;
-
-          const spg = String(getField(r, ['nama', 'spg', 'nama spg', 'sales'], 1)).trim() || '-';
-          if (spg.toLowerCase() === 'total') return;
-          const channelRaw = String(getField(r, ['channel', 'media', 'sumber', 'platform'], 2)).trim().toUpperCase();
-          const channel = channelRaw.includes('HAPTIK') ? 'HAPTIK' : (channelRaw.includes('LIVE') ? 'LIVE' : 'WA');
-          const brand = String(getField(r, ['brand', 'merk'], 3)).trim() || '-';
-          const trx = parseNumber(getField(r, ['trx', 'transaksi', 'struk', 'nota'], 4)) || 1;
-          const qty = parseNumber(getField(r, ['qty', 'pcs', 'unit'], 5));
-          const sales = parseNumber(getField(r, ['net sales', 'sales', 'amount', 'omzet', 'nominal'], 6));
-
-          if (channel === 'WA') waTotal += sales;
-          else if (channel === 'HAPTIK') haptikTotal += sales;
-          else if (channel === 'LIVE') liveTotal += sales;
-
-          if (chFilter !== 'ALL' && channel !== chFilter) return;
-          if (searchQ && !spg.toLowerCase().includes(searchQ) && !brand.toLowerCase().includes(searchQ)) return;
-
-          const key = `${spg}|${channel}|${brand}`;
-          if (!aggMap.has(key)) {
-            aggMap.set(key, { spg, channel, brand, trx: 0, qty: 0, sales: 0 });
-          }
-          const entry = aggMap.get(key);
-          entry.trx += trx;
-          entry.qty += qty;
-          entry.sales += sales;
-
-          spgTotals.set(spg, (spgTotals.get(spg) || 0) + sales);
-        });
+      const setT = (id, txt) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = txt;
       };
 
-      processSnt(false);
-      if (aggMap.size === 0 && rawData.shopntalk.length > 0) {
-        processSnt(true);
-      }
-
-      const list = Array.from(aggMap.values()).sort((a, b) => b.sales - a.sales);
-      let sumSales = 0, sumTrx = 0, sumQty = 0;
-      list.forEach(x => {
-        sumSales += x.sales;
-        sumTrx += x.trx;
-        sumQty += x.qty;
-      });
-
-      const grandAllChannels = waTotal + haptikTotal + liveTotal;
-      document.getElementById('sntTotalSales').textContent = formatRp(sumSales);
-      document.getElementById('sntTotalTrx').textContent = `${formatNum(sumTrx)} Transaksi`;
-      document.getElementById('sntWaSales').textContent = formatRp(waTotal);
-      document.getElementById('sntWaShare').textContent = grandAllChannels > 0 ? `${((waTotal / grandAllChannels) * 100).toFixed(1)}% kontribusi` : '0.0% kontribusi';
-      document.getElementById('sntHaptikSales').textContent = formatRp(haptikTotal);
-      document.getElementById('sntHaptikShare').textContent = grandAllChannels > 0 ? `${((haptikTotal / grandAllChannels) * 100).toFixed(1)}% kontribusi` : '0.0% kontribusi';
-      document.getElementById('sntLiveSales').textContent = formatRp(liveTotal);
-      document.getElementById('sntLiveShare').textContent = grandAllChannels > 0 ? `${((liveTotal / grandAllChannels) * 100).toFixed(1)}% kontribusi` : '0.0% kontribusi';
-
-      const tbody = document.getElementById('sntTableBody');
-      if (list.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center" style="padding:24px;color:#64748b;">Tidak ada transaksi Shop n Talk pada periode ini.</td></tr>';
-      } else {
-        tbody.innerHTML = list.map((item, idx) => {
-          const badgeCls = item.channel === 'WA' ? 'badge-wa' : (item.channel === 'HAPTIK' ? 'badge-haptik' : 'badge-live');
-          return `
-            <tr>
-              <td class="tabular-nums">${idx + 1}</td>
-              <td><strong>${escapeHtml(item.spg)}</strong></td>
-              <td><span class="badge ${badgeCls}">${item.channel}</span></td>
-              <td>${escapeHtml(item.brand)}</td>
-              <td class="text-right tabular-nums">${formatNum(item.trx)}</td>
-              <td class="text-right tabular-nums">${formatNum(item.qty)}</td>
-              <td class="text-right tabular-nums">${formatRp(item.sales)}</td>
-            </tr>
-          `;
-        }).join('');
-      }
-
-      document.getElementById('sntTableFoot').innerHTML = `
-        <tr>
-          <td colspan="4">TOTAL</td>
-          <td class="text-right tabular-nums">${formatNum(sumTrx)}</td>
-          <td class="text-right tabular-nums">${formatNum(sumQty)}</td>
-          <td class="text-right tabular-nums">${formatRp(sumSales)}</td>
-        </tr>
-      `;
-
-      // Charts
-      const topSpgs = Array.from(spgTotals.entries())
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 8);
-
-      if (charts.sntSpg) charts.sntSpg.destroy();
-      charts.sntSpg = new Chart(document.getElementById('sntSpgChart'), {
-        type: 'bar',
-        data: {
-          labels: topSpgs.map(x => x[0]),
-          datasets: [{
-            label: 'Sales (Rp)',
-            data: topSpgs.map(x => x[1]),
-            backgroundColor: '#0ea5e9',
-            borderRadius: 6
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: { callbacks: { label: ctx => formatRp(ctx.raw) } }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: { callback: val => 'Rp ' + (val / 1000).toFixed(0) + 'rb' }
-            }
-          }
+      setT('shopntalkFromDisplay', fromDisp);
+      setT('shopntalkToDisplay', toDisp);
+      setT('shopntalkPeriodBadge', `Periode: ${fromDisp} - ${toDisp}`); setT('shopntalkSalesSub', `Periode ${fromDisp} - ${toDisp}`);  const dateErrEl = document.getElementById('shopntalkDateError'); if (fromISO && toISO && fromISO > toISO) { dateErrEl?.classList.remove('hidden'); return; } dateErrEl?.classList.add('hidden');  const selectedBarcode = document.getElementById('shopntalkBarcodeSelect').value \vert{}\vert{} 'ALL'; const searchVal = (document.getElementById('shopntalkTableSearch').value \vert{}\vert{} '').trim().toLowerCase();  const sourceRows = Array.isArray(STATE.shopntalk) ? STATE.shopntalk : [];  const filteredRows = sourceRows.filter(r => { const d = r.isoDate \vert{}\vert{} ''; if (fromISO && d && d < fromISO) return false; if (toISO && d && d > toISO) return false; if (selectedBarcode && selectedBarcode !== 'ALL' && String(r.barcode) !== String(selectedBarcode)) return false; if (searchVal) { const hay = `${r.barcode || ''} ${r.nama \vert{}\vert{} ''}${r.jabatan || ''}`.toLowerCase();
+          if (!hay.includes(searchVal)) return false;
         }
+        return true;
       });
 
-      if (charts.sntChannel) charts.sntChannel.destroy();
-      charts.sntChannel = new Chart(document.getElementById('sntChannelChart'), {
-        type: 'doughnut',
-        data: {
-          labels: ['WA', 'HAPTIK', 'LIVE'],
-          datasets: [{
-            data: [waTotal, haptikTotal, liveTotal],
-            backgroundColor: ['#16a34a', '#4f46e5', '#db2777'],
-            borderWidth: 0
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: '65%',
-          plugins: {
-            legend: { position: 'bottom' },
-            tooltip: { callbacks: { label: ctx => `${ctx.label}: ${formatRp(ctx.raw)}` } }
-          }
-        }
-      });
-    }
+      setT('shopntalkRowCount', `Dihitung dari ${filteredRows.length} baris`);  const map = new Map(); filteredRows.forEach(r => { const key = `${r.barcode}||${r.nama \vert{}\vert{} '-'}`; if (!map.has(key)) { map.set(key, { barcode: r.barcode \vert{}\vert{} '-', nama: r.nama \vert{}\vert{} '-', jabatan: r.jabatan \vert{}\vert{} '-', sales: 0, qty: 0, target: r.target \vert{}\vert{} 0 }); } const item = map.get(key); if ((!item.nama \vert{}\vert{} item.nama === '-') && r.nama) item.nama = r.nama; if ((!item.jabatan \vert{}\vert{} item.jabatan === '-') && r.jabatan && r.jabatan !== '-') item.jabatan = r.jabatan; if (r.target > item.target) item.target = r.target; item.sales += (r.netSales \vert{}\vert{} 0); item.qty += (r.netQty \vert{}\vert{} 0); });  const rows = Array.from(map.values()).map(r => { const achNum = r.target > 0 ? (r.sales / r.target) * 100 : 0; return { ...r, ach: achNum, achRounded: Math.round(achNum) }; });  const rankOrder = [...rows].sort((a, b) => b.sales - a.sales); const rankMap = new Map(); rankOrder.forEach((item, idx) => rankMap.set(`${item.barcode}||${item.nama}`, idx + 1)); rows.forEach(item => { item.rank = rankMap.get(`${item.barcode}||${item.nama}`) \vert{}\vert{} 0; });  const sortSelVal = document.getElementById('shopntalkSortSelect')?.value \vert{}\vert{} ''; let sortKey = STATE.sort.shopntalk.key; let sortDir = STATE.sort.shopntalk.dir; if (sortSelVal.includes(':')) { const [k, d] = sortSelVal.split(':'); sortKey = k === 'name' ? 'nama' : k; sortDir = d \vert{}\vert{} 'desc'; }  rows.sort((a, b) => { let va = a[sortKey]; let vb = b[sortKey]; if (typeof va === 'string') { va = va.toLowerCase(); vb = String(vb \vert{}\vert{} '').toLowerCase(); } if (va < vb) return sortDir === 'asc' ? -1 : 1; if (va > vb) return sortDir === 'asc' ? 1 : -1; return 0; });  STATE.exportedRows.shopntalk = rows;  // Spotlight Card const spotCard = document.getElementById('shopntalkSpotlightCard'); if (selectedBarcode && selectedBarcode !== 'ALL' && rows.length > 0) { const spg = rows[0]; spotCard?.classList.remove('hidden'); setT('spotShopntalkBarcodeBadge', `BARCODE: ${spg.barcode} • ${spg.jabatan}`); setT('spotShopntalkPeriodText', `${fromDisp} - ${toDisp}`); setT('spotShopntalkName', spg.nama !== '-' ? spg.nama : spg.barcode); setT('spotShopntalkNetSales', formatRupiah(spg.sales)); setT('spotShopntalkNetQty', `${formatQty(spg.qty)} Pcs`);
+        setT('spotShopntalkTarget', formatRupiah(spg.target));
+        setT('spotShopntalkAch', `${spg.ach.toFixed(1)}\%`); } else { spotCard?.classList.add('hidden'); }  const totalSales = rows.reduce((s, r) => s + r.sales, 0); const totalQty = rows.reduce((s, r) => s + r.qty, 0); const totalTarget = rows.reduce((s, r) => s + r.target, 0); const achPct = totalTarget > 0 ? (totalSales / totalTarget) * 100 : 0;  setT('shopntalkTotalSales', formatRupiah(totalSales)); setT('shopntalkTotalQty', `${formatQty(totalQty)} Pcs`);
+      setT('shopntalkTotalTarget', formatRupiah(totalTarget));
+      setT('shopntalkAch', `${achPct.toFixed(1)}\%`); setT('shopntalkActiveCount', `${rows.length} SPG`);
+      setT('shopntalkAvgPrice', `Avg Price/Pc: ${formatRupiah(totalQty > 0 ? Math.round(totalSales / totalQty) : 0)}`); setT('shopntalkTableCountBadge', `${rows.length} SPG`);
 
-    function escapeHtml(str) {
-      return String(str || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    }
-
-    // Date Change Listeners (auto-restore default if cleared, render from cache without loop)
-    document.getElementById('startDate').addEventListener('change', renderAllTabs);
-    document.getElementById('endDate').addEventListener('change', renderAllTabs);
-
-    // Boot
-    window.addEventListener('DOMContentLoaded', () => {
-      ensureActiveDateRange();
-      loadAllSheets(false);
-    });
-  </script>
-</body>
-</html>
+      const tbody = document.getElementById('shopntalkTableBody');
+      if (tbody) {
+        if (!rows.length) {
+          tbody.innerHTML = `<tr><td colspan="8" class="py-10 px-4 text-center text-slate-400">Tidak ada data pada rentang ${fromDisp} -${toDisp}.</td></tr>`;
+        } else {
+          tbody.innerHTML = rows.map(r => `
+            <tr onclick="selectShopntalkRow('${escapeHTML(r.barcode).replace(/'/g
