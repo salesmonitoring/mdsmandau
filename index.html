@@ -2170,7 +2170,7 @@ setT('shopntalkAvgPrice', 'Avg Price/Pc: Rp ' + (totalQty ? Math.round(totalSale
   renderShopntalkChart(rows);
 }
 
-    function rendershopntalkCharts(rows) {
+    function rendershopntalkChart(rows) {
       const sorted = [...rows].sort((a, b) => b.sales - a.sales);
       const top10 = sorted.slice(0, 10);
       const ctx1 = document.getElementById('chartshopntalkTop10').getContext('2d');
