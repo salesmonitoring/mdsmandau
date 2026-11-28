@@ -111,7 +111,7 @@ main { padding-top: 8px !important; }
               Sales by Person (Barcode)
             </button>
             <button onclick="switchTab('shopntalk')" id="nav-desk-shopntalk" class="px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition">
-              Sales ShopNtalk
+              Sales shopntalk
             </button>
             <button onclick="switchTab('spv')" id="nav-desk-spv" class="px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition">
               Sales by SPV
@@ -599,7 +599,7 @@ main { padding-top: 8px !important; }
           <div class="flex items-center gap-2.5">
             <span class="w-1.5 h-6 rounded-full bg-indigo-600"></span>
             <div>
-              <h2 class="text-sm font-bold text-slate-900">Filter &amp; Slicer — Sales ShopnTalk (Barcode)</h2>
+              <h2 class="text-sm font-bold text-slate-900">Filter &amp; Slicer — Sales shopntalk (Barcode)</h2>
               <p class="text-xs font-semibold text-indigo-700 mt-0.5">
                 Data Barcode hanya 01/11/2026 - 02/11/2026 (128 baris) • <span id="shopntalkPeriodBadge" class="font-mono text-slate-700">Periode: 01/11/2026 - 02/11/2026</span> • <span id="personRowCountBadge" class="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-bold">Dihitung dari 0 baris</span>
               </p>
@@ -614,21 +614,21 @@ main { padding-top: 8px !important; }
           <!-- From Date -->
           <div>
             <label for="shopntalkFromDate" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Dari Tanggal</label>
-            <input type="date" id="shopntalkFromDate" value="2026-11-01" onchange="renderShopnTalkView()" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/15" />
+            <input type="date" id="shopntalkFromDate" value="2026-11-01" onchange="rendershopntalkView()" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/15" />
             <span id="shopntalkFromDisplay" class="block text-[11px] text-slate-400 mt-0.5 font-mono">01/11/2026</span>
           </div>
 
           <!-- To Date -->
           <div>
             <label for="shopntalkToDate" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Sampai Tanggal</label>
-            <input type="date" id="shopntalkToDate" value="2026-11-02" onchange="renderShopnTalkView()" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/15" />
+            <input type="date" id="shopntalkToDate" value="2026-11-02" onchange="rendershopntalkView()" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/15" />
             <span id="shopntalkToDisplay" class="block text-[11px] text-slate-400 mt-0.5 font-mono">02/11/2026</span>
           </div>
 
           <!-- Barcode / SPG Dropdown -->
           <div>
             <label for="shopntalkBarcodeSelect" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Barcode / SPG</label>
-            <select id="shopntalkBarcodeSelect" onchange="renderShopnTalkView()" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/15">
+            <select id="shopntalkBarcodeSelect" onchange="rendershopntalkView()" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/15">
               <option value="ALL">Semua Barcode / SPG</option>
             </select>
           </div>
@@ -636,7 +636,7 @@ main { padding-top: 8px !important; }
           <!-- Sort By Dropdown -->
           <div>
             <label for="shopntalkSortSelect" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Urutkan</label>
-            <select id="shopntalkSortSelect" onchange="onShopntalkSortDropdownChange()" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/15">
+            <select id="shopntalkSortSelect" onchange="onshopntalkSortDropdownChange()" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:bg-white focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/15">
               <option value="sales:desc">Sales Tertinggi (Rp)</option>
               <option value="sales:asc">Sales Terendah (Rp)</option>
               <option value="qty:desc">Qty Terbanyak (Pcs)</option>
@@ -650,7 +650,7 @@ main { padding-top: 8px !important; }
         <!-- Date Range Error Banner (DARI > SAMPAI) -->
         <div id="shopntalkDateError" class="hidden bg-rose-50 border border-rose-200 rounded-xl px-4 py-2.5 flex items-center justify-between gap-3 text-xs text-rose-800">
           <span class="font-bold">DARI &gt; SAMPAI — Tanggal mulai lebih besar dari tanggal akhir.</span>
-          <button onclick="swapDates('shopntalkFromDate', 'shopntalkToDate', renderShopnTalkView)" class="px-3 py-1 rounded-lg bg-rose-700 text-white font-bold hover:bg-rose-800 transition shrink-0">
+          <button onclick="swapDates('shopntalkFromDate', 'shopntalkToDate', rendershopntalkView)" class="px-3 py-1 rounded-lg bg-rose-700 text-white font-bold hover:bg-rose-800 transition shrink-0">
             Tukar Tanggal
           </button>
         </div>
@@ -664,7 +664,7 @@ main { padding-top: 8px !important; }
               <span id="spotBarcodeBadge" class="px-2.5 py-0.5 rounded-md bg-indigo-500/30 border border-indigo-300/30 text-xs font-mono font-bold text-indigo-100">BARCODE</span>
               <span id="spotPeriodText" class="text-xs text-slate-300">Periode</span>
             </div>
-            <h3 id="spotshopntalkName" class="text-lg sm:text-xl font-extrabold mt-1">Sales ShopnTalk</h3>
+            <h3 id="spotshopntalkName" class="text-lg sm:text-xl font-extrabold mt-1">Sales shopntalk</h3>
           </div>
 
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 tabular-nums">
@@ -695,8 +695,8 @@ main { padding-top: 8px !important; }
             <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total SPG Net Sales (Rp)</span>
             <span class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs">NET</span>
           </div>
-          <div id="kpiShopnTalkSales" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums truncate">Rp 0</div>
-          <p id="kpiShopntalkSalesSub" class="text-xs text-slate-500 mt-1.5 truncate">Periode 01/11/2026 - 02/11/2026</p>
+          <div id="kpishopntalkSales" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums truncate">Rp 0</div>
+          <p id="kpishopntalkSalesSub" class="text-xs text-slate-500 mt-1.5 truncate">Periode 01/11/2026 - 02/11/2026</p>
         </div>
 
         <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
@@ -704,16 +704,16 @@ main { padding-top: 8px !important; }
             <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Net Qty (Pcs)</span>
             <span class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs">PCS</span>
           </div>
-          <div id="kpiShopntalkQty" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums">0 Pcs</div>
-          <p id="kpiShopntalkQtySub" class="text-xs text-slate-500 mt-1.5 truncate">Avg Price/Pc: Rp 0</p>
+          <div id="kpishopntalkQty" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums">0 Pcs</div>
+          <p id="kpishopntalkQtySub" class="text-xs text-slate-500 mt-1.5 truncate">Avg Price/Pc: Rp 0</p>
         </div>
 
         <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
           <div class="flex items-center justify-between mb-2.5">
             <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Target &amp; ACH</span>
-            <span id="kpiShopnTalkDiscBadge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-700">0%</span>
+            <span id="kpishopntalkDiscBadge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-700">0%</span>
           </div>
-          <div id="kpiShopnTalkDisc" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums truncate">Rp 0</div>
+          <div id="kpishopntalkDisc" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums truncate">Rp 0</div>
           <p class="text-xs text-slate-500 mt-1.5 truncate">Target bulanan SPG terpilih</p>
         </div>
 
@@ -722,8 +722,8 @@ main { padding-top: 8px !important; }
             <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Barcodes / SPG</span>
             <span class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center font-bold text-xs">SPG</span>
           </div>
-          <div id="kpiShopnTalkActive" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums">0 SPG</div>
-          <p id="kpiShopntalkAvgSub" class="text-xs text-slate-500 mt-1.5 truncate">Avg Sales/SPG: Rp 0</p>
+          <div id="kpishopntalkActive" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums">0 SPG</div>
+          <p id="kpishopntalkAvgSub" class="text-xs text-slate-500 mt-1.5 truncate">Avg Sales/SPG: Rp 0</p>
         </div>
       </section>
 
@@ -735,7 +735,7 @@ main { padding-top: 8px !important; }
             <p class="text-xs text-slate-500">Perbandingan penjualan dan target bulanan per person pada rentang tanggal</p>
           </div>
           <div class="relative h-72 w-full">
-            <canvas id="chartShopntalkTop10"></canvas>
+            <canvas id="chartshopntalkTop10"></canvas>
           </div>
         </div>
 
@@ -745,7 +745,7 @@ main { padding-top: 8px !important; }
             <p class="text-xs text-slate-500">Porsi kontribusi Net Sales Top 5 SPG dibanding lainnya</p>
           </div>
           <div class="relative h-72 w-full">
-            <canvas id="chartShopnTalkShare"></canvas>
+            <canvas id="chartshopntalkShare"></canvas>
           </div>
         </div>
       </section>
@@ -756,7 +756,7 @@ main { padding-top: 8px !important; }
           <div>
             <div class="flex items-center gap-2">
               <h3 class="text-base font-bold text-slate-900">Ranking &amp; Detail Sales by Person (Barcode)</h3>
-              <span id="ShopnTalkTableCountBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700">0 SPG</span>
+              <span id="shopntalkTableCountBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700">0 SPG</span>
             </div>
             <p class="text-xs text-slate-500 mt-0.5">Klik baris person untuk melihat atau menutup kartu Spotlight</p>
           </div>
@@ -782,16 +782,16 @@ main { padding-top: 8px !important; }
             <thead>
               <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider select-none">
                 <th class="py-3.5 px-4 w-14 text-center">RANK</th>
-                <th onclick="toggleShopntalkSort('barcode')" class="py-3.5 px-4 cursor-pointer hover:text-indigo-600">BARCODE ↕</th>
-                <th onclick="toggleShopntalkSort('nama')" class="py-3.5 px-4 cursor-pointer hover:text-indigo-600">NAMA ↕</th>
-                <th onclick="toggleShopntalkSort('sales')" class="py-3.5 px-4 text-right cursor-pointer hover:text-indigo-600">SALES ↕</th>
-                <th onclick="toggleShopntalkSort('qty')" class="py-3.5 px-4 text-right cursor-pointer hover:text-indigo-600">QTY ↕</th>
-                <th onclick="toggleShopntalkSort('target')" class="py-3.5 px-4 text-right cursor-pointer hover:text-indigo-600">TARGET ↕</th>
-                <th onclick="toggleShopntalkSort('ach')" class="py-3.5 px-4 text-center cursor-pointer hover:text-indigo-600">ACH ↕</th>
-                <th onclick="toggleShopntalkSort('jabatan')" class="py-3.5 px-4 cursor-pointer hover:text-indigo-600">JABATAN ↕</th>
+                <th onclick="toggleshopntalkSort('barcode')" class="py-3.5 px-4 cursor-pointer hover:text-indigo-600">BARCODE ↕</th>
+                <th onclick="toggleshopntalkSort('nama')" class="py-3.5 px-4 cursor-pointer hover:text-indigo-600">NAMA ↕</th>
+                <th onclick="toggleshopntalkSort('sales')" class="py-3.5 px-4 text-right cursor-pointer hover:text-indigo-600">SALES ↕</th>
+                <th onclick="toggleshopntalkSort('qty')" class="py-3.5 px-4 text-right cursor-pointer hover:text-indigo-600">QTY ↕</th>
+                <th onclick="toggleshopntalkSort('target')" class="py-3.5 px-4 text-right cursor-pointer hover:text-indigo-600">TARGET ↕</th>
+                <th onclick="toggleshopntalkSort('ach')" class="py-3.5 px-4 text-center cursor-pointer hover:text-indigo-600">ACH ↕</th>
+                <th onclick="toggleshopntalkSort('jabatan')" class="py-3.5 px-4 cursor-pointer hover:text-indigo-600">JABATAN ↕</th>
               </tr>
             </thead>
-            <tbody id="ShopntalkTableBody" class="divide-y divide-slate-100 text-xs sm:text-sm tabular-nums"></tbody>
+            <tbody id="shopntalkTableBody" class="divide-y divide-slate-100 text-xs sm:text-sm tabular-nums"></tbody>
           </table>
         </div>
       </section>
@@ -805,7 +805,7 @@ main { padding-top: 8px !important; }
     <div class="flex items-center gap-2.5 pb-3 border-b border-slate-100">
       <span class="w-1.5 h-6 rounded-full bg-indigo-600"></span>
       <div>
-        <h2 class="text-sm font-bold text-slate-900">Sales ShopNtalk</h2>
+        <h2 class="text-sm font-bold text-slate-900">Sales shopntalk</h2>
         <p class="text-xs font-medium text-slate-600 mt-0.5">Barcode = Kode SPG • Target S&T = 2.494.996 (1x saja)</p>
       </div>
     </div>
@@ -1043,7 +1043,7 @@ main { padding-top: 8px !important; }
         By Person
       </button>
       <button onclick="switchTab('shopntalk')" id="nav-mob-shopntalk" class="py-2 px-1 rounded-xl text-[11px] font-semibold text-slate-600 hover:bg-slate-50 text-center transition">
-        By ShopnTalk
+        By shopntalk
       </button>
       <button onclick="switchTab('spv')" id="nav-mob-spv" class="py-2 px-1 rounded-xl text-[11px] font-semibold text-slate-600 hover:bg-slate-50 text-center transition">
         By SPV
@@ -1098,11 +1098,11 @@ main { padding-top: 8px !important; }
         ]
       },
       shopntalk: {
-    name: 'ShopnTalk',
+    name: 'shopntalk',
     gid: '1151225502',
     urls: [
-        { mode: 'csv', type: 'Export CSV (GID)', label: 'Export ShopnTalk (1151225502)', url: `${EXP_BASE}&gid=1151225502` },
-        { mode: 'gviz', type: 'Fallback Gviz JSON (GID)', label: 'Gviz ShopnTalk (1151225502)', url: `${GVIZ_BASE}&gid=1151225502` }
+        { mode: 'csv', type: 'Export CSV (GID)', label: 'Export shopntalk (1151225502)', url: `${EXP_BASE}&gid=1151225502` },
+        { mode: 'gviz', type: 'Fallback Gviz JSON (GID)', label: 'Gviz shopntalk (1151225502)', url: `${GVIZ_BASE}&gid=1151225502` }
     ]
 },
     };
@@ -2117,7 +2117,7 @@ const ctx2 = canvas2.getContext('2d');
 
       renderPersonCharts(rows);
     }
-function renderShopntalkView() {
+function rendershopntalkView() {
       const fromISO = document.getElementById('shopntalkFromDate').value;
       const toISO = document.getElementById('shopntalkToDate').value;
       const fromDisp = isoToDDMMYYYY(fromISO) || '-';
@@ -2233,14 +2233,14 @@ function renderShopntalkView() {
       const avgPricePc = totQty > 0 ? Math.round(totSales / totQty) : 0;
       const achAll = totTarget > 0 ? Math.round((totSales / totTarget) * 100) : 0;
 
-      document.getElementById('kpiShopntalkSales').textContent = formatRupiah(totSales);
-      document.getElementById('kpiShopntalkSalesSub').textContent = `Periode ${fromDisp} - ${toDisp}`;
-      document.getElementById('kpiShopntalkQty').textContent = `${formatQty(totQty)} Pcs`;
-      document.getElementById('kpiShopntalkQtySub').textContent = `Avg Price/Pc: ${formatRupiah(avgPricePc)}`;
-      document.getElementById('kpiShopntalkDisc').textContent = formatRupiah(totTarget);
-      document.getElementById('kpiShopntalkDiscBadge').textContent = `${achAll}% ACH`;
-      document.getElementById('kpiShopntalkActive').textContent = `${activeCount} SPG`;
-      document.getElementById('kpiShopntalkAvgSub').textContent = `Avg Sales/SPG: ${formatRupiah(avgSalesSpg)}`;
+      document.getElementById('kpishopntalkSales').textContent = formatRupiah(totSales);
+      document.getElementById('kpishopntalkSalesSub').textContent = `Periode ${fromDisp} - ${toDisp}`;
+      document.getElementById('kpishopntalkQty').textContent = `${formatQty(totQty)} Pcs`;
+      document.getElementById('kpishopntalkQtySub').textContent = `Avg Price/Pc: ${formatRupiah(avgPricePc)}`;
+      document.getElementById('kpishopntalkDisc').textContent = formatRupiah(totTarget);
+      document.getElementById('kpishopntalkDiscBadge').textContent = `${achAll}% ACH`;
+      document.getElementById('kpishopntalkActive').textContent = `${activeCount} SPG`;
+      document.getElementById('kpishopntalkAvgSub').textContent = `Avg Sales/SPG: ${formatRupiah(avgSalesSpg)}`;
 
       document.getElementById('shopntalkTableCountBadge').textContent = `${rows.length} SPG`;
       const tbody = document.getElementById('shopntalkTableBody');
@@ -2248,7 +2248,7 @@ function renderShopntalkView() {
         tbody.innerHTML = `<tr><td colspan="8" class="py-10 px-4 text-center text-slate-400">Tidak ada data Barcode/SPG pada rentang ${fromDisp} - ${toDisp}.</td></tr>`;
       } else {
         tbody.innerHTML = rows.map(r => `
-          <tr onclick="selectShopntalkRow('${escapeHTML(r.barcode).replace(/'/g, "\'")}')" class="cursor-pointer hover:bg-indigo-50/40 transition">
+          <tr onclick="selectshopntalkRow('${escapeHTML(r.barcode).replace(/'/g, "\'")}')" class="cursor-pointer hover:bg-indigo-50/40 transition">
             <td class="py-3 px-4 text-center font-bold text-slate-500">${r.rank}</td>
             <td class="py-3 px-4 font-mono text-xs font-bold text-indigo-700 whitespace-nowrap">${escapeHTML(r.barcode)}</td>
             <td class="py-3 px-4 font-bold text-slate-900 whitespace-nowrap">${escapeHTML(r.nama)}</td>
@@ -2262,13 +2262,13 @@ function renderShopntalkView() {
           </tr>`).join('');
       }
 
-      renderShopntalkCharts(rows);
+      rendershopntalkCharts(rows);
     }
 
-    function renderShopntalkCharts(rows) {
+    function rendershopntalkCharts(rows) {
       const sorted = [...rows].sort((a, b) => b.sales - a.sales);
       const top10 = sorted.slice(0, 10);
-      const ctx1 = document.getElementById('chartShopntalkTop10').getContext('2d');
+      const ctx1 = document.getElementById('chartshopntalkTop10').getContext('2d');
       if (STATE.charts.shopntalkTop10) STATE.charts.shopntalkTop10.destroy();
       STATE.charts.shopntalkTop10 = new Chart(ctx1, {
         type: 'bar',
@@ -2298,7 +2298,7 @@ function renderShopntalkView() {
       const top5 = sortedFiltered.slice(0, 5);
       const labels = top5.map(x => (x.nama && x.nama !== '-') ? x.nama.slice(0, 18) : x.barcode);
       const data = top5.map(x => x.sales);
-      const ctx2 = document.getElementById('chartShopntalkShare').getContext('2d');
+      const ctx2 = document.getElementById('chartshopntalkShare').getContext('2d');
       if (STATE.charts.shopntalkShare) STATE.charts.shopntalkShare.destroy();
       STATE.charts.shopntalkShare = new Chart(ctx2, {
         type: 'doughnut',
