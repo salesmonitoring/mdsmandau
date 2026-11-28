@@ -2153,16 +2153,17 @@ function renderShopntalkView(){
   const totalQty = rows.reduce((s,r) => s + r.qty, 0);
   const totalTarget = rows.reduce((s,r) => s + r.target, 0);
 
-  document.getElementById('shopntalkTotalSales').textContent = 'Rp ' + totalSales.toLocaleString('id-ID');
-  document.getElementById('shopntalkTotalQty').textContent = totalQty.toLocaleString('id-ID') + ' Pcs';
-  document.getElementById('shopntalkTotalTarget').textContent = 'Rp ' + totalTarget.toLocaleString('id-ID');
-  document.getElementById('shopntalkAch').textContent = (totalTarget ? (totalSales/totalTarget*100) : 0).toFixed(1) + '%';
-  document.getElementById('shopntalkActiveCount').textContent = rows.length + ' Spg';
-  document.getElementById('shopntalkRowCount').textContent = 'Dihitung dari ' + filteredRows.length + ' baris';
-  document.getElementById('shopntalkAvgPrice').textContent = 'Avg Price/Pc: Rp ' + (totalQty ? Math.round(totalSales/totalQty) : 0).toLocaleString('id-ID');
+  const setT = (id, txt) => { const el = document.getElementById(id); if(el) el.textContent = txt; };
+setT('shopntalkTotalSales', 'Rp ' + totalSales.toLocaleString('id-ID'));
+setT('shopntalkTotalQty', totalQty.toLocaleString('id-ID') + ' Pcs');
+setT('shopntalkTotalTarget', 'Rp ' + totalTarget.toLocaleString('id-ID'));
+setT('shopntalkAch', (totalTarget ? (totalSales/totalTarget*100) : 0).toFixed(1) + '%');
+setT('shopntalkActiveCount', rows.length + ' Spg');
+setT('shopntalkRowCount', 'Dihitung dari ' + filteredRows.length + ' baris');
+setT('shopntalkAvgPrice', 'Avg Price/Pc: Rp ' + (totalQty ? Math.round(totalSales/totalQty) : 0).toLocaleString('id-ID'));
 
   const tbody = document.getElementById('shopntalkTableBody');
-  tbody.innerHTML = rows.map((r,i) => {
+  if(tbody).innerHTML = rows.map((r,i) => {
     return '<tr><td>' + (i+1) + '</td><td>' + r.barcode + '</td><td>' + r.nama + '</td><td>' + (r.jabatan||'') + '</td><td>Rp ' + r.sales.toLocaleString('id-ID') + '</td><td>' + r.qty + '</td><td>Rp ' + r.target.toLocaleString('id-ID') + '</td><td>' + r.ach.toFixed(1) + '%</td></tr>';
   }).join('') || '<tr><td colspan="8">Tidak ada data</td></tr>';
 
