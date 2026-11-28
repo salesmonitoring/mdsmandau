@@ -2167,7 +2167,7 @@ setT('shopntalkAvgPrice', 'Avg Price/Pc: Rp ' + (totalQty ? Math.round(totalSale
     return '<tr><td>' + (i+1) + '</td><td>' + r.barcode + '</td><td>' + r.nama + '</td><td>' + (r.jabatan||'') + '</td><td>Rp ' + r.sales.toLocaleString('id-ID') + '</td><td>' + r.qty + '</td><td>Rp ' + r.target.toLocaleString('id-ID') + '</td><td>' + r.ach.toFixed(1) + '%</td></tr>';
   }).join('') || '<tr><td colspan="8">Tidak ada data</td></tr>';
 
-  renderShopntalkCharts(rows);
+  renderShopntalkChart(rows);
 }
 
     function rendershopntalkCharts(rows) {
