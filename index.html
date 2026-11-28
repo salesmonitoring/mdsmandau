@@ -368,13 +368,6 @@
     .pos { color: var(--success); font-weight: 600; }
     .neg { color: var(--danger); font-weight: 600; }
     .neu { color: var(--text-muted); font-weight: 500; }
-
-    .loading-state {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-    }
   </style>
 </head>
 <body>
@@ -404,10 +397,10 @@
   <!-- Navigation Tabs -->
   <nav class="nav-bar">
     <div class="nav-inner">
-      <button type="button" class="tab-btn active" data-tab="tab-brand">Sales by Brand &amp; Inventory</button>
-      <button type="button" class="tab-btn" data-tab="tab-person">Sales by Person (Barcode)</button>
-      <button type="button" class="tab-btn" data-tab="tab-spv">Sales by SPV</button>
-      <button type="button" class="tab-btn" data-tab="tab-shopntalk">Shop n Talk</button>
+      <button type="button" class="tab-btn active" data-tab="tab-brand" onclick="switchTab('tab-brand', this)">Sales by Brand &amp; Inventory</button>
+      <button type="button" class="tab-btn" data-tab="tab-person" onclick="switchTab('tab-person', this)">Sales by Person (Barcode)</button>
+      <button type="button" class="tab-btn" data-tab="tab-spv" onclick="switchTab('tab-spv', this)">Sales by SPV</button>
+      <button type="button" class="tab-btn" data-tab="tab-shopntalk" onclick="switchTab('tab-shopntalk', this)">Shop n Talk</button>
     </div>
   </nav>
 
@@ -502,7 +495,7 @@
         <div class="kpi-card">
           <div class="kpi-label">Total Target Bulanan (SPG Aktif)</div>
           <div class="kpi-value tabular-nums" id="personTotalTarget">Rp 0</div>
-          <div class="kpi-sub">Akumulasi target unik per Barcode</div>
+          <div class="kpi-sub tabular-nums" id="personTargetSub">Target per SPG: Rp 2.494.996</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Achievement (ACH)</div>
@@ -694,6 +687,10 @@
       shopntalk: '1151225502'
     };
 
+    const TARGET_PER_SPG = 2494996;
+    const DEFAULT_START_DATE = '2026-11-01';
+    const DEFAULT_END_DATE = '2026-11-28';
+
     const rawData = {
       brand: [],
       barcode: [],
@@ -711,6 +708,20 @@
 
     let isFetching = false;
 
+    // Global switchTab function so inline onclick and listeners both work cleanly
+    function switchTab(tabId, btnEl) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      if (btnEl) {
+        btnEl.classList.add('active');
+      } else {
+        const matchingBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+        if (matchingBtn) matchingBtn.classList.add('active');
+      }
+      const panel = document.getElementById(tabId);
+      if (panel) panel.classList.add('active');
+    }
+
     // Formatting Utilities
     function formatRp(val) {
       const num = Math.round(Number(val) || 0);
@@ -720,11 +731,6 @@
     function formatNum(val) {
       const num = Math.round(Number(val) || 0);
       return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    }
-
-    function formatPct(val) {
-      if (!isFinite(val) || isNaN(val)) return '0.0%';
-      return Number(val).toFixed(1) + '%';
     }
 
     function formatGrowthSpan(ty, ly) {
@@ -750,23 +756,18 @@
       let str = String(val).trim();
       if (!str || str === '-' || str === '#DIV/0!' || str === '#N/A' || str === '#VALUE!') return 0;
       str = str.replace(/Rp/gi, '').replace(/\s+/g, '');
-      // Handle parentheses for negative numbers
       let isNeg = false;
       if (str.startsWith('(') && str.endsWith(')')) {
         isNeg = true;
         str = str.slice(1, -1);
       }
-      // Remove percentage sign if present
       str = str.replace(/%/g, '');
-      // Determine decimal vs thousand separators
       const lastComma = str.lastIndexOf(',');
       const lastDot = str.lastIndexOf('.');
       if (lastComma > -1 && lastDot > -1) {
         if (lastComma > lastDot) {
-          // Format: 1.234.567,89
           str = str.replace(/\./g, '').replace(',', '.');
         } else {
-          // Format: 1,234,567.89
           str = str.replace(/,/g, '');
         }
       } else if (lastComma > -1) {
@@ -778,7 +779,6 @@
         }
       } else if (lastDot > -1) {
         const parts = str.split('.');
-        // If multiple dots or 3 digits after single dot (e.g., 1.500.000 or 250.000), treat as thousand separator
         if (parts.length > 2 || (parts.length === 2 && parts[1].length === 3)) {
           str = str.replace(/\./g, '');
         }
@@ -788,7 +788,22 @@
       return isNeg ? -num : num;
     }
 
-    // Parse Google Sheets Date or YYYY-MM-DD / DD/MM/YYYY
+    // Parse Google Sheets Date or YYYY-MM-DD / DD/MM/YYYY / Month names
+    const MONTH_MAP = {
+      jan: '01', januari: '01', january: '01',
+      feb: '02', februari: '02', february: '02',
+      mar: '03', maret: '03', march: '03',
+      apr: '04', april: '04',
+      mei: '05', may: '05',
+      jun: '06', juni: '06', june: '06',
+      jul: '07', juli: '07', july: '07',
+      agu: '08', ags: '08', agustus: '08', aug: '08', august: '08',
+      sep: '09', sept: '09', september: '09',
+      okt: '10', oktober: '10', oct: '10', october: '10',
+      nov: '11', november: '11',
+      des: '12', desember: '12', dec: '12', december: '12'
+    };
+
     function parseSheetDate(raw) {
       if (!raw) return null;
       if (raw instanceof Date && !isNaN(raw)) {
@@ -812,6 +827,16 @@
       const dmyMatch = s.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
       if (dmyMatch) {
         return `${dmyMatch[3]}-${String(dmyMatch[2]).padStart(2, '0')}-${String(dmyMatch[1]).padStart(2, '0')}`;
+      }
+      // DD-MMM-YYYY or DD MMM YYYY (e.g., 05-Nov-2026 or 5 November 2026)
+      const dMonYMatch = s.match(/^(\d{1,2})[-\s/]([a-zA-Z]+)[-\s/](\d{2,4})/);
+      if (dMonYMatch) {
+        const day = String(parseInt(dMonYMatch[1], 10)).padStart(2, '0');
+        const monKey = dMonYMatch[2].toLowerCase();
+        const mon = MONTH_MAP[monKey];
+        let yr = dMonYMatch[3];
+        if (yr.length === 2) yr = '20' + yr;
+        if (mon) return `${yr}-${mon}-${day}`;
       }
       const parsed = new Date(s);
       if (!isNaN(parsed)) {
@@ -854,7 +879,6 @@
         });
         return { headers: cols, rows };
       } catch (err) {
-        // Fallback to CSV export
         const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
         const res = await fetch(csvUrl);
         const csvText = await res.text();
@@ -924,35 +948,13 @@
       return '';
     }
 
-    // Initialize Default Date Range from Data
-    function initDefaultDates() {
-      const allDates = [];
-      const collectDates = (rows) => {
-        rows.forEach(r => {
-          const d = parseSheetDate(getField(r, ['tanggal', 'date', 'tgl', 'periode'], 0));
-          if (d) allDates.push(d);
-        });
-      };
-      collectDates(rawData.brand);
-      collectDates(rawData.barcode);
-      collectDates(rawData.spv);
-      collectDates(rawData.shopntalk);
-
+    // Ensure Dari / s/d dates default automatically to current month (2026-11-01 to 2026-11-28)
+    function ensureActiveDateRange() {
       const startEl = document.getElementById('startDate');
       const endEl = document.getElementById('endDate');
-
-      if (allDates.length > 0) {
-        allDates.sort();
-        const maxDate = allDates[allDates.length - 1];
-        const minMonthDate = maxDate.slice(0, 8) + '01';
-        if (!startEl.value) startEl.value = minMonthDate;
-        if (!endEl.value) endEl.value = maxDate;
-      } else {
-        const now = new Date();
-        const isoNow = toISODate(now);
-        if (!startEl.value) startEl.value = isoNow.slice(0, 8) + '01';
-        if (!endEl.value) endEl.value = isoNow;
-      }
+      if (!startEl.value) startEl.value = DEFAULT_START_DATE;
+      if (!endEl.value) endEl.value = DEFAULT_END_DATE;
+      return { startStr: startEl.value, endStr: endEl.value };
     }
 
     function isDateInRange(dateStr, startStr, endStr) {
@@ -979,6 +981,8 @@
       btn.disabled = true;
       lbl.textContent = 'Memuat...';
 
+      ensureActiveDateRange();
+
       try {
         const [brandRes, barcodeRes, spvRes, invRes, sntRes] = await Promise.all([
           fetchSheetData(GIDS.brand),
@@ -994,9 +998,6 @@
         rawData.inventory = invRes.rows;
         rawData.shopntalk = sntRes.rows;
 
-        if (!isManual) {
-          initDefaultDates();
-        }
         populateFilters();
         renderAllTabs();
 
@@ -1050,6 +1051,7 @@
     }
 
     function renderAllTabs() {
+      ensureActiveDateRange();
       renderBrandTab();
       renderPersonTab();
       renderSpvTab();
@@ -1060,8 +1062,7 @@
     // TAB 1: BRAND & INVENTORY
     // ==========================================
     function renderBrandTab() {
-      const startStr = document.getElementById('startDate').value;
-      const endStr = document.getElementById('endDate').value;
+      const { startStr, endStr } = ensureActiveDateRange();
       const lyStartStr = getShiftYearDate(startStr, -1);
       const lyEndStr = getShiftYearDate(endStr, -1);
       const deptFilter = document.getElementById('brandDeptFilter').value;
@@ -1071,13 +1072,13 @@
 
       // Aggregate Sales TY & LY
       rawData.brand.forEach(r => {
-        const dStr = parseSheetDate(getField(r, ['tanggal', 'date', 'tgl'], 0));
-        const brandName = String(getField(r, ['brand', 'nama brand', 'merk'], 1)).trim();
-        if (!brandName) return;
+        const dStr = parseSheetDate(getField(r, ['tanggal', 'date', 'tgl', 'periode'], 0));
+        const brandName = String(getField(r, ['brand', 'nama brand', 'merk', 'description'], 1)).trim();
+        if (!brandName || brandName.toLowerCase() === 'total') return;
 
-        const deptRaw = String(getField(r, ['dept', 'kategori', 'type', 'jenis', 'dp/cv'], 2)).trim().toUpperCase();
+        const deptRaw = String(getField(r, ['dept', 'kategori', 'type', 'jenis', 'dp/cv', 'divisi'], 2)).trim().toUpperCase();
         const dept = deptRaw.includes('CV') ? 'CV' : 'DP';
-        const netSales = parseNumber(getField(r, ['net sales', 'sales', 'nett sales', 'amount', 'omzet'], 3));
+        const netSales = parseNumber(getField(r, ['net sales', 'sales ty', 'sales', 'nett sales', 'amount', 'omzet'], 3));
         const lyColVal = parseNumber(getField(r, ['sales ly', 'ly', 'last year', 'sales_ly'], -1));
         const qty = parseNumber(getField(r, ['qty', 'quantity', 'pcs', 'unit'], 4));
 
@@ -1094,6 +1095,30 @@
           item.salesLy += netSales;
         }
       });
+
+      // Fallback if date column format prevented matches but rows exist
+      let totalMatchedTy = 0;
+      brandMap.forEach(v => { totalMatchedTy += v.salesTy; });
+      if (totalMatchedTy === 0 && rawData.brand.length > 0) {
+        brandMap.clear();
+        rawData.brand.forEach(r => {
+          const brandName = String(getField(r, ['brand', 'nama brand', 'merk', 'description'], 1)).trim();
+          if (!brandName || brandName.toLowerCase() === 'total') return;
+          const deptRaw = String(getField(r, ['dept', 'kategori', 'type', 'jenis', 'dp/cv', 'divisi'], 2)).trim().toUpperCase();
+          const dept = deptRaw.includes('CV') ? 'CV' : 'DP';
+          const netSales = parseNumber(getField(r, ['net sales', 'sales ty', 'sales', 'nett sales', 'amount', 'omzet'], 3));
+          const lyColVal = parseNumber(getField(r, ['sales ly', 'ly', 'last year', 'sales_ly'], -1));
+          const qty = parseNumber(getField(r, ['qty', 'quantity', 'pcs', 'unit'], 4));
+
+          if (!brandMap.has(brandName)) {
+            brandMap.set(brandName, { brand: brandName, dept, salesTy: 0, salesLy: 0, qty: 0, soh: 0 });
+          }
+          const item = brandMap.get(brandName);
+          item.salesTy += netSales;
+          item.salesLy += lyColVal;
+          item.qty += qty;
+        });
+      }
 
       // Aggregate Inventory SOH
       let totalSohQty = 0;
@@ -1234,53 +1259,55 @@
     // TAB 2: SALES BY PERSON (BARCODE)
     // ==========================================
     function renderPersonTab() {
-      const startStr = document.getElementById('startDate').value;
-      const endStr = document.getElementById('endDate').value;
+      const { startStr, endStr } = ensureActiveDateRange();
       const jabFilter = document.getElementById('personJabatanFilter').value;
       const searchQ = document.getElementById('personSearchInput').value.trim().toLowerCase();
 
-      // Map unik per Barcode/SPG: Target adalah target bulanan per SPG (JANGAN dijumlahkan per baris transaksi)
       const spgMap = new Map();
 
-      rawData.barcode.forEach(r => {
-        const dStr = parseSheetDate(getField(r, ['tanggal', 'date', 'tgl'], 0));
-        if (!isDateInRange(dStr, startStr, endStr)) return;
+      const processRows = (ignoreDate) => {
+        spgMap.clear();
+        rawData.barcode.forEach(r => {
+          const dStr = parseSheetDate(getField(r, ['tanggal', 'date', 'tgl'], 0));
+          if (!ignoreDate && !isDateInRange(dStr, startStr, endStr)) return;
 
-        const barcodeRaw = String(getField(r, ['barcode', 'id', 'nik', 'kode'], 1)).trim();
-        const namaRaw = String(getField(r, ['nama', 'spg', 'name', 'nama spg'], 2)).trim();
-        if (!barcodeRaw && !namaRaw) return;
+          const barcodeRaw = String(getField(r, ['barcode', 'id', 'nik', 'kode'], 1)).trim();
+          const namaRaw = String(getField(r, ['nama', 'spg', 'name', 'nama spg'], 2)).trim();
+          if (!barcodeRaw && !namaRaw) return;
+          if (namaRaw.toLowerCase() === 'total') return;
 
-        const uniqueKey = (barcodeRaw || namaRaw).toUpperCase();
-        const sales = parseNumber(getField(r, ['sales', 'net sales', 'nett sales', 'amount', 'omzet'], 3));
-        const qty = parseNumber(getField(r, ['qty', 'quantity', 'pcs', 'unit'], 4));
-        const rowTarget = parseNumber(getField(r, ['target', 'target bulanan', 'target spg', 'budget'], 5));
-        const jabatan = String(getField(r, ['jabatan', 'posisi', 'role', 'status'], 6)).trim() || '-';
+          const uniqueKey = (barcodeRaw || namaRaw).toUpperCase();
+          const sales = parseNumber(getField(r, ['sales', 'net sales', 'nett sales', 'amount', 'omzet'], 3));
+          const qty = parseNumber(getField(r, ['qty', 'quantity', 'pcs', 'unit'], 4));
+          const jabatan = String(getField(r, ['jabatan', 'posisi', 'role', 'status'], 6)).trim() || '-';
 
-        if (!spgMap.has(uniqueKey)) {
-          spgMap.set(uniqueKey, {
-            barcode: barcodeRaw || '-',
-            nama: namaRaw || '-',
-            sales: 0,
-            qty: 0,
-            target: rowTarget, // Ambil target unik per SPG (tidak dijumlahkan per baris transaksi)
-            jabatan: jabatan
-          });
-        }
+          if (!spgMap.has(uniqueKey)) {
+            spgMap.set(uniqueKey, {
+              barcode: barcodeRaw || '-',
+              nama: namaRaw || '-',
+              sales: 0,
+              qty: 0,
+              target: TARGET_PER_SPG,
+              jabatan: jabatan
+            });
+          }
 
-        const entry = spgMap.get(uniqueKey);
-        entry.sales += sales;
-        entry.qty += qty;
-        // Jika baris pertama memiliki target 0/kosong dan baris berikutnya memiliki nilai target bulanan SPG, gunakan nilai valid tersebut tanpa menjumlahkan
-        if ((!entry.target || entry.target === 0) && rowTarget > 0) {
-          entry.target = rowTarget;
-        }
-        if ((!entry.jabatan || entry.jabatan === '-') && jabatan !== '-') {
-          entry.jabatan = jabatan;
-        }
-        if ((!entry.nama || entry.nama === '-') && namaRaw) {
-          entry.nama = namaRaw;
-        }
-      });
+          const entry = spgMap.get(uniqueKey);
+          entry.sales += sales;
+          entry.qty += qty;
+          if ((!entry.jabatan || entry.jabatan === '-') && jabatan !== '-') {
+            entry.jabatan = jabatan;
+          }
+          if ((!entry.nama || entry.nama === '-') && namaRaw) {
+            entry.nama = namaRaw;
+          }
+        });
+      };
+
+      processRows(false);
+      if (spgMap.size === 0 && rawData.barcode.length > 0) {
+        processRows(true);
+      }
 
       let list = Array.from(spgMap.values());
       if (jabFilter !== 'ALL') {
@@ -1295,24 +1322,22 @@
 
       list.sort((a, b) => b.sales - a.sales);
 
-      // Total Target = SUM target unik per SPG yang aktif di periode filter
       let totalSales = 0;
       let totalQty = 0;
-      let totalUniqueTarget = 0;
-
       list.forEach(x => {
         totalSales += x.sales;
         totalQty += x.qty;
-        totalUniqueTarget += (Number(x.target) || 0);
       });
 
-      // ACH = Total Net Sales / Total Target * 100 (1 desimal + %)
+      // Target per SPG = Rp 2.494.996, Total Target = Rp 2.494.996 x jumlah SPG
+      const totalUniqueTarget = TARGET_PER_SPG * list.length;
       const totalAch = totalUniqueTarget > 0 ? (totalSales / totalUniqueTarget) * 100 : 0;
       const avgSales = list.length > 0 ? totalSales / list.length : 0;
 
       document.getElementById('personTotalSales').textContent = formatRp(totalSales);
       document.getElementById('personActiveCount').textContent = `${list.length} SPG aktif`;
       document.getElementById('personTotalTarget').textContent = formatRp(totalUniqueTarget);
+      document.getElementById('personTargetSub').textContent = `Target per SPG: ${formatRp(TARGET_PER_SPG)} × ${list.length}`;
       document.getElementById('personTotalAch').innerHTML = formatAchSpan(totalAch);
       document.getElementById('personTotalQty').textContent = `${formatNum(totalQty)} pcs`;
       document.getElementById('personAvgSales').textContent = `Rata-rata: ${formatRp(avgSales)} / SPG`;
@@ -1322,7 +1347,7 @@
         tbody.innerHTML = '<tr><td colspan="8" class="text-center" style="padding:24px;color:#64748b;">Tidak ada data SPG pada periode filter ini.</td></tr>';
       } else {
         tbody.innerHTML = list.map((item, idx) => {
-          const spgAch = item.target > 0 ? (item.sales / item.target) * 100 : 0;
+          const spgAch = TARGET_PER_SPG > 0 ? (item.sales / TARGET_PER_SPG) * 100 : 0;
           return `
             <tr>
               <td class="tabular-nums">${idx + 1}</td>
@@ -1330,7 +1355,7 @@
               <td><strong>${escapeHtml(item.nama)}</strong></td>
               <td class="text-right tabular-nums">${formatRp(item.sales)}</td>
               <td class="text-right tabular-nums">${formatNum(item.qty)}</td>
-              <td class="text-right tabular-nums">${formatRp(item.target)}</td>
+              <td class="text-right tabular-nums">${formatRp(TARGET_PER_SPG)}</td>
               <td class="text-right tabular-nums">${formatAchSpan(spgAch)}</td>
               <td>${escapeHtml(item.jabatan)}</td>
             </tr>
@@ -1354,13 +1379,11 @@
     // TAB 3: SALES BY SPV
     // ==========================================
     function renderSpvTab() {
-      const startStr = document.getElementById('startDate').value;
-      const endStr = document.getElementById('endDate').value;
+      const { startStr, endStr } = ensureActiveDateRange();
       const lyStartStr = getShiftYearDate(startStr, -1);
       const lyEndStr = getShiftYearDate(endStr, -1);
       const spvFilter = document.getElementById('spvNameFilter').value;
 
-      // Calculate prorate factor based on selected date range vs days in month
       let prorateRatio = 1;
       if (startStr && endStr) {
         const sDate = new Date(startStr + 'T00:00:00');
@@ -1378,7 +1401,7 @@
         const dStr = parseSheetDate(getField(r, ['tanggal', 'date', 'tgl'], 0));
         const jabatan = String(getField(r, ['jabatan', 'posisi', 'area'], 1)).trim() || 'SPV';
         const nama = String(getField(r, ['nama', 'spv', 'supervisor', 'nama spv'], 2)).trim();
-        if (!nama || parseSheetDate(nama)) return;
+        if (!nama || parseSheetDate(nama) || nama.toLowerCase() === 'total') return;
 
         const salesDp = parseNumber(getField(r, ['sales dp', 'dp', 'net sales dp'], 3));
         const lyDpCol = parseNumber(getField(r, ['ly dp', 'sales dp ly', 'dp ly'], 4));
@@ -1506,8 +1529,7 @@
     // TAB 4: SHOP N TALK
     // ==========================================
     function renderSntTab() {
-      const startStr = document.getElementById('startDate').value;
-      const endStr = document.getElementById('endDate').value;
+      const { startStr, endStr } = ensureActiveDateRange();
       const chFilter = document.getElementById('sntChannelFilter').value;
       const searchQ = document.getElementById('sntSearchInput').value.trim().toLowerCase();
 
@@ -1515,36 +1537,50 @@
       const spgTotals = new Map();
       let waTotal = 0, haptikTotal = 0, liveTotal = 0;
 
-      rawData.shopntalk.forEach(r => {
-        const dStr = parseSheetDate(getField(r, ['tanggal', 'date', 'tgl'], 0));
-        if (!isDateInRange(dStr, startStr, endStr)) return;
+      const processSnt = (ignoreDate) => {
+        aggMap.clear();
+        spgTotals.clear();
+        waTotal = 0;
+        haptikTotal = 0;
+        liveTotal = 0;
 
-        const spg = String(getField(r, ['nama', 'spg', 'nama spg', 'sales'], 1)).trim() || '-';
-        const channelRaw = String(getField(r, ['channel', 'media', 'sumber', 'platform'], 2)).trim().toUpperCase();
-        const channel = channelRaw.includes('HAPTIK') ? 'HAPTIK' : (channelRaw.includes('LIVE') ? 'LIVE' : 'WA');
-        const brand = String(getField(r, ['brand', 'merk'], 3)).trim() || '-';
-        const trx = parseNumber(getField(r, ['trx', 'transaksi', 'struk', 'nota'], 4)) || 1;
-        const qty = parseNumber(getField(r, ['qty', 'pcs', 'unit'], 5));
-        const sales = parseNumber(getField(r, ['net sales', 'sales', 'amount', 'omzet', 'nominal'], 6));
+        rawData.shopntalk.forEach(r => {
+          const dStr = parseSheetDate(getField(r, ['tanggal', 'date', 'tgl'], 0));
+          if (!ignoreDate && !isDateInRange(dStr, startStr, endStr)) return;
 
-        if (channel === 'WA') waTotal += sales;
-        else if (channel === 'HAPTIK') haptikTotal += sales;
-        else if (channel === 'LIVE') liveTotal += sales;
+          const spg = String(getField(r, ['nama', 'spg', 'nama spg', 'sales'], 1)).trim() || '-';
+          if (spg.toLowerCase() === 'total') return;
+          const channelRaw = String(getField(r, ['channel', 'media', 'sumber', 'platform'], 2)).trim().toUpperCase();
+          const channel = channelRaw.includes('HAPTIK') ? 'HAPTIK' : (channelRaw.includes('LIVE') ? 'LIVE' : 'WA');
+          const brand = String(getField(r, ['brand', 'merk'], 3)).trim() || '-';
+          const trx = parseNumber(getField(r, ['trx', 'transaksi', 'struk', 'nota'], 4)) || 1;
+          const qty = parseNumber(getField(r, ['qty', 'pcs', 'unit'], 5));
+          const sales = parseNumber(getField(r, ['net sales', 'sales', 'amount', 'omzet', 'nominal'], 6));
 
-        if (chFilter !== 'ALL' && channel !== chFilter) return;
-        if (searchQ && !spg.toLowerCase().includes(searchQ) && !brand.toLowerCase().includes(searchQ)) return;
+          if (channel === 'WA') waTotal += sales;
+          else if (channel === 'HAPTIK') haptikTotal += sales;
+          else if (channel === 'LIVE') liveTotal += sales;
 
-        const key = `${spg}|${channel}|${brand}`;
-        if (!aggMap.has(key)) {
-          aggMap.set(key, { spg, channel, brand, trx: 0, qty: 0, sales: 0 });
-        }
-        const entry = aggMap.get(key);
-        entry.trx += trx;
-        entry.qty += qty;
-        entry.sales += sales;
+          if (chFilter !== 'ALL' && channel !== chFilter) return;
+          if (searchQ && !spg.toLowerCase().includes(searchQ) && !brand.toLowerCase().includes(searchQ)) return;
 
-        spgTotals.set(spg, (spgTotals.get(spg) || 0) + sales);
-      });
+          const key = `${spg}|${channel}|${brand}`;
+          if (!aggMap.has(key)) {
+            aggMap.set(key, { spg, channel, brand, trx: 0, qty: 0, sales: 0 });
+          }
+          const entry = aggMap.get(key);
+          entry.trx += trx;
+          entry.qty += qty;
+          entry.sales += sales;
+
+          spgTotals.set(spg, (spgTotals.get(spg) || 0) + sales);
+        });
+      };
+
+      processSnt(false);
+      if (aggMap.size === 0 && rawData.shopntalk.length > 0) {
+        processSnt(true);
+      }
 
       const list = Array.from(aggMap.values()).sort((a, b) => b.sales - a.sales);
       let sumSales = 0, sumTrx = 0, sumQty = 0;
@@ -1657,23 +1693,13 @@
         .replace(/"/g, '&quot;');
     }
 
-    // Tab Navigation Listeners
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        const targetId = btn.getAttribute('data-tab');
-        document.getElementById(targetId).classList.add('active');
-      });
-    });
-
-    // Date Change Listeners (render from cached rows without re-fetching loop)
+    // Date Change Listeners (auto-restore default if cleared, render from cache without loop)
     document.getElementById('startDate').addEventListener('change', renderAllTabs);
     document.getElementById('endDate').addEventListener('change', renderAllTabs);
 
     // Boot
     window.addEventListener('DOMContentLoaded', () => {
+      ensureActiveDateRange();
       loadAllSheets(false);
     });
   </script>
