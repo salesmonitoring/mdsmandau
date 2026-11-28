@@ -142,8 +142,6 @@ main { padding-top: 8px !important; }
   <!-- ERROR ALERT (ZERO SAMPLE DATA)                                          -->
   <!-- ======================================================================= -->
   <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-
-
     <!-- Red Error Alert Box (Shown when fetch fails or rows are 0) -->
     <div id="errorAlertBox" class="hidden mt-4 bg-rose-50 border border-rose-300 text-rose-900 rounded-xl p-4 shadow-xs">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -288,7 +286,6 @@ main { padding-top: 8px !important; }
         <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
           <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Inventory Stock</span>
-            
           </div>
           <div id="kpiBrandInv" class="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums">0 Pcs</div>
           <p id="kpiBrandInvSub" class="text-xs font-semibold text-slate-600 mt-1.5 truncate">TOTAL INVENTORY STOCK: 0 Pcs | 0 baris | Kolom J TOTAL</p>
@@ -589,7 +586,8 @@ main { padding-top: 8px !important; }
       </section>
     </div>
 
-    <!-- MODULE 3: SALES SHOPNTALK                                   -->
+    <!-- ===================================================================== -->
+    <!-- MODULE 3: SALES SHOPNTALK                                             -->
     <!-- ===================================================================== -->
     <div id="view-shopntalk" class="hidden space-y-6">
 
@@ -798,9 +796,7 @@ main { padding-top: 8px !important; }
     </div>
 
     <!-- ===================================================================== -->
-    
-
-    <!-- MODULE 3: SALES BY SPV (DROPDOWN NAMA KOLOM C)                      -->
+    <!-- MODULE 4: SALES BY SPV (DROPDOWN NAMA KOLOM C)                      -->
     <!-- ===================================================================== -->
     <div id="view-spv" class="hidden space-y-6">
 
@@ -1027,42 +1023,48 @@ main { padding-top: 8px !important; }
     // 1. DIRECT SPREADSHEET ID CSV EXPORT (GID) & GVIZ JSON (GID) FALLBACK
     // =========================================================================
     const SHEET_ID = '1c-FwaTcO_0lSEIv2TS10z_PXvfqmkDjsNJap2y7joOc';
-    const EXP_BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`; const GVIZ_BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
+    const EXP_BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
+    const GVIZ_BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
 
     const SHEET_CONFIGS = {
       brand: {
         name: 'MASTER BRAND',
         gid: '460134977',
         urls: [
-          { mode: 'csv', type: 'Export CSV (GID)', label: 'Export MASTER BRAND (460134977)', url: `${EXP_BASE}&gid=460134977` }, { mode: 'gviz', type: 'Fallback Gviz JSON (GID)', label: 'Gviz MASTER BRAND (460134977)', url: `${GVIZ_BASE}&gid=460134977` }
+          { mode: 'csv', type: 'Export CSV (GID)', label: 'Export MASTER BRAND (460134977)', url: `${EXP_BASE}&gid=460134977` },
+          { mode: 'gviz', type: 'Fallback Gviz JSON (GID)', label: 'Gviz MASTER BRAND (460134977)', url: `${GVIZ_BASE}&gid=460134977` }
         ]
       },
       barcode: {
         name: 'MASTER BARCODE',
         gid: '292538885',
         urls: [
-          { mode: 'csv', type: 'Export CSV (GID)', label: 'Export MASTER BARCODE (292538885)', url: `${EXP_BASE}&gid=292538885` }, { mode: 'gviz', type: 'Fallback Gviz JSON (GID)', label: 'Gviz MASTER BARCODE (292538885)', url: `${GVIZ_BASE}&gid=292538885` }
+          { mode: 'csv', type: 'Export CSV (GID)', label: 'Export MASTER BARCODE (292538885)', url: `${EXP_BASE}&gid=292538885` },
+          { mode: 'gviz', type: 'Fallback Gviz JSON (GID)', label: 'Gviz MASTER BARCODE (292538885)', url: `${GVIZ_BASE}&gid=292538885` }
         ]
       },
       spv: {
         name: 'MASTER SPV',
         gid: '1979255634',
         urls: [
-          { mode: 'csv', type: 'Export CSV (GID)', label: 'Export MASTER SPV (1979255634)', url: `${EXP_BASE}&gid=1979255634` }, { mode: 'gviz', type: 'Fallback Gviz JSON (GID)', label: 'Gviz MASTER SPV (1979255634)', url: `${GVIZ_BASE}&gid=1979255634` }
+          { mode: 'csv', type: 'Export CSV (GID)', label: 'Export MASTER SPV (1979255634)', url: `${EXP_BASE}&gid=1979255634` },
+          { mode: 'gviz', type: 'Fallback Gviz JSON (GID)', label: 'Gviz MASTER SPV (1979255634)', url: `${GVIZ_BASE}&gid=1979255634` }
         ]
       },
       inventory: {
         name: 'MASTER INVENTORY',
         gid: '1747791644',
         urls: [
-          { mode: 'csv', type: 'Export CSV (GID)', label: 'Export MASTER INVENTORY (1747791644)', url: `${EXP_BASE}&gid=1747791644` }, { mode: 'gviz', type: 'Fallback Gviz JSON (GID)', label: 'Gviz MASTER INVENTORY (1747791644)', url: `${GVIZ_BASE}&gid=1747791644` }
+          { mode: 'csv', type: 'Export CSV (GID)', label: 'Export MASTER INVENTORY (1747791644)', url: `${EXP_BASE}&gid=1747791644` },
+          { mode: 'gviz', type: 'Fallback Gviz JSON (GID)', label: 'Gviz MASTER INVENTORY (1747791644)', url: `${GVIZ_BASE}&gid=1747791644` }
         ]
       },
       shopntalk: {
         name: 'shopntalk',
         gid: '1151225502',
         urls: [
-          { mode: 'csv', type: 'Export CSV (GID)', label: 'Export shopntalk (1151225502)', url: `${EXP_BASE}&gid=1151225502` }, { mode: 'gviz', type: 'Fallback Gviz JSON (GID)', label: 'Gviz shopntalk (1151225502)', url: `${GVIZ_BASE}&gid=1151225502` }
+          { mode: 'csv', type: 'Export CSV (GID)', label: 'Export shopntalk (1151225502)', url: `${EXP_BASE}&gid=1151225502` },
+          { mode: 'gviz', type: 'Fallback Gviz JSON (GID)', label: 'Gviz shopntalk (1151225502)', url: `${GVIZ_BASE}&gid=1151225502` }
         ]
       },
     };
@@ -1105,36 +1107,56 @@ main { padding-top: 8px !important; }
     // 2. DATE & NUMBER PARSERS
     // =========================================================================
     function parseTgl(s) {
-  if (!s) return null;
-  s = String(s).trim();
-  if (!s) return null;
-  if (s.includes('-') && s.length === 10) {
-    const p = s.split('-');
-    return new Date(+p[0], +p[1] - 1, +p[2]);
-  }
-  if (s.includes('/')) {
-    const p = s.split('/');
-    return new Date(+p[2], +p[1] - 1, +p[0]);
-  }
-  const MONTHS = {januari:0, january:0, jan:0, februari:1, february:1, feb:1, maret:2, march:2, mar:2, april:3, apr:3, mei:4, may:4, juni:5, june:5, jun:5, juli:6, july:6, jul:6, agustus:7, august:7, aug:7, september:8, sept:8, sep:8, oktober:9, october:9, okt:9, oct:9, november:10, nov:10, desember:11, december:11, dec:11, des:11};
-  const m = s.toLowerCase().replace(/,/g,'').replace(/\./g,'').split(/\s+/);
-  if (m.length === 3) {
-    let d, mo, y;
-    if (MONTHS[m[0]] !== undefined) { mo = MONTHS[m[0]]; d = +m[1]; y = +m[2]; }
-    else if (MONTHS[m[1]] !== undefined) { d = +m[0]; mo = MONTHS[m[1]]; y = +m[2]; }
-    else if (MONTHS[m[2]] !== undefined) { d = +m[1]; mo = MONTHS[m[2]]; y = +m[0]; }
-    if (d && mo !== undefined && y) return new Date(y, mo, d);
-  }
-  const d = new Date(s);
-  return isNaN(d.getTime()) ? null : d;
-}
+      if (!s) return null;
+      s = String(s).trim();
+      if (!s) return null;
+      if (s.includes('-') && s.length === 10) {
+        const p = s.split('-');
+        return new Date(+p[0], +p[1] - 1, +p[2]);
+      }
+      if (s.includes('/')) {
+        const p = s.split('/');
+        return new Date(+p[2], +p[1] - 1, +p[0]);
+      }
+      const MONTHS = {
+        januari: 0, january: 0, jan: 0,
+        februari: 1, february: 1, feb: 1,
+        maret: 2, march: 2, mar: 2,
+        april: 3, apr: 3,
+        mei: 4, may: 4,
+        juni: 5, june: 5, jun: 5,
+        juli: 6, july: 6, jul: 6,
+        agustus: 7, august: 7, aug: 7,
+        september: 8, sept: 8, sep: 8,
+        oktober: 9, october: 9, okt: 9, oct: 9,
+        november: 10, nov: 10,
+        desember: 11, december: 11, dec: 11, des: 11
+      };
+      const m = s.toLowerCase().replace(/,/g, '').replace(/\./g, '').split(/\s+/);
+      if (m.length === 3) {
+        let d, mo, y;
+        if (MONTHS[m[0]] !== undefined) { mo = MONTHS[m[0]]; d = +m[1]; y = +m[2]; }
+        else if (MONTHS[m[1]] !== undefined) { d = +m[0]; mo = MONTHS[m[1]]; y = +m[2]; }
+        else if (MONTHS[m[2]] !== undefined) { d = +m[1]; mo = MONTHS[m[2]]; y = +m[0]; }
+        if (d && mo !== undefined && y) return new Date(y, mo, d);
+      }
+      const d = new Date(s);
+      return isNaN(d.getTime()) ? null : d;
+    }
 
     function dateToISO(d) {
       if (!(d instanceof Date) || isNaN(d.getTime())) return '';
       const y = d.getFullYear();
       const m = String(d.getMonth() + 1).padStart(2, '0');
       const day = String(d.getDate()).padStart(2, '0');
-      return `${y}-${m}-${day}`; }  function isoToDDMMYYYY(isoStr) { if (!isoStr \vert{}\vert{} typeof isoStr !== 'string') return ''; const p = isoStr.split('-'); if (p.length !== 3) return isoStr; return `${p[2]}/${p[1]}/${p[0]}`;
+      return `${y}-${m}-${day}`;
+    }
+
+    function isoToDDMMYYYY(isoStr) {
+      if (!isoStr || typeof isoStr !== 'string') return '';
+      const p = isoStr.split('-');
+      if (p.length !== 3) return isoStr;
+      return `${p[2]}/${p[1]}/${p[0]}`;
     }
 
     function parseNumber(v) {
@@ -1227,7 +1249,7 @@ main { padding-top: 8px !important; }
           }
           lastErr = `0 baris terbaca (${u.label})`;
         } catch (err) {
-          lastErr = `${err?.message \vert{}\vert{} 'Fetch error'} (${u.label})`;
+          lastErr = `${err?.message || 'Fetch error'} (${u.label})`;
         }
       }
       return {
@@ -1318,17 +1340,13 @@ main { padding-top: 8px !important; }
       return out;
     }
 
-    // 3. MASTER SPV (GID 1979255634):
-    // Struktur PASTI: A=TANGGAL (0), B=BARCODE (1), C=NAMA (2), D=JABATAN (3),
-    // E=SALES DP (4), F=SALES CV (5), G=TARGET DP (6), H=TARGET CV (7), I=SALES LY DP (8), J=SALES LY CV (9)
+    // 3. MASTER SPV (GID 1979255634)
     function isInvalidSpvNama(val) {
       const s = String(val ?? '').trim();
       if (!s) return true;
       const low = s.toLowerCase();
       if (low === 'nama' || low === 'jabatan' || low === 'spv' || low.startsWith('total') || low.startsWith('grand total')) return true;
-      // Skip jika isinya angka murni
       if (/^[\d.,\s/-]+$/.test(s)) return true;
-      // Skip jika isinya tanggal (format DD/MM/YYYY, YYYY-MM-DD, atau nama bulan seperti "1 November 2026")
       if (/^\d{1,2}[/-]\d{1,2}[/-]\d{2,4}$/.test(s)) return true;
       if (/^\d{4}[/-]\d{1,2}[/-]\d{1,2}$/.test(s)) return true;
       if (/^\d{1,2}\s+(jan|feb|mar|apr|mei|may|jun|jul|agu|aug|sep|okt|oct|nov|des|dec)[a-z]*\s+\d{2,4}$/i.test(s)) return true;
@@ -1359,7 +1377,6 @@ main { padding-top: 8px !important; }
         const nama = String(r[2] ?? '').trim();
         const jabatan = String(r[3] ?? '').trim();
 
-        // Skip baris jika Kolom C (NAMA) kosong, tanggal, angka, atau header/total
         if (isInvalidSpvNama(nama)) continue;
 
         const dt = parseTgl(tanggal);
@@ -1435,7 +1452,7 @@ main { padding-top: 8px !important; }
     }
 
     // =========================================================================
-    // 4. LOAD ALL SHEETS & UPDATE DEBUG BAR
+    // 4. LOAD ALL SHEETS & UPDATE STATUS
     // =========================================================================
     async function loadAllData() {
       if (STATE.isLoading) return;
@@ -1445,65 +1462,90 @@ main { padding-top: 8px !important; }
       document.getElementById('refreshIconMob')?.classList.add('animate-spin');
       document.getElementById('errorAlertBox').classList.add('hidden');
 
-      const [resBrand, resBarcode, resSpv, resInventory, resShopntalk] = await Promise.all([
-        fetchSheetRows(SHEET_CONFIGS.brand, parseMasterBrand),
-        fetchSheetRows(SHEET_CONFIGS.barcode, parseMasterBarcode),
-        fetchSheetRows(SHEET_CONFIGS.spv, parseMasterSpv),
-        fetchSheetRows(SHEET_CONFIGS.inventory, parseMasterInventory),
-        fetchSheetRows(SHEET_CONFIGS.shopntalk, parseMasterBarcode)
-      ]);
+      try {
+        const [resBrand, resBarcode, resSpv, resInventory, resShopntalk] = await Promise.all([
+          fetchSheetRows(SHEET_CONFIGS.brand, parseMasterBrand),
+          fetchSheetRows(SHEET_CONFIGS.barcode, parseMasterBarcode),
+          fetchSheetRows(SHEET_CONFIGS.spv, parseMasterSpv),
+          fetchSheetRows(SHEET_CONFIGS.inventory, parseMasterInventory),
+          fetchSheetRows(SHEET_CONFIGS.shopntalk, parseMasterBarcode)
+        ]);
 
-      STATE.masterBrand = resBrand.rows;
-      STATE.masterBarcode = resBarcode.rows;
-      STATE.masterSpv = resSpv.rows;
-      STATE.masterInventory = resInventory.rows;
-      STATE.shopntalk = resShopntalk.rows;
+        STATE.masterBrand = resBrand.rows;
+        STATE.masterBarcode = resBarcode.rows;
+        STATE.masterSpv = resSpv.rows;
+        STATE.masterInventory = resInventory.rows;
+        STATE.shopntalk = resShopntalk.rows;
 
-      const X = STATE.masterBrand.length;
-      const Y = STATE.masterBarcode.length;
-      const Z = STATE.masterSpv.length;
-      const W = STATE.masterInventory.length;
-      const S = STATE.shopntalk.length;
+        const X = STATE.masterBrand.length;
+        const Y = STATE.masterBarcode.length;
+        const Z = STATE.masterSpv.length;
+        const W = STATE.masterInventory.length;
+        const S = STATE.shopntalk.length;
 
-      const sumColJ = STATE.masterInventory
-        .filter(r => r.brand && !r.brand.toLowerCase().includes('total'))
-        .reduce((sum, r) => sum + parseNumber(r.raw?.[9] ?? r.total), 0);
+        const sumColJ = STATE.masterInventory
+          .filter(r => r.brand && !r.brand.toLowerCase().includes('total'))
+          .reduce((sum, r) => sum + parseNumber(r.raw?.[9] ?? r.total), 0);
 
-      const activeSourceLabel = resBrand.sourceType !== 'GAGAL' ? resBrand.sourceType : 'Export CSV + Fallback Gviz JSON';
-      const anySuccess = (X + Y + Z + W + S) > 0;
+        const activeSourceLabel = resBrand.sourceType !== 'GAGAL' ? resBrand.sourceType : 'Export CSV + Fallback Gviz JSON';
+        const anySuccess = (X + Y + Z + W + S) > 0;
 
-      const dbgSumEl = document.getElementById('debugSummaryText');
-      if (dbgSumEl) {
-        dbgSumEl.textContent =
-          `BRAND: ${X} \vert{} BARCODE:${Y} | SPV: ${Z} \vert{} INVENTORY:${W} | SHOPNTALK: ${S} \vert{} Sumber:${activeSourceLabel} | Status: ${anySuccess ? 'LIVE' : 'GAGAL'} \vert{} INVENTORY: ${W} baris | SUM J: ${formatQty(sumColJ)}`; }  const dbgUrlEl = document.getElementById('debugUrlText'); if (dbgUrlEl) { const urlList = [resBrand, resBarcode, resSpv, resInventory, resShopntalk] .filter(r => r.url) .map(r => `${r.label}: ${r.url}`); dbgUrlEl.textContent = urlList.length ? urlList.join(' \vert{} ') : 'Tidak ada URL CSV yang berhasil dimuat.'; }  const badge = document.getElementById('statusBadge'); const syncTime = document.getElementById('syncTimeLabel'); syncTime.textContent = `Sync ${new Date().toLocaleTimeString('id-ID')}`;
+        const dbgSumEl = document.getElementById('debugSummaryText');
+        if (dbgSumEl) {
+          dbgSumEl.textContent =
+            `BRAND: ${X} | BARCODE: ${Y} | SPV: ${Z} | INVENTORY: ${W} | SHOPNTALK: ${S} | Sumber: ${activeSourceLabel} | Status: ${anySuccess ? 'LIVE' : 'GAGAL'} | INVENTORY: ${W} baris | SUM J: ${formatQty(sumColJ)}`;
+        }
 
-      if (anySuccess) {
-        badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200';
-        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span><span>LIVE</span>`;
-      } else {
-        badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-800 border border-rose-200';
-        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span><span>GAGAL</span>`;
+        const dbgUrlEl = document.getElementById('debugUrlText');
+        if (dbgUrlEl) {
+          const urlList = [resBrand, resBarcode, resSpv, resInventory, resShopntalk]
+            .filter(r => r.url)
+            .map(r => `${r.label}: ${r.url}`);
+          dbgUrlEl.textContent =
+            urlList.length ? urlList.join(' | ') : 'Tidak ada URL CSV yang berhasil dimuat.';
+        }
+
+        const badge = document.getElementById('statusBadge');
+        const syncTime = document.getElementById('syncTimeLabel');
+        if (syncTime) syncTime.textContent = `Sync ${new Date().toLocaleTimeString('id-ID')}`;
+
+        if (badge) {
+          if (anySuccess) {
+            badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200';
+            badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span><span>LIVE</span>`;
+          } else {
+            badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-800 border border-rose-200';
+            badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span><span>GAGAL</span>`;
+          }
+        }
+
+        const errors = [];
+        if (X === 0) errors.push(`BRAND (460134977): ${resBrand.error || '0 baris'}`);
+        if (Y === 0) errors.push(`BARCODE (292538885): ${resBarcode.error || '0 baris'}`);
+        if (Z === 0) errors.push(`SPV (1979255634): ${resSpv.error || '0 baris'}`);
+        if (W === 0) errors.push(`INVENTORY (1747791644): ${resInventory.error || '0 baris'}`);
+        if (S === 0) errors.push(`SHOPNTALK (1151225502): ${resShopntalk.error || '0 baris'}`);
+
+        if (errors.length > 0) {
+          document.getElementById('errorAlertBox').classList.remove('hidden');
+          const protoHint = window.location.protocol === 'file:'
+            ? '[Terdeteksi protokol file:// lokal — Jika dibuka dari file lokal dan GAGAL, upload ke Netlify / buka via https, lalu Refresh] '
+            : '';
+          document.getElementById('errorAlertDetail').textContent = protoHint + errors.join(' • ');
+        }
+
+        populateDropdowns();
+        renderAll();
+      } finally {
+        STATE.isLoading = false;
+        document.getElementById('refreshIconDesk')?.classList.remove('animate-spin');
+        document.getElementById('refreshIconMob')?.classList.remove('animate-spin');
       }
+    }
 
-      const errors = [];
-      if (X === 0) errors.push(`BRAND (460134977): ${resBrand.error || '0 baris'}`);
-      if (Y === 0) errors.push(`BARCODE (292538885): ${resBarcode.error \vert{}\vert{} '0 baris'}`); if (Z === 0) errors.push(`SPV (1979255634): ${resSpv.error || '0 baris'}`);
-      if (W === 0) errors.push(`INVENTORY (1747791644): ${resInventory.error \vert{}\vert{} '0 baris'}`); if (S === 0) errors.push(`SHOPNTALK (1151225502): ${resShopntalk.error || '0 baris'}`);
-
-      if (errors.length > 0) {
-        document.getElementById('errorAlertBox').classList.remove('hidden');
-        const protoHint = window.location.protocol === 'file:'
-          ? '[Terdeteksi protokol file:// lokal — Jika dibuka dari file lokal dan GAGAL, upload ke Netlify / buka via https, lalu Refresh] '
-          : '';
-        document.getElementById('errorAlertDetail').textContent = protoHint + errors.join(' • ');
-      }
-
-      populateDropdowns();
-      renderAll();
-
-      STATE.isLoading = false;
-      document.getElementById('refreshIconDesk')?.classList.remove('animate-spin');
-      document.getElementById('refreshIconMob')?.classList.remove('animate-spin');
+    // Alias fetchData() agar kompatibel jika dipanggil dari console/handler luar
+    function fetchData() {
+      return loadAllData();
     }
 
     // =========================================================================
@@ -1541,7 +1583,7 @@ main { padding-top: 8px !important; }
       barSel.innerHTML = `<option value="ALL">Semua Barcode / SPG</option>` +
         barcodes.map(b => {
           const nm = barcodeMap.get(b);
-          const lbl = nm ? `${b} -${nm}` : b;
+          const lbl = nm ? `${b} - ${nm}` : b;
           return `<option value="${escapeHTML(b)}">${escapeHTML(lbl)}</option>`;
         }).join('');
       barSel.value = barcodes.includes(prevBar) ? prevBar : 'ALL';
@@ -1562,7 +1604,7 @@ main { padding-top: 8px !important; }
       stBarSel.innerHTML = `<option value="ALL">Semua Barcode / SPG</option>` +
         stBarcodes.map(b => {
           const nm = stBarcodeMap.get(b);
-          const lbl = nm ? `${b} -${nm}` : b;
+          const lbl = nm ? `${b} - ${nm}` : b;
           return `<option value="${escapeHTML(b)}">${escapeHTML(lbl)}</option>`;
         }).join('');
       stBarSel.value = stBarcodes.includes(prevStBar) ? prevStBar : 'ALL';
@@ -1592,7 +1634,6 @@ main { padding-top: 8px !important; }
       catSel.innerHTML = `<option value="ALL">Semua Category</option>` +
         categories.map(c => `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join('');
 
-      // Reset Dept and Category to ALL whenever Brand changes
       deptSel.value = 'ALL';
       catSel.value = 'ALL';
     }
@@ -1701,10 +1742,8 @@ main { padding-top: 8px !important; }
       const catVal = document.getElementById('brandCategorySelect').value;
       const searchVal = document.getElementById('brandTableSearch').value.trim().toLowerCase();
 
-      // Unfiltered full-year total across all MASTER BRAND rows
       const totalSetahunAll = STATE.masterBrand.reduce((s, r) => s + r.sales, 0);
 
-      // Sales rows filtered by Date + Brand + Dept + Category
       const salesFiltered = STATE.masterBrand.filter(r => {
         if (fromISO && r.isoDate && r.isoDate < fromISO) return false;
         if (toISO && r.isoDate && r.isoDate > toISO) return false;
@@ -1714,14 +1753,12 @@ main { padding-top: 8px !important; }
         return true;
       });
 
-      // Inventory rows: NEVER filtered by date or Dept; only filtered by Brand if Brand !== 'ALL'
       const invFiltered = STATE.masterInventory.filter(inv => {
         if (!inv.brand || inv.brand.toLowerCase().includes('total')) return false;
         if (brandVal !== 'ALL' && inv.brand.toLowerCase() !== brandVal.toLowerCase()) return false;
         return true;
       });
 
-      // Build inventory map by Brand (summing Column J / r[9] and aging buckets E-I)
       const invByBrand = new Map();
       invFiltered.forEach(inv => {
         const keyB = inv.brand.toLowerCase();
@@ -1747,10 +1784,39 @@ main { padding-top: 8px !important; }
         entry.m12_plus += inv.m12_plus;
       });
 
-      // Aggregate sales by Brand + Dept + Category
       const salesAggMap = new Map();
       salesFiltered.forEach(r => {
-        const k = `${r.brand}\vert{}\vert{}${r.dept}||${r.category}`; if (!salesAggMap.has(k)) { salesAggMap.set(k, { brand: r.brand, dept: r.dept, category: r.category, sales: 0, qty: 0 }); } const item = salesAggMap.get(k); item.sales += r.sales; item.qty += r.qty; });  const mergedRows = Array.from(salesAggMap.values()).map(item => { const invEntry = invByBrand.get(item.brand.toLowerCase()) \vert{}\vert{} { total: 0, m0_3: 0, m4_6: 0, m6_9: 0, m9_12: 0, m12_plus: 0 }; return { ...item, invTotal: invEntry.total, m0_3: invEntry.m0_3, m4_6: invEntry.m4_6, m6_9: invEntry.m6_9, m9_12: invEntry.m9_12, m12_plus: invEntry.m12_plus }; }).filter(r => { if (!searchVal) return true; return `${r.brand} ${r.dept}${r.category}`.toLowerCase().includes(searchVal);
+        const k = `${r.brand}||${r.dept}||${r.category}`;
+        if (!salesAggMap.has(k)) {
+          salesAggMap.set(k, {
+            brand: r.brand,
+            dept: r.dept,
+            category: r.category,
+            sales: 0,
+            qty: 0
+          });
+        }
+        const item = salesAggMap.get(k);
+        item.sales += r.sales;
+        item.qty += r.qty;
+      });
+
+      const mergedRows = Array.from(salesAggMap.values()).map(item => {
+        const invEntry = invByBrand.get(item.brand.toLowerCase()) || {
+          total: 0, m0_3: 0, m4_6: 0, m6_9: 0, m9_12: 0, m12_plus: 0
+        };
+        return {
+          ...item,
+          invTotal: invEntry.total,
+          m0_3: invEntry.m0_3,
+          m4_6: invEntry.m4_6,
+          m6_9: invEntry.m6_9,
+          m9_12: invEntry.m9_12,
+          m12_plus: invEntry.m12_plus
+        };
+      }).filter(r => {
+        if (!searchVal) return true;
+        return `${r.brand} ${r.dept} ${r.category}`.toLowerCase().includes(searchVal);
       });
 
       const { key, dir } = STATE.sort.brand;
@@ -1767,13 +1833,11 @@ main { padding-top: 8px !important; }
 
       STATE.exportedRows.brand = mergedRows;
 
-      // KPI Calculations
       const periodSales = salesFiltered.reduce((s, r) => s + r.sales, 0);
       const periodQty = salesFiltered.reduce((s, r) => s + r.qty, 0);
       const avgPricePc = periodQty > 0 ? Math.round(periodSales / periodQty) : 0;
       const activeBrandCount = new Set(salesFiltered.map(r => r.brand)).size;
 
-      // Total Inventory Stock = strict sum of Column J (r[9]) across inventory rows (unfiltered by date/dept)
       const totalInvStock = invFiltered.reduce((s, r) => s + parseNumber(r.raw?.[9] ?? r.total), 0);
       const agingTotals = invFiltered.reduce((acc, r) => {
         acc.m0_3 += r.m0_3;
@@ -1786,19 +1850,20 @@ main { padding-top: 8px !important; }
 
       document.getElementById('kpiBrandSales').textContent = formatRupiah(periodSales);
       document.getElementById('kpiBrandSalesPeriodLine').textContent =
-        `Periode Terpilih: ${formatRupiah(periodSales)} (${isoToDDMMYYYY(fromISO)} -${isoToDDMMYYYY(toISO)})`;
+        `Periode Terpilih: ${formatRupiah(periodSales)} (${isoToDDMMYYYY(fromISO)} - ${isoToDDMMYYYY(toISO)})`;
       document.getElementById('kpiBrandSalesYearLine').textContent =
         `Total Setahun (tanpa filter): ${formatRupiah(totalSetahunAll)}`;
 
-      document.getElementById('kpiBrandQty').textContent = `${formatQty(periodQty)} Pcs`; document.getElementById('kpiBrandQtySub').textContent = `${activeBrandCount} Brands aktif • ${salesFiltered.length.toLocaleString('id-ID')} baris transaksi`;
+      document.getElementById('kpiBrandQty').textContent = `${formatQty(periodQty)} Pcs`;
+      document.getElementById('kpiBrandQtySub').textContent =
+        `${activeBrandCount} Brands aktif • ${salesFiltered.length.toLocaleString('id-ID')} baris transaksi`;
 
       document.getElementById('kpiBrandAvgPrice').textContent = formatRupiah(avgPricePc);
 
       document.getElementById('kpiBrandInv').textContent = `${formatQty(totalInvStock)} Pcs`;
       document.getElementById('kpiBrandInvSub').textContent =
-        `TOTAL INVENTORY STOCK: ${formatQty(totalInvStock)} Pcs \vert{}${invFiltered.length} baris | Kolom J TOTAL`;
+        `TOTAL INVENTORY STOCK: ${formatQty(totalInvStock)} Pcs | ${invFiltered.length} baris | Kolom J TOTAL`;
 
-      // Table Render
       document.getElementById('brandTableCountBadge').textContent = `${mergedRows.length} rows`;
       const tbody = document.getElementById('brandTableBody');
       if (!mergedRows.length) {
@@ -1827,29 +1892,38 @@ main { padding-top: 8px !important; }
     }
 
     function renderBrandCharts(topSales, agingTotals) {
-  const canvas = document.getElementById('chartBrandTop10');
-const old1 = Chart.getChart(canvas); if (old1) old1.destroy();
-const ctx = canvas.getContext('2d');
-  const labels = topSales.map(r => r.brand);
-  const values = topSales.map(r => r.sales);
-      brandTop10 = new Chart(ctx, {
-  type: 'doughnut',
-  data: { labels, datasets: [{ data: values,
-    backgroundColor: ['#22C55E','#3B82F6','#F59E0B','#EF4444','#8B5CF6','#EC4899','#06B6D4','#84CC16','#F97316','#64748B'],
-    borderColor: '#fff', borderWidth: 2 }] },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    cutout: '55%',
-    plugins: {
-      legend: { display: true, position: 'bottom', labels: { boxWidth: 12, font: { size: 11 }, color: '#0F172A' } },
-      tooltip: { callbacks: { label: c => ' ' + formatRupiah(c.raw) } }
-    }
-  }
-});
+      const canvas = document.getElementById('chartBrandTop10');
+      const old1 = Chart.getChart(canvas);
+      if (old1) old1.destroy();
+      const ctx = canvas.getContext('2d');
+      const labels = topSales.map(r => r.brand);
+      const values = topSales.map(r => r.sales);
+      STATE.charts.brandTop10 = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels,
+          datasets: [{
+            data: values,
+            backgroundColor: ['#22C55E', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#64748B'],
+            borderColor: '#fff',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '55%',
+          plugins: {
+            legend: { display: true, position: 'bottom', labels: { boxWidth: 12, font: { size: 11 }, color: '#0F172A' } },
+            tooltip: { callbacks: { label: c => ' ' + formatRupiah(c.raw) } }
+          }
+        }
+      });
+
       const canvas2 = document.getElementById('chartBrandAging');
-const old2 = Chart.getChart(canvas2); if (old2) old2.destroy();
-const ctx2 = canvas2.getContext('2d');
+      const old2 = Chart.getChart(canvas2);
+      if (old2) old2.destroy();
+      const ctx2 = canvas2.getContext('2d');
       STATE.charts.brandAging = new Chart(ctx2, {
         type: 'doughnut',
         data: {
@@ -1867,25 +1941,178 @@ const ctx2 = canvas2.getContext('2d');
           cutout: '62%',
           plugins: {
             legend: { position: 'bottom', labels: { usePointStyle: true, padding: 12, font: { size: 11, weight: '600' } } },
-            tooltip: { callbacks: { label: c => ` ${c.label}: ${formatQty(c.raw)} Pcs` } } } } }); } // ========================================================================= // 7. TAB 2: SALES BY PERSON / BARCODE (DD/MM/YYYY + DEFAULT NOV 1-2, 2026) // ========================================================================= function onPersonSortDropdownChange() { const [key, dir] = document.getElementById('personSortSelect').value.split(':'); STATE.sort.person = { key, dir }; renderPersonView(); }  function togglePersonSort(key) { if (STATE.sort.person.key === key) { STATE.sort.person.dir = STATE.sort.person.dir === 'asc' ? 'desc' : 'asc'; } else { STATE.sort.person = { key, dir: 'desc' }; } renderPersonView(); }  function selectPersonRow(barcode) { const sel = document.getElementById('personBarcodeSelect'); sel.value = sel.value === barcode ? 'ALL' : barcode; renderPersonView(); }  function renderPersonView() { const fromISO = document.getElementById('personFromDate').value; const toISO = document.getElementById('personToDate').value; const fromDisp = isoToDDMMYYYY(fromISO) \vert{}\vert{} '-'; const toDisp = isoToDDMMYYYY(toISO) \vert{}\vert{} '-';  document.getElementById('personFromDisplay').textContent = fromDisp; document.getElementById('personToDisplay').textContent = toDisp; document.getElementById('personPeriodBadge').textContent = `Periode: ${fromDisp} - ${toDisp}`;  const dateErrEl = document.getElementById('personDateError'); if (fromISO && toISO && fromISO > toISO) { dateErrEl.classList.remove('hidden'); return; } dateErrEl.classList.add('hidden');  const selectedBarcode = document.getElementById('personBarcodeSelect').value; const searchVal = document.getElementById('personTableSearch').value.trim().toLowerCase();  // Lookup NAMA (Kolom C), TARGET (Kolom F), and JABATAN (Kolom G) by BARCODE across MASTER BARCODE const masterMetaByBarcode = new Map(); STATE.masterBarcode.forEach(r => { if (!r.barcode) return; if (!masterMetaByBarcode.has(r.barcode)) { masterMetaByBarcode.set(r.barcode, { nama: r.nama \vert{}\vert{} '-', target: r.target \vert{}\vert{} 0, jabatan: (r.jabatan && r.jabatan !== '-') ? r.jabatan : '-' }); } else { const meta = masterMetaByBarcode.get(r.barcode); if ((!meta.nama \vert{}\vert{} meta.nama === '-') && r.nama) meta.nama = r.nama; if (r.target > meta.target) meta.target = r.target; if ((!meta.jabatan \vert{}\vert{} meta.jabatan === '-') && r.jabatan && r.jabatan !== '-') meta.jabatan = r.jabatan; } });  const filteredRows = STATE.masterBarcode.filter(r => { if (fromISO && r.isoDate && r.isoDate < fromISO) return false; if (toISO && r.isoDate && r.isoDate > toISO) return false; if (selectedBarcode !== 'ALL' && r.barcode !== selectedBarcode) return false; if (searchVal) { const meta = masterMetaByBarcode.get(r.barcode); const hay = `${r.barcode} ${r.nama \vert{}\vert{} ''}${meta?.nama || ''}`.toLowerCase();
+            tooltip: { callbacks: { label: c => ` ${c.label}: ${formatQty(c.raw)} Pcs` } }
+          }
+        }
+      });
+    }
+
+    // =========================================================================
+    // 7. TAB 2: SALES BY PERSON / BARCODE (DD/MM/YYYY + DEFAULT NOV 1-2, 2026)
+    // =========================================================================
+    function onPersonSortDropdownChange() {
+      const [key, dir] = document.getElementById('personSortSelect').value.split(':');
+      STATE.sort.person = { key, dir };
+      renderPersonView();
+    }
+
+    function togglePersonSort(key) {
+      if (STATE.sort.person.key === key) {
+        STATE.sort.person.dir = STATE.sort.person.dir === 'asc' ? 'desc' : 'asc';
+      } else {
+        STATE.sort.person = { key, dir: 'desc' };
+      }
+      renderPersonView();
+    }
+
+    function selectPersonRow(barcode) {
+      const sel = document.getElementById('personBarcodeSelect');
+      sel.value = sel.value === barcode ? 'ALL' : barcode;
+      renderPersonView();
+    }
+
+    function renderPersonView() {
+      const fromISO = document.getElementById('personFromDate').value;
+      const toISO = document.getElementById('personToDate').value;
+      const fromDisp = isoToDDMMYYYY(fromISO) || '-';
+      const toDisp = isoToDDMMYYYY(toISO) || '-';
+
+      document.getElementById('personFromDisplay').textContent = fromDisp;
+      document.getElementById('personToDisplay').textContent = toDisp;
+      document.getElementById('personPeriodBadge').textContent = `Periode: ${fromDisp} - ${toDisp}`;
+
+      const dateErrEl = document.getElementById('personDateError');
+      if (fromISO && toISO && fromISO > toISO) {
+        dateErrEl.classList.remove('hidden');
+        return;
+      }
+      dateErrEl.classList.add('hidden');
+
+      const selectedBarcode = document.getElementById('personBarcodeSelect').value;
+      const searchVal = document.getElementById('personTableSearch').value.trim().toLowerCase();
+
+      const masterMetaByBarcode = new Map();
+      STATE.masterBarcode.forEach(r => {
+        if (!r.barcode) return;
+        if (!masterMetaByBarcode.has(r.barcode)) {
+          masterMetaByBarcode.set(r.barcode, {
+            nama: r.nama || '-',
+            target: r.target || 0,
+            jabatan: (r.jabatan && r.jabatan !== '-') ? r.jabatan : '-'
+          });
+        } else {
+          const meta = masterMetaByBarcode.get(r.barcode);
+          if ((!meta.nama || meta.nama === '-') && r.nama) meta.nama = r.nama;
+          if (r.target > meta.target) meta.target = r.target;
+          if ((!meta.jabatan || meta.jabatan === '-') && r.jabatan && r.jabatan !== '-') meta.jabatan = r.jabatan;
+        }
+      });
+
+      const filteredRows = STATE.masterBarcode.filter(r => {
+        if (fromISO && r.isoDate && r.isoDate < fromISO) return false;
+        if (toISO && r.isoDate && r.isoDate > toISO) return false;
+        if (selectedBarcode !== 'ALL' && r.barcode !== selectedBarcode) return false;
+        if (searchVal) {
+          const meta = masterMetaByBarcode.get(r.barcode);
+          const hay = `${r.barcode} ${r.nama || ''} ${meta?.nama || ''}`.toLowerCase();
           if (!hay.includes(searchVal)) return false;
         }
         return true;
       });
 
-      document.getElementById('personRowCountBadge').textContent = `Dihitung dari ${filteredRows.length} baris`;  const aggMap = new Map(); filteredRows.forEach(r => { if (!aggMap.has(r.barcode)) { const meta = masterMetaByBarcode.get(r.barcode) \vert{}\vert{} { nama: '-', target: 0, jabatan: '-' }; aggMap.set(r.barcode, { barcode: r.barcode, nama: r.nama \vert{}\vert{} meta.nama \vert{}\vert{} '-', sales: 0, qty: 0, target: r.target \vert{}\vert{} meta.target \vert{}\vert{} 0, jabatan: (r.jabatan && r.jabatan !== '-') ? r.jabatan : (meta.jabatan \vert{}\vert{} '-') }); } const item = aggMap.get(r.barcode); if ((!item.nama \vert{}\vert{} item.nama === '-') && r.nama) item.nama = r.nama; if ((!item.jabatan \vert{}\vert{} item.jabatan === '-') && r.jabatan && r.jabatan !== '-') item.jabatan = r.jabatan; // TARGET tidak di-SUM jika Barcode muncul di banyak tanggal; ambil nilai MAX / pertama if (r.target > item.target) item.target = r.target; item.sales += r.netSales; item.qty += r.netQty; });  const rows = Array.from(aggMap.values()).map(item => { const ach = item.target > 0 ? Math.round((item.sales / item.target) * 100) : 0; return { ...item, nama: item.nama \vert{}\vert{} '-', jabatan: item.jabatan \vert{}\vert{} '-', ach }; });  // Rank berdasarkan SALES terbesar ke terkecil (RANK 1 = SALES paling besar) const rankOrder = [...rows].sort((a, b) => b.sales - a.sales); const rankMap = new Map(); rankOrder.forEach((item, idx) => rankMap.set(item.barcode, idx + 1)); rows.forEach(item => { item.rank = rankMap.get(item.barcode) \vert{}\vert{} 0; });  const { key, dir } = STATE.sort.person; rows.sort((a, b) => { let va = a[key], vb = b[key]; if (typeof va === 'string') { va = va.toLowerCase(); vb = String(vb).toLowerCase(); } if (va < vb) return dir === 'asc' ? -1 : 1; if (va > vb) return dir === 'asc' ? 1 : -1; return 0; });  STATE.exportedRows.person = rows;  // Spotlight Card const spotCard = document.getElementById('personSpotlightCard'); if (selectedBarcode !== 'ALL' && rows.length > 0) { const spg = rows[0]; spotCard.classList.remove('hidden'); document.getElementById('spotBarcodeBadge').textContent = `BARCODE: ${spg.barcode} • ${spg.jabatan}`; document.getElementById('spotPeriodText').textContent = `${fromDisp} - ${toDisp}`; document.getElementById('spotPersonName').textContent = spg.nama !== '-' ? spg.nama : spg.barcode; document.getElementById('spotNetSales').textContent = formatRupiah(spg.sales); document.getElementById('spotNetQty').textContent = `${formatQty(spg.qty)} Pcs`;
+      document.getElementById('personRowCountBadge').textContent = `Dihitung dari ${filteredRows.length} baris`;
+
+      const aggMap = new Map();
+      filteredRows.forEach(r => {
+        if (!aggMap.has(r.barcode)) {
+          const meta = masterMetaByBarcode.get(r.barcode) || { nama: '-', target: 0, jabatan: '-' };
+          aggMap.set(r.barcode, {
+            barcode: r.barcode,
+            nama: r.nama || meta.nama || '-',
+            sales: 0,
+            qty: 0,
+            target: r.target || meta.target || 0,
+            jabatan: (r.jabatan && r.jabatan !== '-') ? r.jabatan : (meta.jabatan || '-')
+          });
+        }
+        const item = aggMap.get(r.barcode);
+        if ((!item.nama || item.nama === '-') && r.nama) item.nama = r.nama;
+        if ((!item.jabatan || item.jabatan === '-') && r.jabatan && r.jabatan !== '-') item.jabatan = r.jabatan;
+        if (r.target > item.target) item.target = r.target;
+        item.sales += r.netSales;
+        item.qty += r.netQty;
+      });
+
+      const rows = Array.from(aggMap.values()).map(item => {
+        const ach = item.target > 0 ? Math.round((item.sales / item.target) * 100) : 0;
+        return {
+          ...item,
+          nama: item.nama || '-',
+          jabatan: item.jabatan || '-',
+          ach
+        };
+      });
+
+      const rankOrder = [...rows].sort((a, b) => b.sales - a.sales);
+      const rankMap = new Map();
+      rankOrder.forEach((item, idx) => rankMap.set(item.barcode, idx + 1));
+      rows.forEach(item => {
+        item.rank = rankMap.get(item.barcode) || 0;
+      });
+
+      const { key, dir } = STATE.sort.person;
+      rows.sort((a, b) => {
+        let va = a[key], vb = b[key];
+        if (typeof va === 'string') {
+          va = va.toLowerCase();
+          vb = String(vb).toLowerCase();
+        }
+        if (va < vb) return dir === 'asc' ? -1 : 1;
+        if (va > vb) return dir === 'asc' ? 1 : -1;
+        return 0;
+      });
+
+      STATE.exportedRows.person = rows;
+
+      const spotCard = document.getElementById('personSpotlightCard');
+      if (selectedBarcode !== 'ALL' && rows.length > 0) {
+        const spg = rows[0];
+        spotCard.classList.remove('hidden');
+        document.getElementById('spotBarcodeBadge').textContent = `BARCODE: ${spg.barcode} • ${spg.jabatan}`;
+        document.getElementById('spotPeriodText').textContent = `${fromDisp} - ${toDisp}`;
+        document.getElementById('spotPersonName').textContent = spg.nama !== '-' ? spg.nama : spg.barcode;
+        document.getElementById('spotNetSales').textContent = formatRupiah(spg.sales);
+        document.getElementById('spotNetQty').textContent = `${formatQty(spg.qty)} Pcs`;
         document.getElementById('spotDiscount').textContent = formatRupiah(spg.target);
-        document.getElementById('spotAvgPrice').textContent = `${spg.ach}\%`; } else { spotCard.classList.add('hidden'); }  // KPIs const totSales = rows.reduce((s, r) => s + r.sales, 0); const totQty = rows.reduce((s, r) => s + r.qty, 0); const totTarget = rows.reduce((s, r) => s + r.target, 0); const activeCount = rows.length; const avgSalesSpg = activeCount > 0 ? Math.round(totSales / activeCount) : 0; const avgPricePc = totQty > 0 ? Math.round(totSales / totQty) : 0; const achAll = totTarget > 0 ? Math.round((totSales / totTarget) * 100) : 0;  document.getElementById('kpiPersonSales').textContent = formatRupiah(totSales); document.getElementById('kpiPersonSalesSub').textContent = `Periode ${fromDisp} - ${toDisp}`; document.getElementById('kpiPersonQty').textContent = `${formatQty(totQty)} Pcs`;
+        document.getElementById('spotAvgPrice').textContent = `${spg.ach}%`;
+      } else {
+        spotCard.classList.add('hidden');
+      }
+
+      const totSales = rows.reduce((s, r) => s + r.sales, 0);
+      const totQty = rows.reduce((s, r) => s + r.qty, 0);
+      const totTarget = rows.reduce((s, r) => s + r.target, 0);
+      const activeCount = rows.length;
+      const avgSalesSpg = activeCount > 0 ? Math.round(totSales / activeCount) : 0;
+      const avgPricePc = totQty > 0 ? Math.round(totSales / totQty) : 0;
+      const achAll = totTarget > 0 ? Math.round((totSales / totTarget) * 100) : 0;
+
+      document.getElementById('kpiPersonSales').textContent = formatRupiah(totSales);
+      document.getElementById('kpiPersonSalesSub').textContent = `Periode ${fromDisp} - ${toDisp}`;
+      document.getElementById('kpiPersonQty').textContent = `${formatQty(totQty)} Pcs`;
       document.getElementById('kpiPersonQtySub').textContent = `Avg Price/Pc: ${formatRupiah(avgPricePc)}`;
       document.getElementById('kpiPersonDisc').textContent = formatRupiah(totTarget);
-      document.getElementById('kpiPersonDiscBadge').textContent = `${achAll}\% ACH`; document.getElementById('kpiPersonActive').textContent = `${activeCount} SPG`;
-      document.getElementById('kpiPersonAvgSub').textContent = `Avg Sales/SPG: ${formatRupiah(avgSalesSpg)}`;  // Table Render: RANK \vert{} BARCODE \vert{} NAMA \vert{} SALES \vert{} QTY \vert{} TARGET \vert{} ACH \vert{} JABATAN document.getElementById('personTableCountBadge').textContent = `${rows.length} SPG`;
+      document.getElementById('kpiPersonDiscBadge').textContent = `${achAll}% ACH`;
+      document.getElementById('kpiPersonActive').textContent = `${activeCount} SPG`;
+      document.getElementById('kpiPersonAvgSub').textContent = `Avg Sales/SPG: ${formatRupiah(avgSalesSpg)}`;
+
+      document.getElementById('personTableCountBadge').textContent = `${rows.length} SPG`;
       const tbody = document.getElementById('personTableBody');
       if (!rows.length) {
-        tbody.innerHTML = `<tr><td colspan="8" class="py-10 px-4 text-center text-slate-400">Tidak ada data Barcode/SPG pada rentang ${fromDisp} -${toDisp}.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="py-10 px-4 text-center text-slate-400">Tidak ada data Barcode/SPG pada rentang ${fromDisp} - ${toDisp}.</td></tr>`;
       } else {
         tbody.innerHTML = rows.map(r => `
-          <tr onclick="selectPersonRow('${escapeHTML(r.barcode).replace(/'/g, "\'")}')" class="cursor-pointer hover:bg-indigo-50/40 transition">
+          <tr onclick="selectPersonRow('${escapeHTML(r.barcode).replace(/'/g, "\\'")}')" class="cursor-pointer hover:bg-indigo-50/40 transition">
             <td class="py-3 px-4 text-center font-bold text-slate-500">${r.rank}</td>
             <td class="py-3 px-4 font-mono text-xs font-bold text-indigo-700 whitespace-nowrap">${escapeHTML(r.barcode)}</td>
             <td class="py-3 px-4 font-bold text-slate-900 whitespace-nowrap">${escapeHTML(r.nama)}</td>
@@ -1900,6 +2127,67 @@ const ctx2 = canvas2.getContext('2d');
       }
 
       renderPersonCharts(rows);
+    }
+
+    function renderPersonCharts(rows) {
+      const sorted = [...rows].sort((a, b) => b.sales - a.sales);
+      const top10 = sorted.slice(0, 10);
+
+      const ctx1 = document.getElementById('chartPersonTop10').getContext('2d');
+      if (STATE.charts.personTop10) STATE.charts.personTop10.destroy();
+      STATE.charts.personTop10 = new Chart(ctx1, {
+        type: 'bar',
+        data: {
+          labels: top10.map(x => (x.nama && x.nama !== '-') ? x.nama.slice(0, 16) : x.barcode),
+          datasets: [
+            { label: 'Sales (Rp)', data: top10.map(x => x.sales), backgroundColor: '#4F46E5', borderRadius: 6 },
+            { label: 'Target (Rp)', data: top10.map(x => x.target), backgroundColor: '#94A3B8', borderRadius: 6 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'top', labels: { usePointStyle: true, font: { size: 11, weight: '600' } } },
+            tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${formatRupiah(c.raw)}` } }
+          },
+          scales: {
+            y: { beginAtZero: true, grid: { color: '#F1F5F9' }, ticks: { font: { size: 11 }, callback: v => 'Rp ' + (v / 1000000).toFixed(1) + 'jt' } },
+            x: { grid: { display: false }, ticks: { font: { size: 10, weight: '600' } } }
+          }
+        }
+      });
+
+      const sortedFiltered = sorted.filter(x => {
+        const n = (x.nama || '').toString().trim().toUpperCase();
+        return n && n !== '-' && n !== 'NO SALES PERSON' && n !== 'NO SALES' && !n.includes('NO SALES');
+      });
+      const top5 = sortedFiltered.slice(0, 5);
+      const labels = top5.map(x => (x.nama && x.nama !== '-') ? x.nama.slice(0, 18) : x.barcode);
+      const data = top5.map(x => x.sales);
+      const ctx2 = document.getElementById('chartPersonShare').getContext('2d');
+      if (STATE.charts.personShare) STATE.charts.personShare.destroy();
+      STATE.charts.personShare = new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+          labels,
+          datasets: [{
+            data,
+            backgroundColor: ['#4F46E5', '#0EA5E9', '#10B981', '#F59E0B', '#8B5CF6', '#CBD5E1'],
+            borderWidth: 2,
+            borderColor: '#FFFFFF'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '62%',
+          plugins: {
+            legend: { position: 'bottom', labels: { usePointStyle: true, padding: 12, font: { size: 11, weight: '600' } } },
+            tooltip: { callbacks: { label: c => ` ${c.label}: ${formatRupiah(c.raw)}` } }
+          }
+        }
+      });
     }
 
     // =========================================================================
@@ -1941,23 +2229,786 @@ const ctx2 = canvas2.getContext('2d');
 
       setT('shopntalkFromDisplay', fromDisp);
       setT('shopntalkToDisplay', toDisp);
-      setT('shopntalkPeriodBadge', `Periode: ${fromDisp} - ${toDisp}`); setT('shopntalkSalesSub', `Periode ${fromDisp} - ${toDisp}`);  const dateErrEl = document.getElementById('shopntalkDateError'); if (fromISO && toISO && fromISO > toISO) { dateErrEl?.classList.remove('hidden'); return; } dateErrEl?.classList.add('hidden');  const selectedBarcode = document.getElementById('shopntalkBarcodeSelect').value \vert{}\vert{} 'ALL'; const searchVal = (document.getElementById('shopntalkTableSearch').value \vert{}\vert{} '').trim().toLowerCase();  const sourceRows = Array.isArray(STATE.shopntalk) ? STATE.shopntalk : [];  const filteredRows = sourceRows.filter(r => { const d = r.isoDate \vert{}\vert{} ''; if (fromISO && d && d < fromISO) return false; if (toISO && d && d > toISO) return false; if (selectedBarcode && selectedBarcode !== 'ALL' && String(r.barcode) !== String(selectedBarcode)) return false; if (searchVal) { const hay = `${r.barcode || ''} ${r.nama \vert{}\vert{} ''}${r.jabatan || ''}`.toLowerCase();
+      setT('shopntalkPeriodBadge', `Periode: ${fromDisp} - ${toDisp}`);
+      setT('shopntalkSalesSub', `Periode ${fromDisp} - ${toDisp}`);
+
+      const dateErrEl = document.getElementById('shopntalkDateError');
+      if (fromISO && toISO && fromISO > toISO) {
+        dateErrEl?.classList.remove('hidden');
+        return;
+      }
+      dateErrEl?.classList.add('hidden');
+
+      const selectedBarcode = document.getElementById('shopntalkBarcodeSelect').value || 'ALL';
+      const searchVal = (document.getElementById('shopntalkTableSearch').value || '').trim().toLowerCase();
+
+      const sourceRows = Array.isArray(STATE.shopntalk) ? STATE.shopntalk : [];
+
+      const filteredRows = sourceRows.filter(r => {
+        const d = r.isoDate || '';
+        if (fromISO && d && d < fromISO) return false;
+        if (toISO && d && d > toISO) return false;
+        if (selectedBarcode && selectedBarcode !== 'ALL' && String(r.barcode) !== String(selectedBarcode)) return false;
+        if (searchVal) {
+          const hay = `${r.barcode || ''} ${r.nama || ''} ${r.jabatan || ''}`.toLowerCase();
           if (!hay.includes(searchVal)) return false;
         }
         return true;
       });
 
-      setT('shopntalkRowCount', `Dihitung dari ${filteredRows.length} baris`);  const map = new Map(); filteredRows.forEach(r => { const key = `${r.barcode}||${r.nama \vert{}\vert{} '-'}`; if (!map.has(key)) { map.set(key, { barcode: r.barcode \vert{}\vert{} '-', nama: r.nama \vert{}\vert{} '-', jabatan: r.jabatan \vert{}\vert{} '-', sales: 0, qty: 0, target: r.target \vert{}\vert{} 0 }); } const item = map.get(key); if ((!item.nama \vert{}\vert{} item.nama === '-') && r.nama) item.nama = r.nama; if ((!item.jabatan \vert{}\vert{} item.jabatan === '-') && r.jabatan && r.jabatan !== '-') item.jabatan = r.jabatan; if (r.target > item.target) item.target = r.target; item.sales += (r.netSales \vert{}\vert{} 0); item.qty += (r.netQty \vert{}\vert{} 0); });  const rows = Array.from(map.values()).map(r => { const achNum = r.target > 0 ? (r.sales / r.target) * 100 : 0; return { ...r, ach: achNum, achRounded: Math.round(achNum) }; });  const rankOrder = [...rows].sort((a, b) => b.sales - a.sales); const rankMap = new Map(); rankOrder.forEach((item, idx) => rankMap.set(`${item.barcode}||${item.nama}`, idx + 1)); rows.forEach(item => { item.rank = rankMap.get(`${item.barcode}||${item.nama}`) \vert{}\vert{} 0; });  const sortSelVal = document.getElementById('shopntalkSortSelect')?.value \vert{}\vert{} ''; let sortKey = STATE.sort.shopntalk.key; let sortDir = STATE.sort.shopntalk.dir; if (sortSelVal.includes(':')) { const [k, d] = sortSelVal.split(':'); sortKey = k === 'name' ? 'nama' : k; sortDir = d \vert{}\vert{} 'desc'; }  rows.sort((a, b) => { let va = a[sortKey]; let vb = b[sortKey]; if (typeof va === 'string') { va = va.toLowerCase(); vb = String(vb \vert{}\vert{} '').toLowerCase(); } if (va < vb) return sortDir === 'asc' ? -1 : 1; if (va > vb) return sortDir === 'asc' ? 1 : -1; return 0; });  STATE.exportedRows.shopntalk = rows;  // Spotlight Card const spotCard = document.getElementById('shopntalkSpotlightCard'); if (selectedBarcode && selectedBarcode !== 'ALL' && rows.length > 0) { const spg = rows[0]; spotCard?.classList.remove('hidden'); setT('spotShopntalkBarcodeBadge', `BARCODE: ${spg.barcode} • ${spg.jabatan}`); setT('spotShopntalkPeriodText', `${fromDisp} - ${toDisp}`); setT('spotShopntalkName', spg.nama !== '-' ? spg.nama : spg.barcode); setT('spotShopntalkNetSales', formatRupiah(spg.sales)); setT('spotShopntalkNetQty', `${formatQty(spg.qty)} Pcs`);
+      setT('shopntalkRowCount', `Dihitung dari ${filteredRows.length} baris`);
+
+      const map = new Map();
+      filteredRows.forEach(r => {
+        const key = `${r.barcode}||${r.nama || '-'}`;
+        if (!map.has(key)) {
+          map.set(key, {
+            barcode: r.barcode || '-',
+            nama: r.nama || '-',
+            jabatan: r.jabatan || '-',
+            sales: 0,
+            qty: 0,
+            target: r.target || 0
+          });
+        }
+        const item = map.get(key);
+        if ((!item.nama || item.nama === '-') && r.nama) item.nama = r.nama;
+        if ((!item.jabatan || item.jabatan === '-') && r.jabatan && r.jabatan !== '-') item.jabatan = r.jabatan;
+        if (r.target > item.target) item.target = r.target;
+        item.sales += (r.netSales || 0);
+        item.qty += (r.netQty || 0);
+      });
+
+      const rows = Array.from(map.values()).map(r => {
+        const achNum = r.target > 0 ? (r.sales / r.target) * 100 : 0;
+        return {
+          ...r,
+          ach: achNum,
+          achRounded: Math.round(achNum)
+        };
+      });
+
+      const rankOrder = [...rows].sort((a, b) => b.sales - a.sales);
+      const rankMap = new Map();
+      rankOrder.forEach((item, idx) => rankMap.set(`${item.barcode}||${item.nama}`, idx + 1));
+      rows.forEach(item => {
+        item.rank = rankMap.get(`${item.barcode}||${item.nama}`) || 0;
+      });
+
+      const sortSelVal = document.getElementById('shopntalkSortSelect')?.value || '';
+      let sortKey = STATE.sort.shopntalk.key;
+      let sortDir = STATE.sort.shopntalk.dir;
+      if (sortSelVal.includes(':')) {
+        const [k, d] = sortSelVal.split(':');
+        sortKey = k === 'name' ? 'nama' : k;
+        sortDir = d || 'desc';
+      }
+
+      rows.sort((a, b) => {
+        let va = a[sortKey];
+        let vb = b[sortKey];
+        if (typeof va === 'string') {
+          va = va.toLowerCase();
+          vb = String(vb || '').toLowerCase();
+        }
+        if (va < vb) return sortDir === 'asc' ? -1 : 1;
+        if (va > vb) return sortDir === 'asc' ? 1 : -1;
+        return 0;
+      });
+
+      STATE.exportedRows.shopntalk = rows;
+
+      // Spotlight Card
+      const spotCard = document.getElementById('shopntalkSpotlightCard');
+      if (selectedBarcode && selectedBarcode !== 'ALL' && rows.length > 0) {
+        const spg = rows[0];
+        spotCard?.classList.remove('hidden');
+        setT('spotShopntalkBarcodeBadge', `BARCODE: ${spg.barcode} • ${spg.jabatan}`);
+        setT('spotShopntalkPeriodText', `${fromDisp} - ${toDisp}`);
+        setT('spotShopntalkName', spg.nama !== '-' ? spg.nama : spg.barcode);
+        setT('spotShopntalkNetSales', formatRupiah(spg.sales));
+        setT('spotShopntalkNetQty', `${formatQty(spg.qty)} Pcs`);
         setT('spotShopntalkTarget', formatRupiah(spg.target));
-        setT('spotShopntalkAch', `${spg.ach.toFixed(1)}\%`); } else { spotCard?.classList.add('hidden'); }  const totalSales = rows.reduce((s, r) => s + r.sales, 0); const totalQty = rows.reduce((s, r) => s + r.qty, 0); const totalTarget = rows.reduce((s, r) => s + r.target, 0); const achPct = totalTarget > 0 ? (totalSales / totalTarget) * 100 : 0;  setT('shopntalkTotalSales', formatRupiah(totalSales)); setT('shopntalkTotalQty', `${formatQty(totalQty)} Pcs`);
+        setT('spotShopntalkAch', `${spg.ach.toFixed(1)}%`);
+      } else {
+        spotCard?.classList.add('hidden');
+      }
+
+      const totalSales = rows.reduce((s, r) => s + r.sales, 0);
+      const totalQty = rows.reduce((s, r) => s + r.qty, 0);
+      const totalTarget = rows.reduce((s, r) => s + r.target, 0);
+      const achPct = totalTarget > 0 ? (totalSales / totalTarget) * 100 : 0;
+
+      setT('shopntalkTotalSales', formatRupiah(totalSales));
+      setT('shopntalkTotalQty', `${formatQty(totalQty)} Pcs`);
       setT('shopntalkTotalTarget', formatRupiah(totalTarget));
-      setT('shopntalkAch', `${achPct.toFixed(1)}\%`); setT('shopntalkActiveCount', `${rows.length} SPG`);
-      setT('shopntalkAvgPrice', `Avg Price/Pc: ${formatRupiah(totalQty > 0 ? Math.round(totalSales / totalQty) : 0)}`); setT('shopntalkTableCountBadge', `${rows.length} SPG`);
+      setT('shopntalkAch', `${achPct.toFixed(1)}%`);
+      setT('shopntalkActiveCount', `${rows.length} SPG`);
+      setT('shopntalkAvgPrice', `Avg Price/Pc: ${formatRupiah(totalQty > 0 ? Math.round(totalSales / totalQty) : 0)}`);
+      setT('shopntalkTableCountBadge', `${rows.length} SPG`);
 
       const tbody = document.getElementById('shopntalkTableBody');
       if (tbody) {
         if (!rows.length) {
-          tbody.innerHTML = `<tr><td colspan="8" class="py-10 px-4 text-center text-slate-400">Tidak ada data pada rentang ${fromDisp} -${toDisp}.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="8" class="py-10 px-4 text-center text-slate-400">Tidak ada data pada rentang ${fromDisp} - ${toDisp}.</td></tr>`;
         } else {
           tbody.innerHTML = rows.map(r => `
-            <tr onclick="selectShopntalkRow('${escapeHTML(r.barcode).replace(/'/g
+            <tr onclick="selectShopntalkRow('${escapeHTML(r.barcode).replace(/'/g, "\\'")}')" class="cursor-pointer hover:bg-indigo-50/40 transition">
+              <td class="py-3 px-4 text-center font-bold text-slate-500">${r.rank}</td>
+              <td class="py-3 px-4 font-mono text-xs font-bold text-indigo-700 whitespace-nowrap">${escapeHTML(r.barcode)}</td>
+              <td class="py-3 px-4 font-bold text-slate-900 whitespace-nowrap">${escapeHTML(r.nama)}</td>
+              <td class="py-3 px-4 text-right font-extrabold text-slate-900 whitespace-nowrap">${formatRupiah(r.sales)}</td>
+              <td class="py-3 px-4 text-right font-semibold text-slate-700 whitespace-nowrap">${formatQty(r.qty)}</td>
+              <td class="py-3 px-4 text-right font-semibold text-slate-700 whitespace-nowrap">${formatRupiah(r.target)}</td>
+              <td class="py-3 px-4 text-center whitespace-nowrap">
+                <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-extrabold ${getAchColorClass(r.achRounded)}">${r.ach.toFixed(1)}%</span>
+              </td>
+              <td class="py-3 px-4 text-xs font-bold uppercase text-purple-700 whitespace-nowrap">${escapeHTML(r.jabatan)}</td>
+            </tr>`).join('');
+        }
+      }
+
+      renderShopntalkChart(rows);
+    }
+
+    function renderShopntalkChart(rows) {
+      const sorted = [...rows].sort((a, b) => b.sales - a.sales);
+      const top10 = sorted.slice(0, 10);
+      const ctx1 = document.getElementById('chartshopntalkTop10')?.getContext('2d');
+      if (ctx1) {
+        if (STATE.charts.shopntalkTop10) STATE.charts.shopntalkTop10.destroy();
+        STATE.charts.shopntalkTop10 = new Chart(ctx1, {
+          type: 'bar',
+          data: {
+            labels: top10.map(x => (x.nama && x.nama !== '-') ? x.nama.slice(0, 16) : x.barcode),
+            datasets: [
+              { label: 'Sales (Rp)', data: top10.map(x => x.sales), backgroundColor: '#4F46E5', borderRadius: 6 },
+              { label: 'Target (Rp)', data: top10.map(x => x.target), backgroundColor: '#94A3B8', borderRadius: 6 }
+            ]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'top', labels: { usePointStyle: true, font: { size: 11, weight: '600' } } },
+              tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${formatRupiah(c.raw)}` } }
+            },
+            scales: {
+              y: { beginAtZero: true, grid: { color: '#F1F5F9' }, ticks: { font: { size: 11 }, callback: v => 'Rp ' + (v / 1000000).toFixed(1) + 'jt' } },
+              x: { grid: { display: false }, ticks: { font: { size: 10, weight: '600' } } }
+            }
+          }
+        });
+      }
+
+      const sortedFiltered = sorted.filter(x => {
+        const n = (x.nama || '').toString().trim().toUpperCase();
+        return n && n !== '-' && n !== 'NO SALES PERSON' && n !== 'NO SALES' && !n.includes('NO SALES');
+      });
+      const top5 = sortedFiltered.slice(0, 5);
+      const labels = top5.map(x => (x.nama && x.nama !== '-') ? x.nama.slice(0, 18) : x.barcode);
+      const data = top5.map(x => x.sales);
+      const ctx2 = document.getElementById('chartshopntalkShare')?.getContext('2d');
+      if (ctx2) {
+        if (STATE.charts.shopntalkShare) STATE.charts.shopntalkShare.destroy();
+        STATE.charts.shopntalkShare = new Chart(ctx2, {
+          type: 'doughnut',
+          data: { labels, datasets: [{ data, backgroundColor: ['#4F46E5', '#0EA5E9', '#10B981', '#F59E0B', '#8B5CF6', '#CBD5E1'], borderWidth: 2, borderColor: '#FFFFFF' }] },
+          options: {
+            responsive: true, maintainAspectRatio: false, cutout: '62%',
+            plugins: {
+              legend: { position: 'bottom', labels: { usePointStyle: true, padding: 12, font: { size: 11, weight: '600' } } },
+              tooltip: { callbacks: { label: c => ` ${c.label}: ${formatRupiah(c.raw)}` } }
+            }
+          }
+        });
+      }
+    }
+
+    // =========================================================================
+    // 8. TAB 4: SALES BY SPV (NAMA KOLOM C DROPDOWN + DYNAMIC DATE RANGE & LY)
+    // =========================================================================
+    function applySpvDateFilter() {
+      const fromISO = document.getElementById('spvFromDate').value;
+      const toISO = document.getElementById('spvToDate').value;
+      const errEl = document.getElementById('spvDateError');
+      if (fromISO && toISO && fromISO > toISO) {
+        errEl.classList.remove('hidden');
+        return;
+      }
+      errEl.classList.add('hidden');
+      STATE.spvAppliedFrom = fromISO;
+      STATE.spvAppliedTo = toISO;
+      renderSpvView();
+    }
+
+    function getAchColorClass(achVal) {
+      if (achVal >= 100) return 'text-emerald-700 bg-emerald-100';
+      if (achVal >= 80) return 'text-amber-800 bg-amber-100';
+      return 'text-rose-700 bg-rose-100';
+    }
+
+    function getSpvPctBadgeClass(val) {
+      return val >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700';
+    }
+
+    function formatPct1Dec(val, withPlus = false) {
+      const num = Number(val) || 0;
+      const fixed = num.toFixed(1).replace('.', ',');
+      return `${withPlus && num > 0 ? '+' : ''}${fixed}%`;
+    }
+
+    function shiftIsoYear(isoStr, deltaYears) {
+      if (!isoStr || typeof isoStr !== 'string') return '';
+      const p = isoStr.split('-');
+      if (p.length !== 3) return isoStr;
+      const y = parseInt(p[0], 10) + deltaYears;
+      const m = parseInt(p[1], 10);
+      let d = parseInt(p[2], 10);
+      const maxDay = new Date(y, m, 0).getDate();
+      if (d > maxDay) d = maxDay;
+      return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    }
+
+    function calcProrataFactor(fromISO, toISO) {
+      const d1 = parseTgl(fromISO);
+      const d2 = parseTgl(toISO);
+      if (!d1 || !d2 || d1 > d2) return 1;
+      return 1;
+    }
+
+    function calculateSpvRowsForRange(rows, fromISO, toISO) {
+      const lyFromISO = shiftIsoYear(fromISO, -1);
+      const lyToISO = shiftIsoYear(toISO, -1);
+
+      const validDatedRows = rows.filter(r => Boolean(r.isoDate));
+      const hasDatedRows = validDatedRows.length > 0;
+
+      const lyRowsInRange = hasDatedRows
+        ? validDatedRows.filter(r => (!lyFromISO || r.isoDate >= lyFromISO) && (!lyToISO || r.isoDate <= lyToISO))
+        : [];
+      const hasHistoricalLyRows = lyRowsInRange.length > 0;
+
+      const uniqueDates = new Set(validDatedRows.map(r => r.isoDate));
+      const isSingleSnapshotDate = hasDatedRows && uniqueDates.size <= 1;
+
+      const prorataFactor = calcProrataFactor(fromISO, toISO);
+
+      const spvMetaMap = new Map();
+      rows.forEach(r => {
+        if (!spvMetaMap.has(r.nama)) {
+          spvMetaMap.set(r.nama, {
+            nama: r.nama,
+            jabatan: r.jabatan || '-',
+            sumTargetDp: 0,
+            sumTargetCv: 0,
+            maxTargetDp: 0,
+            maxTargetCv: 0,
+            sumSalesDpAll: 0,
+            sumSalesCvAll: 0,
+            sumSalesLyDpAll: 0,
+            sumSalesLyCvAll: 0,
+            rowCount: 0,
+            rows: []
+          });
+        }
+        const meta = spvMetaMap.get(r.nama);
+        if ((!meta.jabatan || meta.jabatan === '-') && r.jabatan) meta.jabatan = r.jabatan;
+        meta.sumTargetDp += r.targetDp;
+        meta.sumTargetCv += r.targetCv;
+        if (r.targetDp > meta.maxTargetDp) meta.maxTargetDp = r.targetDp;
+        if (r.targetCv > meta.maxTargetCv) meta.maxTargetCv = r.targetCv;
+        meta.sumSalesDpAll += r.salesDp;
+        meta.sumSalesCvAll += r.salesCv;
+        meta.sumSalesLyDpAll += r.salesLyDp;
+        meta.sumSalesLyCvAll += r.salesLyCv;
+        meta.rowCount += 1;
+        meta.rows.push(r);
+      });
+
+      const resultMap = new Map();
+      spvMetaMap.forEach((meta, nama) => {
+        resultMap.set(nama, {
+          nama: meta.nama,
+          jabatan: meta.jabatan,
+          salesDp: 0,
+          salesCv: 0,
+          salesLyDp: 0,
+          salesLyCv: 0,
+          targetDp: 0,
+          targetCv: 0,
+          totalSalesTy: 0,
+          totalSalesLy: 0,
+          totalTarget: 0,
+          vsLyDp: 0,
+          achDp: 0,
+          vsLyCv: 0,
+          achCv: 0,
+          vsLyTotal: 0,
+          achTotal: 0
+        });
+      });
+
+      if (!hasDatedRows || isSingleSnapshotDate) {
+        spvMetaMap.forEach((meta, nama) => {
+          const item = resultMap.get(nama);
+          item.salesDp = meta.sumSalesDpAll;
+          item.salesCv = meta.sumSalesCvAll;
+          item.salesLyDp = meta.sumSalesLyDpAll;
+          item.salesLyCv = meta.sumSalesLyCvAll;
+          item.targetDp = meta.sumTargetDp * prorataFactor;
+          item.targetCv = meta.sumTargetCv * prorataFactor;
+        });
+      } else {
+        const tyRows = validDatedRows.filter(r => {
+          if (fromISO && r.isoDate < fromISO) return false;
+          if (toISO && r.isoDate > toISO) return false;
+          return true;
+        });
+
+        tyRows.forEach(r => {
+          const item = resultMap.get(r.nama);
+          if (!item) return;
+          item.salesDp += r.salesDp;
+          item.salesCv += r.salesCv;
+          if (!hasHistoricalLyRows) {
+            item.salesLyDp += r.salesLyDp;
+            item.salesLyCv += r.salesLyCv;
+          }
+        });
+
+        if (hasHistoricalLyRows) {
+          lyRowsInRange.forEach(r => {
+            const item = resultMap.get(r.nama);
+            if (!item) return;
+            item.salesLyDp += (r.salesDp > 0 ? r.salesDp : r.salesLyDp);
+            item.salesLyCv += (r.salesCv > 0 ? r.salesCv : r.salesLyCv);
+          });
+        }
+
+        spvMetaMap.forEach((meta, nama) => {
+          const item = resultMap.get(nama);
+          if (!item) return;
+          const distinctDates = new Set((meta.rows || []).map(r => r.isoDate || r.tanggal)).size || 1;
+          const annualTargetDp = meta.sumTargetDp / distinctDates;
+          const annualTargetCv = meta.sumTargetCv / distinctDates;
+          item.targetDp = annualTargetDp * prorataFactor;
+          item.targetCv = annualTargetCv * prorataFactor;
+        });
+      }
+
+      return Array.from(resultMap.values()).map(item => {
+        item.totalSalesTy = item.salesDp + item.salesCv;
+        item.totalSalesLy = item.salesLyDp + item.salesLyCv;
+        item.totalTarget = item.targetDp + item.targetCv;
+
+        item.vsLyDp = item.salesLyDp > 0 ? ((item.salesDp - item.salesLyDp) / item.salesLyDp) * 100 : 0;
+        item.achDp = item.targetDp > 0 ? (item.salesDp / item.targetDp) * 100 : 0;
+
+        item.vsLyCv = item.salesLyCv > 0 ? ((item.salesCv - item.salesLyCv) / item.salesLyCv) * 100 : 0;
+        item.achCv = item.targetCv > 0 ? (item.salesCv / item.targetCv) * 100 : 0;
+
+        item.vsLyTotal = item.totalSalesLy > 0 ? ((item.totalSalesTy - item.totalSalesLy) / item.totalSalesLy) * 100 : 0;
+        item.achTotal = item.totalTarget > 0 ? (item.totalSalesTy / item.totalTarget) * 100 : 0;
+
+        return item;
+      });
+    }
+
+    function renderSpvView() {
+      const fromISO = document.getElementById('spvFromDate').value || STATE.spvAppliedFrom || '2026-01-01';
+      const toISO = document.getElementById('spvToDate').value || STATE.spvAppliedTo || '2026-01-31';
+      const fromDisp = isoToDDMMYYYY(fromISO) || '01/01/2026';
+      const toDisp = isoToDDMMYYYY(toISO) || '31/01/2026';
+      const lyFromDisp = isoToDDMMYYYY(shiftIsoYear(fromISO, -1)) || '-';
+      const lyToDisp = isoToDDMMYYYY(shiftIsoYear(toISO, -1)) || '-';
+
+      document.getElementById('spvFromDisplay').textContent = fromDisp;
+      document.getElementById('spvToDisplay').textContent = toDisp;
+
+      const selectedNama = document.getElementById('spvJabatanSelect').value;
+      const spvSelEl = document.getElementById('spvJabatanSelect');
+
+      document.getElementById('spvPeriodNote').textContent =
+        `Periode TY: ${fromDisp} - ${toDisp} • Periode LY: ${lyFromDisp} - ${lyToDisp} • Target prorata sesuai rentang tanggal aktif`;
+
+      const filteredRaw = selectedNama === 'ALL'
+        ? STATE.masterSpv
+        : STATE.masterSpv.filter(r => r.nama === selectedNama);
+
+      const displayRows = calculateSpvRowsForRange(filteredRaw, fromISO, toISO);
+
+      const firstSpvNama = STATE.masterSpv[0]?.nama || '-';
+      document.getElementById('spvDebugLine').textContent =
+        `SPV tampil: ${displayRows.length} SPV | NAMA pertama: ${firstSpvNama} | Dropdown SPV: ${spvSelEl.options.length} opsi | Filter: ${fromDisp} - ${toDisp} (LY: ${lyFromDisp} - ${lyToDisp})`;
+
+      STATE.exportedRows.spv = displayRows;
+
+      const sumSalesDp = displayRows.reduce((s, r) => s + r.salesDp, 0);
+      const sumSalesCv = displayRows.reduce((s, r) => s + r.salesCv, 0);
+      const sumTotalTy = sumSalesDp + sumSalesCv;
+
+      const sumTargetDp = displayRows.reduce((s, r) => s + r.targetDp, 0);
+      const sumTargetCv = displayRows.reduce((s, r) => s + r.targetCv, 0);
+      const sumTotalTarget = sumTargetDp + sumTargetCv;
+
+      const sumSalesLyDp = displayRows.reduce((s, r) => s + r.salesLyDp, 0);
+      const sumSalesLyCv = displayRows.reduce((s, r) => s + r.salesLyCv, 0);
+      const sumTotalLy = sumSalesLyDp + sumSalesLyCv;
+
+      const vsLyDpTot = sumSalesLyDp > 0 ? ((sumSalesDp - sumSalesLyDp) / sumSalesLyDp) * 100 : 0;
+      const achDpTot = sumTargetDp > 0 ? (sumSalesDp / sumTargetDp) * 100 : 0;
+
+      const vsLyCvTot = sumSalesLyCv > 0 ? ((sumSalesCv - sumSalesLyCv) / sumSalesLyCv) * 100 : 0;
+      const achCvTot = sumTargetCv > 0 ? (sumSalesCv / sumTargetCv) * 100 : 0;
+
+      const achVal = sumTotalTarget > 0 ? (sumTotalTy / sumTotalTarget) * 100 : 0;
+      const growthVal = sumTotalLy > 0 ? ((sumTotalTy - sumTotalLy) / sumTotalLy) * 100 : 0;
+
+      document.getElementById('kpiSpvTotalTy').textContent = formatRupiah(sumTotalTy);
+      document.getElementById('kpiSpvDpCvSub').textContent = `DP: ${formatRupiah(sumSalesDp)} • CV: ${formatRupiah(sumSalesCv)}`;
+      document.getElementById('kpiSpvTarget').textContent = formatRupiah(sumTotalTarget);
+      document.getElementById('kpiSpvTargetSub').textContent = `Target DP: ${formatRupiah(sumTargetDp)} • Target CV: ${formatRupiah(sumTargetCv)}`;
+
+      const achEl = document.getElementById('kpiSpvAch');
+      const achBadge = document.getElementById('kpiSpvAchBadge');
+      achEl.textContent = formatPct1Dec(achVal, false);
+      achBadge.textContent = formatPct1Dec(achVal, false);
+      if (achVal >= 0) {
+        achEl.className = 'text-xl sm:text-2xl font-extrabold text-emerald-600 tabular-nums';
+        achBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800';
+      } else {
+        achEl.className = 'text-xl sm:text-2xl font-extrabold text-rose-600 tabular-nums';
+        achBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800';
+      }
+
+      const grEl = document.getElementById('kpiSpvGrowth');
+      const grBadge = document.getElementById('kpiSpvGrowthBadge');
+      grEl.textContent = formatPct1Dec(growthVal, true);
+      grBadge.textContent = formatPct1Dec(growthVal, true);
+      document.getElementById('kpiSpvLySub').textContent = `TOTAL SALES LY: ${formatRupiah(sumTotalLy)}`;
+      if (growthVal >= 0) {
+        grEl.className = 'text-xl sm:text-2xl font-extrabold text-emerald-600 tabular-nums';
+        grBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800';
+      } else {
+        grEl.className = 'text-xl sm:text-2xl font-extrabold text-rose-600 tabular-nums';
+        grBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800';
+      }
+
+      const detailCard = document.getElementById('spvDetailCard');
+      if (selectedNama !== 'ALL' && displayRows.length > 0) {
+        const spv = displayRows[0];
+        detailCard.classList.remove('hidden');
+        document.getElementById('spvCardNama').textContent = spv.nama;
+        document.getElementById('spvCardJabatan').textContent = spv.jabatan || '-';
+        document.getElementById('spvCardLine2').textContent =
+          `SALES DP: ${formatRupiah(spv.salesDp)} (vs LY: ${formatPct1Dec(spv.vsLyDp, true)}, Ach: ${formatPct1Dec(spv.achDp)}) | SALES CV: ${formatRupiah(spv.salesCv)} (vs LY: ${formatPct1Dec(spv.vsLyCv, true)}, Ach: ${formatPct1Dec(spv.achCv)})`;
+        document.getElementById('spvCardLine3').textContent =
+          `TOTAL SALES: ${formatRupiah(spv.totalSalesTy)} | TARGET PRORATA: ${formatRupiah(spv.totalTarget)} (DP: ${formatRupiah(spv.targetDp)} • CV: ${formatRupiah(spv.targetCv)})`;
+
+        const line4 = document.getElementById('spvCardLine4');
+        line4.innerHTML = `<span>Ach Total:</span> <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold ${getSpvPctBadgeClass(spv.achTotal)}">${formatPct1Dec(spv.achTotal)}</span>`;
+
+        document.getElementById('spvCardLine5').textContent =
+          `vs LY Total: ${formatPct1Dec(spv.vsLyTotal, true)} (TOTAL SALES LY: ${formatRupiah(spv.totalSalesLy)})`;
+        document.getElementById('spvCardLine6').textContent =
+          `SALES LY DP: ${formatRupiah(spv.salesLyDp)} | SALES LY CV: ${formatRupiah(spv.salesLyCv)}`;
+      } else {
+        detailCard.classList.add('hidden');
+      }
+
+      document.getElementById('spvTableCountBadge').textContent = `${displayRows.length} SPV`;
+      const tbody = document.getElementById('spvTableBody');
+      const tfoot = document.getElementById('spvTableFoot');
+
+      if (!displayRows.length) {
+        tbody.innerHTML = `<tr><td colspan="11" class="py-10 px-4 text-center text-slate-400">Tidak ada data SPV pada MASTER SPV.</td></tr>`;
+        tfoot.innerHTML = '';
+      } else {
+        tbody.innerHTML = displayRows.map(r => {
+          return `
+            <tr class="hover:bg-slate-50 transition">
+              <td class="py-3 px-4 font-bold text-slate-900 whitespace-nowrap">${escapeHTML(r.nama)}</td>
+              <td class="py-3 px-4 text-xs font-bold uppercase text-purple-700 whitespace-nowrap">${escapeHTML(r.jabatan || '-')}</td>
+              <td class="py-3 px-4 text-right font-bold text-indigo-700 whitespace-nowrap">${formatRupiah(r.salesDp)}</td>
+              <td class="py-3 px-3 text-center whitespace-nowrap">
+                <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-extrabold ${getSpvPctBadgeClass(r.vsLyDp)}">${formatPct1Dec(r.vsLyDp, true)}</span>
+              </td>
+              <td class="py-3 px-3 text-center whitespace-nowrap">
+                <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-extrabold ${getSpvPctBadgeClass(r.achDp)}">${formatPct1Dec(r.achDp)}</span>
+              </td>
+              <td class="py-3 px-4 text-right font-bold text-sky-700 whitespace-nowrap">${formatRupiah(r.salesCv)}</td>
+              <td class="py-3 px-3 text-center whitespace-nowrap">
+                <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-extrabold ${getSpvPctBadgeClass(r.vsLyCv)}">${formatPct1Dec(r.vsLyCv, true)}</span>
+              </td>
+              <td class="py-3 px-3 text-center whitespace-nowrap">
+                <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-extrabold ${getSpvPctBadgeClass(r.achCv)}">${formatPct1Dec(r.achCv)}</span>
+              </td>
+              <td class="py-3 px-4 text-right font-extrabold text-slate-900 whitespace-nowrap">${formatRupiah(r.totalSalesTy)}</td>
+              <td class="py-3 px-3 text-center whitespace-nowrap">
+                <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-extrabold ${getSpvPctBadgeClass(r.vsLyTotal)}">${formatPct1Dec(r.vsLyTotal, true)}</span>
+              </td>
+              <td class="py-3 px-3 text-center whitespace-nowrap">
+                <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-extrabold ${getSpvPctBadgeClass(r.achTotal)}">${formatPct1Dec(r.achTotal)}</span>
+              </td>
+            </tr>`;
+        }).join('');
+
+        tfoot.innerHTML = `
+          <tr>
+            <td colspan="2" class="py-3.5 px-4 text-slate-900 uppercase">TOTAL</td>
+            <td class="py-3.5 px-4 text-right text-indigo-800 whitespace-nowrap">${formatRupiah(sumSalesDp)}</td>
+            <td class="py-3.5 px-3 text-center whitespace-nowrap">
+              <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-extrabold ${getSpvPctBadgeClass(vsLyDpTot)}">${formatPct1Dec(vsLyDpTot, true)}</span>
+            </td>
+            <td class="py-3.5 px-3 text-center whitespace-nowrap">
+              <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-extrabold ${getSpvPctBadgeClass(achDpTot)}">${formatPct1Dec(achDpTot)}</span>
+            </td>
+            <td class="py-3.5 px-4 text-right text-sky-800 whitespace-nowrap">${formatRupiah(sumSalesCv)}</td>
+            <td class="py-3.5 px-3 text-center whitespace-nowrap">
+              <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-extrabold ${getSpvPctBadgeClass(vsLyCvTot)}">${formatPct1Dec(vsLyCvTot, true)}</span>
+            </td>
+            <td class="py-3.5 px-3 text-center whitespace-nowrap">
+              <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-extrabold ${getSpvPctBadgeClass(achCvTot)}">${formatPct1Dec(achCvTot)}</span>
+            </td>
+            <td class="py-3.5 px-4 text-right text-slate-900 whitespace-nowrap">${formatRupiah(sumTotalTy)}</td>
+            <td class="py-3.5 px-3 text-center whitespace-nowrap">
+              <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-extrabold ${getSpvPctBadgeClass(growthVal)}">${formatPct1Dec(growthVal, true)}</span>
+            </td>
+            <td class="py-3.5 px-3 text-center whitespace-nowrap">
+              <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-extrabold ${getSpvPctBadgeClass(achVal)}">${formatPct1Dec(achVal)}</span>
+            </td>
+          </tr>`;
+      }
+
+      renderSpvCharts(displayRows, sumTotalTy, sumTotalTarget, sumTotalLy, achVal, growthVal);
+    }
+
+    function renderSpvCharts(rows, sumTotalTy, sumTotalTarget, sumTotalLy, achVal, growthVal) {
+      const labels = rows.map(r => r.nama.slice(0, 18));
+
+      const ctx1 = document.getElementById('chartSpvGrouped').getContext('2d');
+      if (STATE.charts.spvGrouped) STATE.charts.spvGrouped.destroy();
+      STATE.charts.spvGrouped = new Chart(ctx1, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Sales DP', data: rows.map(r => r.salesDp), backgroundColor: '#4F46E5', borderRadius: 6 },
+            { label: 'Sales CV', data: rows.map(r => r.salesCv), backgroundColor: '#0EA5E9', borderRadius: 6 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'top', labels: { usePointStyle: true, font: { size: 11, weight: '600' } } },
+            tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${formatRupiah(c.raw)}` } }
+          },
+          scales: {
+            y: { beginAtZero: true, grid: { color: '#F1F5F9' }, ticks: { font: { size: 11 }, callback: v => 'Rp ' + (v / 1000000).toFixed(0) + 'jt' } },
+            x: { grid: { display: false }, ticks: { font: { size: 10, weight: '600' } } }
+          }
+        }
+      });
+
+      const achFilled = Math.max(0, Math.min(100, achVal));
+      const achRemain = Math.max(0, 100 - achFilled);
+      const achColor = achVal >= 100 ? '#10B981' : achVal >= 80 ? '#F59E0B' : '#F43F5E';
+      const centerAchEl = document.getElementById('spvCenterAchVal');
+      if (centerAchEl) centerAchEl.textContent = formatPct1Dec(achVal, false);
+
+      const ctx2 = document.getElementById('chartSpvRingAch').getContext('2d');
+      if (STATE.charts.spvRingAch) STATE.charts.spvRingAch.destroy();
+      STATE.charts.spvRingAch = new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+          labels: ['', ''],
+          datasets: [{
+            data: sumTotalTarget > 0 ? [achFilled, achRemain] : [0, 100],
+            backgroundColor: [achColor, '#E2E8F0'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '72%',
+          plugins: {
+            legend: { display: false },
+            tooltip: { enabled: false }
+          }
+        }
+      });
+
+      const absGrowth = Math.min(100, Math.abs(growthVal));
+      const growthRemain = Math.max(0, 100 - absGrowth);
+      const growthColor = growthVal >= 0 ? '#7C3AED' : '#F43F5E';
+      const centerGrEl = document.getElementById('spvCenterGrowthVal');
+      if (centerGrEl) centerGrEl.textContent = formatPct1Dec(growthVal, true);
+
+      const ctx3 = document.getElementById('chartSpvRingGrowth').getContext('2d');
+      if (STATE.charts.spvRingGrowth) STATE.charts.spvRingGrowth.destroy();
+      STATE.charts.spvRingGrowth = new Chart(ctx3, {
+        type: 'doughnut',
+        data: {
+          labels: ['', ''],
+          datasets: [{
+            data: sumTotalLy > 0 ? [absGrowth, growthRemain] : [0, 100],
+            backgroundColor: [growthColor, '#E2E8F0'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '72%',
+          plugins: {
+            legend: { display: false },
+            tooltip: { enabled: false }
+          }
+        }
+      });
+    }
+
+    function renderAll() {
+      renderBrandView();
+      renderPersonView();
+      renderShopntalkView();
+      renderSpvView();
+    }
+
+    // =========================================================================
+    // 9. CSV EXPORT, NAVIGATION & TOAST
+    // =========================================================================
+    function exportCSV(key) {
+      let headers = [];
+      let rows = [];
+      const stamp = new Date().toISOString().slice(0, 10);
+
+      if (key === 'brand') {
+        headers = ['Brand', 'Dept', 'Category', 'Sales_Rp', 'Qty', 'TOTAL INVENTORY', '0_3_Bln', '4_6_Bln', '6_9_Bln', '9_12_Bln', 'Lebih_12_Bln'];
+        rows = STATE.exportedRows.brand.map(r => [r.brand, r.dept, r.category, r.sales, r.qty, r.invTotal, r.m0_3, r.m4_6, r.m6_9, r.m9_12, r.m12_plus]);
+      } else if (key === 'person') {
+        headers = ['RANK', 'BARCODE', 'NAMA', 'SALES', 'QTY', 'TARGET', 'ACH', 'JABATAN'];
+        rows = STATE.exportedRows.person.map(r => [r.rank, r.barcode, r.nama, r.sales, r.qty, r.target, `${r.ach}%`, r.jabatan]);
+      } else if (key === 'shopntalk') {
+        headers = ['RANK', 'BARCODE', 'NAMA', 'SALES', 'QTY', 'TARGET', 'ACH', 'JABATAN'];
+        rows = STATE.exportedRows.shopntalk.map(r => [r.rank, r.barcode, r.nama, r.sales, r.qty, r.target, `${r.ach.toFixed(1)}%`, r.jabatan]);
+      } else if (key === 'spv') {
+        headers = ['NAMA', 'JABATAN', 'SALES_DP', 'vs_LY_DP_Pct', 'Ach_DP_Pct', 'SALES_CV', 'vs_LY_CV_Pct', 'Ach_CV_Pct', 'TOTAL_SALES', 'vs_LY_TOTAL_Pct', 'Ach_TOTAL_Pct'];
+        rows = STATE.exportedRows.spv.map(r => [
+          r.nama,
+          r.jabatan,
+          Math.round(r.salesDp),
+          formatPct1Dec(r.vsLyDp, true),
+          formatPct1Dec(r.achDp),
+          Math.round(r.salesCv),
+          formatPct1Dec(r.vsLyCv, true),
+          formatPct1Dec(r.achCv),
+          Math.round(r.totalSalesTy),
+          formatPct1Dec(r.vsLyTotal, true),
+          formatPct1Dec(r.achTotal)
+        ]);
+      }
+
+      if (!rows.length) {
+        showToast('Tidak ada data untuk di-export');
+        return;
+      }
+
+      const csv = [
+        headers.join(','),
+        ...rows.map(line => line.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(','))
+      ].join('\n');
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `mds_mandau_city_${key}_${stamp}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast(`Exported mds_mandau_city_${key}_${stamp}.csv`);
+    }
+
+    function switchTab(tabId) {
+      STATE.activeTab = tabId;
+      ['brand', 'person', 'shopntalk', 'spv'].forEach(t => {
+        const viewEl = document.getElementById(`view-${t}`);
+        const dBtn = document.getElementById(`nav-desk-${t}`);
+        const mBtn = document.getElementById(`nav-mob-${t}`);
+        if (t === tabId) {
+          if (viewEl) viewEl.classList.remove('hidden');
+          if (dBtn) dBtn.className = 'px-3.5 py-2 rounded-lg text-xs font-bold bg-white text-indigo-700 shadow-xs transition';
+          if (mBtn) mBtn.className = 'py-2 px-1 rounded-xl text-[11px] font-bold bg-indigo-50 text-indigo-700 text-center transition';
+        } else {
+          if (viewEl) viewEl.classList.add('hidden');
+          if (dBtn) dBtn.className = 'px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition';
+          if (mBtn) mBtn.className = 'py-2 px-1 rounded-xl text-[11px] font-semibold text-slate-600 hover:bg-slate-50 text-center transition';
+        }
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showToast(msg) {
+      const box = document.getElementById('toastBox');
+      document.getElementById('toastText').textContent = msg;
+      box.classList.remove('hidden');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => box.classList.add('hidden'), 3000);
+    }
+
+    // Expose functions explicitly on window for inline onclick handlers
+    window.switchTab = switchTab;
+    window.loadAllData = loadAllData;
+    window.fetchData = fetchData;
+    window.resetCurrentTabFilters = resetCurrentTabFilters;
+    window.resetBrandFilters = resetBrandFilters;
+    window.resetPersonFilters = resetPersonFilters;
+    window.resetShopntalkFilters = resetShopntalkFilters;
+    window.resetSpvFilters = resetSpvFilters;
+    window.renderBrandView = renderBrandView;
+    window.renderPersonView = renderPersonView;
+    window.renderShopntalkView = renderShopntalkView;
+    window.renderSpvView = renderSpvView;
+    window.onBrandDropdownChange = onBrandDropdownChange;
+    window.onBrandSortDropdownChange = onBrandSortDropdownChange;
+    window.toggleBrandSort = toggleBrandSort;
+    window.onPersonSortDropdownChange = onPersonSortDropdownChange;
+    window.togglePersonSort = togglePersonSort;
+    window.selectPersonRow = selectPersonRow;
+    window.onShopntalkSortDropdownChange = onShopntalkSortDropdownChange;
+    window.toggleShopntalkSort = toggleShopntalkSort;
+    window.selectShopntalkRow = selectShopntalkRow;
+    window.applySpvDateFilter = applySpvDateFilter;
+    window.swapDates = swapDates;
+    window.exportCSV = exportCSV;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadAllData();
+    });
+  </script>
+  <script>
+    function titleCase(str) {
+      return str.toLowerCase().replace(/(^|\s|[-(/])\w/g, function(c) { return c.toUpperCase(); });
+    }
+    function fixCaps() {
+      var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+      var node;
+      while (node = walker.nextNode()) {
+        var t = node.nodeValue;
+        if (t && t.trim() && t === t.toUpperCase() && /[A-Z]/.test(t)) {
+          node.nodeValue = titleCase(t);
+        }
+      }
+      document.querySelectorAll('*').forEach(function(el) {
+        el.style.textTransform = 'none';
+      });
+    }
+    fixCaps();
+    setInterval(fixCaps, 1500);
+  </script>
+</body>
+</html>
