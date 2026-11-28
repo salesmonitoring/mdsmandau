@@ -1153,7 +1153,7 @@ main { padding-top: 8px !important; }
   }
   if (s.includes('/')) {
     const p = s.split('/');
-    return new Date(+p[2], +p[1] - 1, +p[0]);
+    return new Date(+p[2], +p[0] - 1, +p[1]);
   }
   const MONTHS = {januari:0, january:0, jan:0, februari:1, february:1, feb:1, maret:2, march:2, mar:2, april:3, apr:3, mei:4, may:4, juni:5, june:5, jun:5, juli:6, july:6, jul:6, agustus:7, august:7, aug:7, september:8, sept:8, sep:8, oktober:9, october:9, okt:9, oct:9, november:10, nov:10, desember:11, december:11, dec:11, des:11};
   const m = s.toLowerCase().replace(/,/g,'').replace(/\./g,'').split(/\s+/);
