@@ -2163,7 +2163,7 @@ setT('shopntalkRowCount', 'Dihitung dari ' + filteredRows.length + ' baris');
 setT('shopntalkAvgPrice', 'Avg Price/Pc: Rp ' + (totalQty ? Math.round(totalSales/totalQty) : 0).toLocaleString('id-ID'));
 
   const tbody = document.getElementById('shopntalkTableBody');
-  if(tbody).innerHTML = rows.map((r,i) =>{
+  if(tbody) tbody.innerHTML = rows.map((r,i) =>{
     return '<tr><td>' + (i+1) + '</td><td>' + r.barcode + '</td><td>' + r.nama + '</td><td>' + (r.jabatan||'') + '</td><td>Rp ' + r.sales.toLocaleString('id-ID') + '</td><td>' + r.qty + '</td><td>Rp ' + r.target.toLocaleString('id-ID') + '</td><td>' + r.ach.toFixed(1) + '%</td></tr>';
   }).join('') || '<tr><td colspan="8">Tidak ada data</td></tr>';
 
